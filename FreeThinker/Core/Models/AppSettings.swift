@@ -34,6 +34,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public static let maxCustomInstructionLength = 300
 
     public var schemaVersion: Int
+    public var hotkeyEnabled: Bool = true
     public var hotkeyModifiers: Int
     public var hotkeyKeyCode: Int
     public var prompt1: String
@@ -48,6 +49,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
 
     public init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
+        hotkeyEnabled: Bool = true,
         hotkeyModifiers: Int = 1_179_648,
         hotkeyKeyCode: Int = 35,
         prompt1: String = AppSettings.defaultPrompt1,
@@ -61,6 +63,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
         aiTimeoutSeconds: TimeInterval = 5.0
     ) {
         self.schemaVersion = schemaVersion
+        self.hotkeyEnabled = hotkeyEnabled
         self.hotkeyModifiers = hotkeyModifiers
         self.hotkeyKeyCode = hotkeyKeyCode
         self.prompt1 = prompt1

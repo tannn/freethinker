@@ -8,10 +8,8 @@ public actor FoundationModelsAdapter: FoundationModelsAdapterProtocol {
     private var cachedModelOption: ModelOption?
 
 #if canImport(FoundationModels)
-    @available(macOS 26.0, *)
-    private var model: SystemLanguageModel?
-    @available(macOS 26.0, *)
-    private var session: LanguageModelSession?
+    private var modelStorage: Any?
+    private var sessionStorage: Any?
 #endif
 
     public init() {}
@@ -67,8 +65,8 @@ public actor FoundationModelsAdapter: FoundationModelsAdapterProtocol {
             throw FreeThinkerError.modelUnavailable
         }
 
-        self.model = selectedModel
-        self.session = LanguageModelSession(model: selectedModel)
+        self.modelStorage = selectedModel
+        self.sessionStorage = LanguageModelSession(model: selectedModel)
         self.cachedModelOption = option
 #else
         throw FreeThinkerError.frameworkUnavailable
@@ -90,7 +88,7 @@ public actor FoundationModelsAdapter: FoundationModelsAdapterProtocol {
         )
 
 #if canImport(FoundationModels)
-        guard #available(macOS 26.0, *), let session else {
+        guard #available(macOS 26.0, *), let session = sessionStorage as? LanguageModelSession else {
             throw FreeThinkerError.modelUnavailable
         }
 

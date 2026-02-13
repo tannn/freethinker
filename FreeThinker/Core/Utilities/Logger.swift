@@ -6,6 +6,10 @@ public enum Logger {
         case foundationModels = "foundation-models"
         case promptComposer = "prompt-composer"
         case parser = "response-parser"
+        case orchestrator = "orchestrator"
+        case hotkey = "hotkey"
+        case textCapture = "text-capture"
+        case menuBar = "menu-bar"
     }
 
     private static let subsystem = "com.freethinker.app"

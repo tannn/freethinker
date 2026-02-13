@@ -31,10 +31,13 @@ public final class UserDefaultsPanelPinningStore: PanelPinningStore, @unchecked 
 @MainActor
 public final class AppState: ObservableObject {
     @Published public private(set) var settings: AppSettings
+    @Published public private(set) var isGenerating: Bool = false
 
     public let panelViewModel: FloatingPanelViewModel
 
     public var onRegenerateRequested: ((_ regenerateFromResponseID: UUID?) async -> Void)?
+    public var onCloseRequested: (() -> Void)?
+    public var onSettingsUpdated: ((AppSettings) -> Void)?
 
     private let pinningStore: any PanelPinningStore
     private var panelController: FloatingPanelController?
@@ -45,18 +48,20 @@ public final class AppState: ObservableObject {
         timing: any FloatingPanelTiming = SystemFloatingPanelTiming(),
         pasteboardWriter: ((String) -> Void)? = nil
     ) {
+        let validatedSettings = settings.validated()
+
         let resolvedPasteboardWriter: (String) -> Void = pasteboardWriter ?? { text in
             let pasteboard = NSPasteboard.general
             pasteboard.clearContents()
             pasteboard.setString(text, forType: .string)
         }
 
-        self.settings = settings.validated()
+        self.settings = validatedSettings
         self.pinningStore = pinningStore
 
         panelViewModel = FloatingPanelViewModel(
             isPinned: pinningStore.loadPinnedState(),
-            dismissOnCopy: self.settings.dismissOnCopy,
+            dismissOnCopy: validatedSettings.dismissOnCopy,
             timing: timing,
             pasteboardWriter: resolvedPasteboardWriter
         )
@@ -70,6 +75,7 @@ public final class AppState: ObservableObject {
         }
 
         panelViewModel.onCloseRequested = { [weak self] in
+            self?.onCloseRequested?()
             self?.panelController?.hide()
         }
     }
@@ -79,11 +85,13 @@ public final class AppState: ObservableObject {
     }
 
     public func presentLoading(selectedText: String? = nil) {
+        isGenerating = true
         panelViewModel.setLoading(selectedTextPreview: selectedText)
         panelController?.show()
     }
 
     public func present(response: ProvocationResponse) {
+        isGenerating = false
         panelController?.show()
 
         if case .success = response.outcome {
@@ -95,11 +103,25 @@ public final class AppState: ObservableObject {
     }
 
     public func presentError(_ error: FreeThinkerError) {
+        isGenerating = false
         panelController?.show()
         panelViewModel.setError(error)
     }
 
+    public func presentErrorPresentation(_ presentation: ErrorPresentation) {
+        isGenerating = false
+        panelController?.show()
+        panelViewModel.setErrorPresentation(presentation)
+    }
+
+    public func presentErrorMessage(_ message: String) {
+        isGenerating = false
+        panelController?.show()
+        panelViewModel.setErrorMessage(message)
+    }
+
     public func dismissPanel() {
+        isGenerating = false
         panelViewModel.setIdle()
         panelController?.hide()
     }
@@ -107,5 +129,14 @@ public final class AppState: ObservableObject {
     public func updateSettings(_ settings: AppSettings) {
         self.settings = settings.validated()
         panelViewModel.dismissOnCopy = self.settings.dismissOnCopy
+        onSettingsUpdated?(self.settings)
+    }
+
+    public func setGenerating(_ isGenerating: Bool) {
+        self.isGenerating = isGenerating
+    }
+
+    public var isPanelVisible: Bool {
+        panelController?.panel.isVisible ?? false
     }
 }

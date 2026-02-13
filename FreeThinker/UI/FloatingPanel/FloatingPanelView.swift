@@ -84,11 +84,17 @@ public struct FloatingPanelView: View {
             if let content = response.content {
                 FloatingPanelResponseCard(content: content)
             } else {
-                FloatingPanelErrorCallout(message: FreeThinkerError.invalidResponse.userMessage)
+                FloatingPanelErrorCallout(
+                    message: FreeThinkerError.invalidResponse.userMessage,
+                    suggestedAction: viewModel.suggestedActionMessage
+                )
             }
 
         case let .error(message):
-            FloatingPanelErrorCallout(message: message)
+            FloatingPanelErrorCallout(
+                message: message,
+                suggestedAction: viewModel.suggestedActionMessage
+            )
         }
     }
 

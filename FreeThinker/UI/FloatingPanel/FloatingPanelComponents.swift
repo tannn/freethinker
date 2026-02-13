@@ -63,9 +63,11 @@ public struct FloatingPanelResponseCard: View {
 
 public struct FloatingPanelErrorCallout: View {
     private let message: String
+    private let suggestedAction: String?
 
-    public init(message: String) {
+    public init(message: String, suggestedAction: String? = nil) {
         self.message = message
+        self.suggestedAction = suggestedAction
     }
 
     public var body: some View {
@@ -78,6 +80,13 @@ public struct FloatingPanelErrorCallout: View {
                 .font(.subheadline)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)
+
+            if let suggestedAction {
+                Text(suggestedAction)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(FloatingPanelDesignTokens.regularSpacing)
         .frame(maxWidth: .infinity, alignment: .leading)

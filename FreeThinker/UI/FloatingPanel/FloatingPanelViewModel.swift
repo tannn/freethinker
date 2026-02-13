@@ -27,6 +27,7 @@ public final class FloatingPanelViewModel: ObservableObject {
     @Published public private(set) var isPinned: Bool
     @Published public private(set) var isRegenerating: Bool = false
     @Published public private(set) var copyFeedback: String?
+    @Published public private(set) var suggestedAction: ErrorPresentationAction?
 
     public var onCloseRequested: (() -> Void)?
     public var onRegenerateRequested: ((_ regenerateFromResponseID: UUID?) async -> Void)?
@@ -63,6 +64,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         state = .idle
         isRegenerating = false
         copyFeedback = nil
+        suggestedAction = nil
         cancelTransientTasks()
     }
 
@@ -70,6 +72,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         state = .loading(selectedTextPreview: normalizedPreview(selectedTextPreview))
         isRegenerating = false
         copyFeedback = nil
+        suggestedAction = nil
         cancelTransientTasks()
     }
 
@@ -77,6 +80,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         state = .success(response: response)
         isRegenerating = false
         copyFeedback = nil
+        suggestedAction = nil
         scheduleAutoDismissIfNeeded()
     }
 
@@ -84,10 +88,19 @@ public final class FloatingPanelViewModel: ObservableObject {
         setErrorMessage(error.userMessage)
     }
 
+    public func setErrorPresentation(_ presentation: ErrorPresentation) {
+        state = .error(message: presentation.message)
+        isRegenerating = false
+        copyFeedback = nil
+        suggestedAction = presentation.action == .none ? nil : presentation.action
+        scheduleAutoDismissIfNeeded()
+    }
+
     public func setErrorMessage(_ message: String) {
         state = .error(message: message)
         isRegenerating = false
         copyFeedback = nil
+        suggestedAction = nil
         scheduleAutoDismissIfNeeded()
     }
 
@@ -176,6 +189,25 @@ public final class FloatingPanelViewModel: ObservableObject {
 
         let followUp = content.followUpQuestion.map { "\n\nFollow-up: \($0)" } ?? ""
         return "\(content.headline)\n\n\(content.body)\(followUp)"
+    }
+
+    public var suggestedActionMessage: String? {
+        guard let suggestedAction else {
+            return nil
+        }
+
+        switch suggestedAction {
+        case .retry:
+            return "Suggested action: Retry."
+        case .openAccessibilitySettings:
+            return "Suggested action: Open Accessibility settings."
+        case .openHotkeySettings:
+            return "Suggested action: Open hotkey settings."
+        case .openSettings:
+            return "Suggested action: Open settings."
+        case .none:
+            return nil
+        }
     }
 }
 
