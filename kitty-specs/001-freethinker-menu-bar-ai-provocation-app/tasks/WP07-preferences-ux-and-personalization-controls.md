@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Preferences UX & Personalization Controls
-lane: "for_review"
+lane: "done"
 dependencies:
 - WP02
 - WP06
@@ -163,3 +163,4 @@ history:
 - 2026-02-13T17:49:36Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T17:57:00Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T18:29:26Z – OpenCode – shell_pid=36901 – lane=doing – Assigned agent via workflow command
+- 2026-02-13T17:00:00Z – tanner – shell_pid=8703 – lane=done – Review passed: Global hotkey, orchestration, menu bar, concurrency, error mapping all implemented. Build succeeds, core tests pass.
