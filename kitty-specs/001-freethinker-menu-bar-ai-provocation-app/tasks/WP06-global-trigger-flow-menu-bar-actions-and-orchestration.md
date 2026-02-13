@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP06"
-subtasks:
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-title: "Global Trigger Flow, Menu Bar Actions & Orchestration"
-phase: "Phase 3 - User Story Delivery"
+work_package_id: WP06
+title: Global Trigger Flow, Menu Bar Actions & Orchestration
 lane: "doing"
 dependencies:
-  - "WP03"
-  - "WP04"
-  - "WP05"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP03
+- WP04
+- WP05
+base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP05
+base_commit: e078bb639dc8797382e564372fab9a90854b3df9
+created_at: '2026-02-13T09:08:04.420497+00:00'
+subtasks:
+- T028
+- T029
+- T030
+- T031
+- T032
+- T033
+phase: Phase 3 - User Story Delivery
+assignee: ''
+agent: "tanner"
+shell_pid: "8703"
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Global Trigger Flow, Menu Bar Actions & Orchestration
@@ -166,3 +169,4 @@ history:
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
 - 2026-02-13T09:08:03Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T16:53:57Z – tanner – shell_pid=8703 – lane=doing – Started review via workflow command
