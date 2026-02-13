@@ -29,7 +29,7 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
 
         OUTPUT FORMAT (exactly these labels, one block each):
         HEADLINE: <single-line insight, max 90 chars>
-        BODY: <1-3 sentences, max 300 chars, plain text>
+        BODY: <1-3 sentences, max 250 chars, plain text>
         FOLLOW_UP: <one optional question, or NONE>
 
         RULES:
@@ -67,7 +67,7 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
 
         OUTPUT FORMAT:
         HEADLINE: <single-line insight, max 90 chars>
-        BODY: <1-3 sentences, max 300 chars, plain text>
+        BODY: <1-3 sentences, max 250 chars, plain text>
         FOLLOW_UP: <one optional question, or NONE>
 
         SELECTED_TEXT:

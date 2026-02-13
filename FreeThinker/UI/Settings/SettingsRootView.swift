@@ -14,6 +14,7 @@ public struct SettingsRootView: View {
     @ObservedObject private var navigationState: SettingsNavigationState
 
     private let onCheckForUpdates: (() -> Void)?
+    @State private var localSelectedSection: SettingsSection? = nil
 
     public init(
         appState: AppState,
@@ -23,19 +24,26 @@ public struct SettingsRootView: View {
         self.appState = appState
         self.navigationState = navigationState
         self.onCheckForUpdates = onCheckForUpdates
+        self._localSelectedSection = State(initialValue: navigationState.selectedSection)
     }
 
     public var body: some View {
         NavigationSplitView {
-            List(SettingsSection.allCases, selection: sectionSelection) { section in
+            List(SettingsSection.allCases, selection: $localSelectedSection) { section in
                 Label(section.title, systemImage: iconName(for: section))
                     .accessibilityIdentifier(accessibilityIdentifier(for: section))
                     .tag(section)
             }
             .accessibilityIdentifier(SettingsAccessibility.Identifier.sidebar)
             .frame(minWidth: 220)
+            .onChange(of: localSelectedSection) { _, newValue in
+                let newSection = newValue ?? .general
+                if navigationState.selectedSection != newSection {
+                    navigationState.selectedSection = newSection
+                }
+            }
         } detail: {
-            detailView(for: navigationState.selectedSection)
+            detailView(for: localSelectedSection ?? navigationState.selectedSection)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .frame(minWidth: 760, idealWidth: 840, minHeight: 460, idealHeight: 520)
@@ -44,13 +52,6 @@ public struct SettingsRootView: View {
 }
 
 private extension SettingsRootView {
-    var sectionSelection: Binding<SettingsSection?> {
-        Binding<SettingsSection?>(
-            get: { navigationState.selectedSection },
-            set: { navigationState.selectedSection = $0 ?? .general }
-        )
-    }
-
     @ViewBuilder
     func detailView(for section: SettingsSection) -> some View {
         switch section {
