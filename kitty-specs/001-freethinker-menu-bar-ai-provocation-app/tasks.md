@@ -31,11 +31,11 @@
 **Estimated Prompt Size**: ~360 lines
 
 ### Included Subtasks
-- [ ] T001 Create Xcode project structure and module folders to match `App/Core/UI/Resources` architecture.
+- [x] T001 Create Xcode project structure and module folders to match `App/Core/UI/Resources` architecture.
 - [x] T002 Configure build settings for macOS 26+, Apple Silicon target, and unsandboxed Accessibility-compatible distribution.
 - [x] T003 Wire application entry points (`App`, `AppDelegate`, dependency container bootstrap) for menu bar lifecycle.
 - [x] T004 Define core domain models (`ProvocationRequest`, `ProvocationResponse`, `AppSettings`) and service protocols.
-- [ ] T005 Add shared error/logging primitives and architecture documentation notes to prevent boundary drift.
+- [x] T005 Add shared error/logging primitives and architecture documentation notes to prevent boundary drift.
 
 ### Implementation Notes
 - Establish file and target layout first so every later WP lands in stable paths.
@@ -64,11 +64,11 @@ Dependencies: None
 **Estimated Prompt Size**: ~340 lines
 
 ### Included Subtasks
-- [ ] T006 Implement `SettingsService` as an actor backed by UserDefaults with schema-aware defaults.
-- [ ] T007 Create `@Observable` app state store that syncs settings and exposes reactive values to SwiftUI views.
+- [x] T006 Implement `SettingsService` as an actor backed by UserDefaults with schema-aware defaults.
+- [x] T007 Create `@Observable` app state store that syncs settings and exposes reactive values to SwiftUI views.
 - [x] T008 Implement launch-at-login wrapper via `SMAppService` with deterministic error mapping.
-- [ ] T009 Add settings validation, migration/versioning hooks, and reset-to-default behavior.
-- [ ] T010 Add unit tests for settings persistence, migration, and launch-at-login behavior using protocol mocks.
+- [x] T009 Add settings validation, migration/versioning hooks, and reset-to-default behavior.
+- [x] T010 Add unit tests for settings persistence, migration, and launch-at-login behavior using protocol mocks.
 
 ### Implementation Notes
 - Keep settings keys centralized to prevent divergent key names.
