@@ -97,7 +97,7 @@ Dependencies: WP01
 
 ### Included Subtasks
 - [x] T011 Implement Accessibility permission manager (check/request/open system settings).
-- [ ] T012 Build AXUIElement-based selected text extractor for focused UI element and selected range.
+- [x] T012 Build AXUIElement-based selected text extractor for focused UI element and selected range.
 - [ ] T013 Add safe fallback capture path (clipboard-assisted capture + restoration) for unsupported elements.
 - [ ] T014 Implement `TextCaptureService` actor with structured `CaptureResult` and error taxonomy.
 - [ ] T015 Integrate preflight permission checks into hotkey/menu trigger entry points.
