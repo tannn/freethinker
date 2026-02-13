@@ -130,7 +130,7 @@ Dependencies: WP01, WP02
 
 ### Included Subtasks
 - [x] T017 Implement FoundationModels adapter around `SystemLanguageModel.default` with availability checks.
-- [ ] T018 Build prompt composer for provocation style, tone, and user custom instruction blending.
+- [x] T018 Build prompt composer for provocation style, tone, and user custom instruction blending.
 - [ ] T019 Implement `AIService` actor with async generation, cancellation support, and timeout handling.
 - [ ] T020 Normalize model output into `ProvocationResponse` (headline, body, optional follow-up prompt).
 - [ ] T021 Add unit tests for prompt composition and AI error mapping using service protocol mocks.
