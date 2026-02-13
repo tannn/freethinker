@@ -10,7 +10,7 @@
 
 ### Core Entities
 1. **ProvocationRequest** - Input to AI service
-2. **ProvocationResponse** - Output from AI service  
+2. **ProvocationResponse** - Output from AI service
 3. **AppSettings** - User preferences (persistent)
 4. **AppState** - Runtime application state (non-persistent)
 
@@ -75,7 +75,7 @@ struct ProvocationResponse: Codable, Identifiable {
     let requestId: UUID
     let originalText: String
     let provocationType: ProvocationType
-    let content: String
+    let content: String?
     let generationTime: TimeInterval
     let error: ProvocationError?
     let timestamp: Date
@@ -133,7 +133,9 @@ struct AppSettings: Codable {
     // MARK: - Behavior
     var launchAtLogin: Bool
     var selectedModel: ModelOption
-    
+    let isEphemeral: Bool = true  // Never persisted
+    var retryCount: Int = 0  // Limit to 3 retries
+
     // MARK: - UI Preferences
     var showMenuBarIcon: Bool
     var dismissOnCopy: Bool         // Auto-dismiss after copying provocation
@@ -188,6 +190,14 @@ enum ModelOption: String, Codable, CaseIterable, Identifiable {
 }
 ```
 
+Validate settings on load:
+```
+static func load() -> AppSettings {
+    let settings = // ... load logic
+    return settings.validated()  // Reset invalid values to defaults
+}
+```
+
 **Validation Rules**:
 - `hotkeyModifiers`: Must be valid NSEvent.ModifierFlags combination
 - `hotkeyKeyCode`: Must be valid CGKeyCode (0-127)
@@ -228,7 +238,7 @@ class AppState {
     var isGenerating: Bool = false
     var currentRequest: ProvocationRequest?
     var provocations: [ProvocationResponse] = []
-    var errorMessage: String?
+    var currentError: ProvocationError?
     
     // MARK: - UI State
     var isPanelVisible: Bool = false
@@ -262,6 +272,10 @@ class AppState {
     
     func setError(_ error: ProvocationError) {
         self.errorMessage = error.userMessage
+    }
+
+    func checkPermissions() {
+        hasAccessibilityPermission = AXIsProcessTrusted()
     }
 }
 ```
@@ -325,7 +339,7 @@ State: IDLE
 │   (Input)           │         │    (Output)         │
 ├─────────────────────┤         ├─────────────────────┤
 │ - selectedText      │         │ - requestId         │
-│ - provocationType   │         │ - content           │
+│ - provocationType   │         │ - content?          │
 │ - prompt            │         │ - error             │
 │ - timestamp         │         │ - generationTime    │
 └─────────────────────┘         └─────────────────────┘
