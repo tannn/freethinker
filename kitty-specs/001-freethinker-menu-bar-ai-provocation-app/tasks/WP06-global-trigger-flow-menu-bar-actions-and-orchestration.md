@@ -9,7 +9,7 @@ subtasks:
   - "T033"
 title: "Global Trigger Flow, Menu Bar Actions & Orchestration"
 phase: "Phase 3 - User Story Delivery"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP03"
   - "WP04"
@@ -165,4 +165,4 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T09:08:03Z – unknown – lane=doing – Automated: start implementation
