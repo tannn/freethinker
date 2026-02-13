@@ -71,7 +71,7 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public static let maxAutoDismissSeconds: TimeInterval = 20
 
     public var schemaVersion: Int
-    public var hotkeyEnabled: Bool = true
+    public var hotkeyEnabled: Bool
     public var hotkeyModifiers: Int
     public var hotkeyKeyCode: Int
     public var prompt1: String
@@ -82,6 +82,10 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var dismissOnCopy: Bool
     public var autoDismissSeconds: TimeInterval
     public var fallbackCaptureEnabled: Bool
+    public var diagnosticsEnabled: Bool
+    public var hasSeenOnboarding: Bool
+    public var onboardingCompleted: Bool
+    public var hotkeyAwarenessConfirmed: Bool
     public var provocationStylePreset: ProvocationStylePreset
     public var customStyleInstructions: String
     public var automaticallyCheckForUpdates: Bool
@@ -101,6 +105,10 @@ public struct AppSettings: Codable, Equatable, Sendable {
         dismissOnCopy: Bool = true,
         autoDismissSeconds: TimeInterval = 6.0,
         fallbackCaptureEnabled: Bool = true,
+        diagnosticsEnabled: Bool = false,
+        hasSeenOnboarding: Bool = false,
+        onboardingCompleted: Bool = false,
+        hotkeyAwarenessConfirmed: Bool = false,
         provocationStylePreset: ProvocationStylePreset = .socratic,
         customStyleInstructions: String = "",
         automaticallyCheckForUpdates: Bool = true,
@@ -119,6 +127,10 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.dismissOnCopy = dismissOnCopy
         self.autoDismissSeconds = autoDismissSeconds
         self.fallbackCaptureEnabled = fallbackCaptureEnabled
+        self.diagnosticsEnabled = diagnosticsEnabled
+        self.hasSeenOnboarding = hasSeenOnboarding
+        self.onboardingCompleted = onboardingCompleted
+        self.hotkeyAwarenessConfirmed = hotkeyAwarenessConfirmed
         self.provocationStylePreset = provocationStylePreset
         self.customStyleInstructions = customStyleInstructions
         self.automaticallyCheckForUpdates = automaticallyCheckForUpdates
@@ -141,6 +153,10 @@ private extension AppSettings {
         case dismissOnCopy
         case autoDismissSeconds
         case fallbackCaptureEnabled
+        case diagnosticsEnabled
+        case hasSeenOnboarding
+        case onboardingCompleted
+        case hotkeyAwarenessConfirmed
         case provocationStylePreset
         case customStyleInstructions
         case automaticallyCheckForUpdates
@@ -150,26 +166,31 @@ private extension AppSettings {
 }
 
 public extension AppSettings {
-    init(from decoder: Decoder) throws {
+    init(from decoder: any Decoder) throws {
+        let defaults = AppSettings()
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? Self.currentSchemaVersion
-        hotkeyEnabled = try container.decodeIfPresent(Bool.self, forKey: .hotkeyEnabled) ?? true
-        hotkeyModifiers = try container.decodeIfPresent(Int.self, forKey: .hotkeyModifiers) ?? 1_179_648
-        hotkeyKeyCode = try container.decodeIfPresent(Int.self, forKey: .hotkeyKeyCode) ?? 35
-        prompt1 = try container.decodeIfPresent(String.self, forKey: .prompt1) ?? Self.defaultPrompt1
-        prompt2 = try container.decodeIfPresent(String.self, forKey: .prompt2) ?? Self.defaultPrompt2
-        launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
-        selectedModel = try container.decodeIfPresent(ModelOption.self, forKey: .selectedModel) ?? .default
-        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
-        dismissOnCopy = try container.decodeIfPresent(Bool.self, forKey: .dismissOnCopy) ?? true
-        autoDismissSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .autoDismissSeconds) ?? 6.0
-        fallbackCaptureEnabled = try container.decodeIfPresent(Bool.self, forKey: .fallbackCaptureEnabled) ?? true
-        provocationStylePreset = try container.decodeIfPresent(ProvocationStylePreset.self, forKey: .provocationStylePreset) ?? .socratic
-        customStyleInstructions = try container.decodeIfPresent(String.self, forKey: .customStyleInstructions) ?? ""
-        automaticallyCheckForUpdates = try container.decodeIfPresent(Bool.self, forKey: .automaticallyCheckForUpdates) ?? true
-        appUpdateChannel = try container.decodeIfPresent(AppUpdateChannel.self, forKey: .appUpdateChannel) ?? .stable
-        aiTimeoutSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .aiTimeoutSeconds) ?? 5.0
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? defaults.schemaVersion
+        hotkeyEnabled = try container.decodeIfPresent(Bool.self, forKey: .hotkeyEnabled) ?? defaults.hotkeyEnabled
+        hotkeyModifiers = try container.decodeIfPresent(Int.self, forKey: .hotkeyModifiers) ?? defaults.hotkeyModifiers
+        hotkeyKeyCode = try container.decodeIfPresent(Int.self, forKey: .hotkeyKeyCode) ?? defaults.hotkeyKeyCode
+        prompt1 = try container.decodeIfPresent(String.self, forKey: .prompt1) ?? defaults.prompt1
+        prompt2 = try container.decodeIfPresent(String.self, forKey: .prompt2) ?? defaults.prompt2
+        launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? defaults.launchAtLogin
+        selectedModel = try container.decodeIfPresent(ModelOption.self, forKey: .selectedModel) ?? defaults.selectedModel
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? defaults.showMenuBarIcon
+        dismissOnCopy = try container.decodeIfPresent(Bool.self, forKey: .dismissOnCopy) ?? defaults.dismissOnCopy
+        autoDismissSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .autoDismissSeconds) ?? defaults.autoDismissSeconds
+        fallbackCaptureEnabled = try container.decodeIfPresent(Bool.self, forKey: .fallbackCaptureEnabled) ?? defaults.fallbackCaptureEnabled
+        diagnosticsEnabled = try container.decodeIfPresent(Bool.self, forKey: .diagnosticsEnabled) ?? defaults.diagnosticsEnabled
+        hasSeenOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasSeenOnboarding) ?? defaults.hasSeenOnboarding
+        onboardingCompleted = try container.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? defaults.onboardingCompleted
+        hotkeyAwarenessConfirmed = try container.decodeIfPresent(Bool.self, forKey: .hotkeyAwarenessConfirmed) ?? defaults.hotkeyAwarenessConfirmed
+        provocationStylePreset = try container.decodeIfPresent(ProvocationStylePreset.self, forKey: .provocationStylePreset) ?? defaults.provocationStylePreset
+        customStyleInstructions = try container.decodeIfPresent(String.self, forKey: .customStyleInstructions) ?? defaults.customStyleInstructions
+        automaticallyCheckForUpdates = try container.decodeIfPresent(Bool.self, forKey: .automaticallyCheckForUpdates) ?? defaults.automaticallyCheckForUpdates
+        appUpdateChannel = try container.decodeIfPresent(AppUpdateChannel.self, forKey: .appUpdateChannel) ?? defaults.appUpdateChannel
+        aiTimeoutSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .aiTimeoutSeconds) ?? defaults.aiTimeoutSeconds
     }
 }
 
@@ -212,6 +233,10 @@ public extension AppSettings {
             result.aiTimeoutSeconds = 1
         } else if result.aiTimeoutSeconds > 15 {
             result.aiTimeoutSeconds = 15
+        }
+
+        if result.onboardingCompleted {
+            result.hasSeenOnboarding = true
         }
 
         return result

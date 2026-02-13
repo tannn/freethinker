@@ -28,6 +28,30 @@ public final class UserDefaultsPanelPinningStore: PanelPinningStore, @unchecked 
     }
 }
 
+public struct OnboardingReadiness: Equatable, Sendable {
+    public var accessibilityGranted: Bool
+    public var hotkeyAwarenessConfirmed: Bool
+    public var modelAvailability: FoundationModelAvailability
+
+    public init(
+        accessibilityGranted: Bool = false,
+        hotkeyAwarenessConfirmed: Bool = false,
+        modelAvailability: FoundationModelAvailability = .modelUnavailable
+    ) {
+        self.accessibilityGranted = accessibilityGranted
+        self.hotkeyAwarenessConfirmed = hotkeyAwarenessConfirmed
+        self.modelAvailability = modelAvailability
+    }
+
+    public var isModelReady: Bool {
+        modelAvailability == .available
+    }
+
+    public var isChecklistComplete: Bool {
+        accessibilityGranted && hotkeyAwarenessConfirmed && isModelReady
+    }
+}
+
 @MainActor
 public final class AppState: ObservableObject {
     @Published public private(set) var settings: AppSettings
@@ -35,6 +59,9 @@ public final class AppState: ObservableObject {
     @Published public private(set) var settingsSaveErrorMessage: String?
     @Published public private(set) var settingsValidationMessage: String?
     @Published public private(set) var isPersistingSettings: Bool = false
+
+    @Published public private(set) var isOnboardingPresented: Bool
+    @Published public private(set) var onboardingReadiness: OnboardingReadiness
 
     public let panelViewModel: FloatingPanelViewModel
 
@@ -44,6 +71,8 @@ public final class AppState: ObservableObject {
     public var onSettingsPersistRequested: ((AppSettings) async throws -> Void)?
     public var onLaunchAtLoginChangeRequested: ((Bool) async throws -> Void)?
     public var onOpenSettingsRequested: ((SettingsSection) -> Void)?
+    public var onOnboardingPresentationChanged: ((Bool) -> Void)?
+    public var onExportDiagnosticsRequested: (() -> String)?
 
     private let pinningStore: any PanelPinningStore
     private var panelController: FloatingPanelController?
@@ -65,6 +94,10 @@ public final class AppState: ObservableObject {
 
         self.settings = validatedSettings
         self.pinningStore = pinningStore
+        self.isOnboardingPresented = !validatedSettings.hasSeenOnboarding
+        self.onboardingReadiness = OnboardingReadiness(
+            hotkeyAwarenessConfirmed: validatedSettings.hotkeyAwarenessConfirmed
+        )
 
         panelViewModel = FloatingPanelViewModel(
             isPinned: pinningStore.loadPinnedState(),
@@ -143,12 +176,14 @@ public final class AppState: ObservableObject {
             }
 
             guard candidate != self.settings else {
+                onboardingReadiness.hotkeyAwarenessConfirmed = candidate.hotkeyAwarenessConfirmed
                 return
             }
 
             self.settings = candidate
             panelViewModel.dismissOnCopy = self.settings.dismissOnCopy
             panelViewModel.autoDismissSeconds = self.settings.autoDismissSeconds
+            onboardingReadiness.hotkeyAwarenessConfirmed = self.settings.hotkeyAwarenessConfirmed
             onSettingsUpdated?(self.settings)
             persistSettingsIfNeeded(self.settings)
             return
@@ -159,6 +194,55 @@ public final class AppState: ObservableObject {
 
     public func setGenerating(_ isGenerating: Bool) {
         self.isGenerating = isGenerating
+    }
+
+    public func presentOnboarding() {
+        isOnboardingPresented = true
+        notifyOnboardingVisibilityChanged()
+    }
+
+    public func dismissOnboarding(markSeen: Bool = true) {
+        if markSeen, !settings.hasSeenOnboarding {
+            var updated = settings
+            updated.hasSeenOnboarding = true
+            self.settings = updated.validated()
+            onSettingsUpdated?(self.settings)
+            persistSettingsIfNeeded(self.settings)
+        }
+
+        isOnboardingPresented = false
+        notifyOnboardingVisibilityChanged()
+    }
+
+    public func completeOnboarding() {
+        var updated = settings
+        updated.hasSeenOnboarding = true
+        updated.onboardingCompleted = true
+        updated.hotkeyAwarenessConfirmed = onboardingReadiness.hotkeyAwarenessConfirmed
+        self.settings = updated.validated()
+        onSettingsUpdated?(self.settings)
+        persistSettingsIfNeeded(self.settings)
+
+        isOnboardingPresented = false
+        notifyOnboardingVisibilityChanged()
+    }
+
+    public func setHotkeyAwarenessConfirmed(_ isConfirmed: Bool) {
+        onboardingReadiness.hotkeyAwarenessConfirmed = isConfirmed
+
+        var updated = settings
+        updated.hotkeyAwarenessConfirmed = isConfirmed
+        self.settings = updated.validated()
+        onSettingsUpdated?(self.settings)
+        persistSettingsIfNeeded(self.settings)
+    }
+
+    public func updateOnboardingSystemReadiness(
+        accessibilityGranted: Bool,
+        modelAvailability: FoundationModelAvailability
+    ) {
+        onboardingReadiness.accessibilityGranted = accessibilityGranted
+        onboardingReadiness.modelAvailability = modelAvailability
     }
 
     public var isPanelVisible: Bool {
@@ -301,5 +385,9 @@ private extension AppState {
         }
 
         return error.localizedDescription
+    }
+
+    func notifyOnboardingVisibilityChanged() {
+        onOnboardingPresentationChanged?(isOnboardingPresented)
     }
 }

@@ -166,8 +166,7 @@ private final class MockFoundationModelsAdapter: FoundationModelsAdapterProtocol
             }
         }
 
-        let result: Result<String, Error>
-        result = await state.dequeueOrDefault()
+        let result: Result<String, Error> = await state.dequeueOrDefault()
 
         switch result {
         case .success(let value):
@@ -191,7 +190,7 @@ private extension MockFoundationModelsAdapter.State {
     }
 
     func dequeueOrDefault() -> Result<String, Error> {
-        if queue.isEmpty {
+        guard !queue.isEmpty else {
             return .success("HEADLINE: H\nBODY: B\nFOLLOW_UP: NONE")
         }
         return queue.removeFirst()

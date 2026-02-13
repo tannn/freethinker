@@ -4,18 +4,30 @@ import PackageDescription
 let package = Package(
     name: "FreeThinker",
     platforms: [
-        .macOS(.v13)
+        .macOS("26.0")
     ],
     products: [
         .library(
             name: "FreeThinker",
             targets: ["FreeThinker"]
+        ),
+        .executable(
+            name: "FreeThinkerApp",
+            targets: ["FreeThinkerApp"]
         )
     ],
     targets: [
         .target(
             name: "FreeThinker",
             path: "FreeThinker"
+        ),
+        .executableTarget(
+            name: "FreeThinkerApp",
+            dependencies: ["FreeThinker"],
+            path: "FreeThinkerApp",
+            resources: [
+                .copy("Resources")
+            ]
         ),
         .testTarget(
             name: "FreeThinkerTests",

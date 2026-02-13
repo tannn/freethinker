@@ -11,6 +11,8 @@ public enum Logger {
         case textCapture = "text-capture"
         case menuBar = "menu-bar"
         case settings = "settings"
+        case diagnostics = "diagnostics"
+        case onboarding = "onboarding"
     }
 
     private static let subsystem = "com.freethinker.app"

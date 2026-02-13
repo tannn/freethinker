@@ -90,6 +90,7 @@ public actor ProvocationOrchestrator: ProvocationOrchestrating {
     private let settingsProvider: () async -> AppSettings
     private let errorMapper: ErrorPresentationMapping
     private let callbacks: ProvocationOrchestratorCallbacks
+    private let diagnosticsLogger: (any DiagnosticsLogging)?
     private let clock: any ProvocationOrchestratorClock
     private let debounceNanoseconds: UInt64
 
@@ -104,6 +105,7 @@ public actor ProvocationOrchestrator: ProvocationOrchestrating {
         settingsProvider: @escaping () async -> AppSettings,
         errorMapper: ErrorPresentationMapping = ErrorPresentationMapper(),
         callbacks: ProvocationOrchestratorCallbacks = .noOp,
+        diagnosticsLogger: (any DiagnosticsLogging)? = nil,
         clock: any ProvocationOrchestratorClock = SystemProvocationOrchestratorClock(),
         debounceNanoseconds: UInt64 = 300_000_000
     ) {
@@ -112,6 +114,7 @@ public actor ProvocationOrchestrator: ProvocationOrchestrating {
         self.settingsProvider = settingsProvider
         self.errorMapper = errorMapper
         self.callbacks = callbacks
+        self.diagnosticsLogger = diagnosticsLogger
         self.clock = clock
         self.debounceNanoseconds = debounceNanoseconds
     }
@@ -193,16 +196,35 @@ private extension ProvocationOrchestrator {
     ) async {
         do {
             Logger.info("Pipeline start source=\(source.rawValue)", category: .orchestrator)
+            recordDiagnostic(
+                stage: .permissionPreflight,
+                category: .info,
+                message: "Pipeline started",
+                source: source
+            )
 
             try Task.checkCancellation()
             Logger.debug("Stage=permission-preflight", category: .orchestrator)
             guard await textCaptureService.preflightPermission() == .granted else {
+                recordDiagnostic(
+                    stage: .permissionPreflight,
+                    category: .warning,
+                    message: "Accessibility permission denied",
+                    source: source
+                )
                 await present(error: .accessibilityPermissionDenied, source: source)
                 return
             }
 
             Logger.debug("Stage=text-capture", category: .orchestrator)
             let selectedText = try await textCaptureService.captureSelectedText()
+            recordDiagnostic(
+                stage: .textCapture,
+                category: .info,
+                message: "Selection captured",
+                source: source,
+                metadata: ["captured_character_count": "\(selectedText.count)"]
+            )
 
             Logger.debug("Stage=panel-loading", category: .orchestrator)
             await callbacks.presentLoading(selectedText)
@@ -216,16 +238,37 @@ private extension ProvocationOrchestrator {
 
             Logger.debug("Stage=ai-generate", category: .orchestrator)
             let settings = await settingsProvider().validated()
+            recordDiagnostic(
+                stage: .aiGeneration,
+                category: .info,
+                message: "AI generation started",
+                source: source,
+                metadata: ["model": settings.selectedModel.rawValue]
+            )
             let response = await aiService.generateProvocation(request: request, settings: settings)
 
             if let error = response.error {
-                if error == .cancelled {
+                if error == .cancelled || Task.isCancelled {
                     metrics.cancellationCount += 1
-                    let reason = pendingCancellationReason?.rawValue ?? "service-cancelled"
+                    let reason = pendingCancellationReason?.rawValue ?? "task-cancelled"
                     Logger.info("Pipeline cancelled source=\(source.rawValue) reason=\(reason)", category: .orchestrator)
+                    recordDiagnostic(
+                        stage: .aiGeneration,
+                        category: .warning,
+                        message: "Pipeline cancelled",
+                        source: source,
+                        metadata: ["reason": reason]
+                    )
                     return
                 }
 
+                recordDiagnostic(
+                    stage: .aiGeneration,
+                    category: .error,
+                    message: "AI generation failed",
+                    source: source,
+                    metadata: ["error_code": diagnosticErrorCode(for: error)]
+                )
                 await present(error: error, source: source)
                 return
             }
@@ -234,13 +277,34 @@ private extension ProvocationOrchestrator {
                 "Pipeline completed source=\(source.rawValue) requestId=\(request.id.uuidString)",
                 category: .orchestrator
             )
+            recordDiagnostic(
+                stage: .responsePresentation,
+                category: .info,
+                message: "Response presented",
+                source: source,
+                metadata: ["request_id": request.id.uuidString]
+            )
             await callbacks.presentResponse(response)
         } catch is CancellationError {
             metrics.cancellationCount += 1
             let reason = pendingCancellationReason?.rawValue ?? "task-cancelled"
             Logger.info("Pipeline cancelled source=\(source.rawValue) reason=\(reason)", category: .orchestrator)
+            recordDiagnostic(
+                stage: .aiGeneration,
+                category: .warning,
+                message: "Pipeline cancelled",
+                source: source,
+                metadata: ["reason": reason]
+            )
         } catch {
             let mapped = mapUnhandled(error)
+            recordDiagnostic(
+                stage: .aiGeneration,
+                category: .error,
+                message: "Pipeline failed with unhandled error",
+                source: source,
+                metadata: ["error_code": diagnosticErrorCode(for: mapped)]
+            )
             await present(error: mapped, source: source)
         }
     }
@@ -265,5 +329,59 @@ private extension ProvocationOrchestrator {
             return .noSelection
         }
         return .generationFailed
+    }
+
+    func recordDiagnostic(
+        stage: DiagnosticStage,
+        category: DiagnosticCategory,
+        message: String,
+        source: ProvocationTriggerSource,
+        metadata: [String: String] = [:]
+    ) {
+        var payload = metadata
+        payload["trigger_source"] = source.rawValue
+        diagnosticsLogger?.record(
+            stage: stage,
+            category: category,
+            message: message,
+            metadata: payload
+        )
+    }
+
+    func diagnosticErrorCode(for error: FreeThinkerError) -> String {
+        switch error {
+        case .accessibilityPermissionDenied:
+            return "accessibility_permission_denied"
+        case .noSelection:
+            return "no_selection"
+        case .hotkeyRegistrationConflict:
+            return "hotkey_registration_conflict"
+        case .hotkeyRegistrationFailed:
+            return "hotkey_registration_failed"
+        case .timeout:
+            return "timeout"
+        case .cancelled:
+            return "cancelled"
+        case .modelUnavailable:
+            return "model_unavailable"
+        case .unsupportedOperatingSystem:
+            return "unsupported_operating_system"
+        case .unsupportedHardware:
+            return "unsupported_hardware"
+        case .frameworkUnavailable:
+            return "framework_unavailable"
+        case .transientModelFailure:
+            return "transient_model_failure"
+        case .generationFailed:
+            return "generation_failed"
+        case .invalidPrompt:
+            return "invalid_prompt"
+        case .invalidResponse:
+            return "invalid_response"
+        case .triggerDebounced:
+            return "trigger_debounced"
+        case .generationAlreadyInProgress:
+            return "generation_in_progress"
+        }
     }
 }

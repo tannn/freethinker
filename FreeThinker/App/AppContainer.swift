@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 @MainActor
@@ -8,11 +9,15 @@ public final class AppContainer {
     public let orchestrator: any ProvocationOrchestrating
     public let hotkeyService: any GlobalHotkeyServiceProtocol
     public let menuBarCoordinator: MenuBarCoordinator
-    public let settingsWindowController: SettingsWindowController
+    public let settingsService: any SettingsServiceProtocol
+    public let diagnosticsLogger: any DiagnosticsLogging
 
     private let errorMapper: ErrorPresentationMapping
-    private let settingsService: any SettingsServiceProtocol
     private let launchAtLoginController: any LaunchAtLoginControlling
+    private let modelAvailabilityProvider: any FoundationModelsAdapterProtocol
+
+    private let settingsWindowController: SettingsWindowController
+    private var onboardingWindowController: OnboardingWindowController?
 
     public init(
         appState: AppState,
@@ -22,7 +27,9 @@ public final class AppContainer {
         errorMapper: ErrorPresentationMapping = ErrorPresentationMapper(),
         hotkeyService: any GlobalHotkeyServiceProtocol,
         launchAtLoginController: any LaunchAtLoginControlling = LaunchAtLoginService(),
-        settingsService: any SettingsServiceProtocol = DefaultSettingsService()
+        settingsService: any SettingsServiceProtocol = DefaultSettingsService(),
+        diagnosticsLogger: any DiagnosticsLogging = DiagnosticsLogger(),
+        modelAvailabilityProvider: any FoundationModelsAdapterProtocol = FoundationModelsAdapter()
     ) {
         self.appState = appState
         self.aiService = aiService
@@ -31,6 +38,8 @@ public final class AppContainer {
         self.hotkeyService = hotkeyService
         self.launchAtLoginController = launchAtLoginController
         self.settingsService = settingsService
+        self.diagnosticsLogger = diagnosticsLogger
+        self.modelAvailabilityProvider = modelAvailabilityProvider
 
         let callbacks = AppContainer.makeCallbacks(
             appState: appState,
@@ -44,7 +53,8 @@ public final class AppContainer {
                 await MainActor.run { appState.settings }
             },
             errorMapper: errorMapper,
-            callbacks: callbacks
+            callbacks: callbacks,
+            diagnosticsLogger: diagnosticsLogger
         )
         self.orchestrator = orchestrator
 
@@ -70,7 +80,9 @@ public final class AppContainer {
             errorMapper: ErrorPresentationMapper(),
             hotkeyService: GlobalHotkeyService(),
             launchAtLoginController: LaunchAtLoginService(),
-            settingsService: settingsService
+            settingsService: settingsService,
+            diagnosticsLogger: DiagnosticsLogger(),
+            modelAvailabilityProvider: FoundationModelsAdapter()
         )
     }
 
@@ -114,6 +126,21 @@ public final class AppContainer {
         } else {
             menuBarCoordinator.uninstallStatusItem()
         }
+
+        diagnosticsLogger.setEnabled(settings.diagnosticsEnabled)
+        diagnosticsLogger.record(
+            stage: .appLifecycle,
+            category: .info,
+            message: "App container started",
+            metadata: ["menu_bar_icon": "\(settings.showMenuBarIcon)"]
+        )
+
+        syncLaunchAtLoginFromSystem()
+        refreshOnboardingReadiness()
+
+        if appState.isOnboardingPresented {
+            openOnboardingWindow()
+        }
     }
 
     public func stop() {
@@ -122,6 +149,13 @@ public final class AppContainer {
         }
         hotkeyService.unregister()
         menuBarCoordinator.uninstallStatusItem()
+
+        diagnosticsLogger.record(
+            stage: .appLifecycle,
+            category: .info,
+            message: "App container stopping",
+            metadata: [:]
+        )
     }
 }
 
@@ -141,18 +175,45 @@ private extension AppContainer {
 
         appState.onSettingsUpdated = { [weak self] settings in
             guard let self else { return }
+            do {
+                try self.settingsService.saveSettings(settings)
+            } catch {
+                Logger.warning("Settings persistence failed error=\(error.localizedDescription)", category: .settings)
+            }
+
             self.hotkeyService.refreshRegistration(using: settings)
+            self.diagnosticsLogger.setEnabled(settings.diagnosticsEnabled)
 
             if settings.showMenuBarIcon {
                 self.menuBarCoordinator.installStatusItemIfNeeded()
             } else {
                 self.menuBarCoordinator.uninstallStatusItem()
             }
+
+            self.diagnosticsLogger.record(
+                stage: .settings,
+                category: .info,
+                message: "Settings updated",
+                metadata: [
+                    "diagnostics_enabled": "\(settings.diagnosticsEnabled)",
+                    "launch_at_login": "\(settings.launchAtLogin)"
+                ]
+            )
         }
 
         appState.onSettingsPersistRequested = { [weak self] settings in
             guard let self else { return }
             try self.settingsService.saveSettings(settings)
+        }
+
+        appState.onOnboardingPresentationChanged = { [weak self] isPresented in
+            guard let self else { return }
+            if isPresented {
+                self.refreshOnboardingReadiness()
+                self.openOnboardingWindow()
+            } else {
+                self.onboardingWindowController?.hide()
+            }
         }
 
         appState.onLaunchAtLoginChangeRequested = { [weak self] isEnabled in
@@ -164,12 +225,20 @@ private extension AppContainer {
             self?.settingsWindowController.show(section: section)
         }
 
+        appState.onExportDiagnosticsRequested = { [weak self] in
+            self?.exportDiagnosticsLog() ?? "Export unavailable"
+        }
+
         menuBarCoordinator.onOpenSettings = { [weak self] in
             self?.appState.openSettings(section: .general)
         }
 
+        menuBarCoordinator.onOpenOnboardingGuide = { [weak self] in
+            self?.appState.presentOnboarding()
+        }
+
         menuBarCoordinator.onCheckForUpdates = { [weak self] in
-            self?.appState.presentErrorMessage("Updater integration ships in WP08. Select channel in Settings now.")
+            self?.checkForUpdates()
         }
 
         settingsWindowController.onCheckForUpdates = { [weak self] in
@@ -180,6 +249,131 @@ private extension AppContainer {
     func presentHotkeyRegistrationError(_ error: GlobalHotkeyServiceError) {
         let presentation = errorMapper.map(error: error.mappedFreeThinkerError, source: .hotkey)
         appState.presentErrorPresentation(presentation)
+    }
+
+    func syncLaunchAtLoginFromSystem() {
+        let actualState = launchAtLoginController.isEnabled()
+        guard actualState != appState.settings.launchAtLogin else {
+            return
+        }
+
+        var settings = appState.settings
+        settings.launchAtLogin = actualState
+        appState.updateSettings(settings)
+    }
+
+    func setLaunchAtLogin(_ targetState: Bool) {
+        do {
+            try launchAtLoginController.setEnabled(targetState)
+
+            var settings = appState.settings
+            settings.launchAtLogin = targetState
+            appState.updateSettings(settings)
+        } catch {
+            Logger.warning("Launch at login update failed error=\(error.localizedDescription)", category: .settings)
+            appState.presentErrorMessage("Could not update launch at login. Verify app permissions and retry.")
+        }
+    }
+
+    func openOnboardingWindow() {
+        if onboardingWindowController == nil {
+            onboardingWindowController = OnboardingWindowController(
+                appState: appState,
+                openAccessibilitySettings: { [weak self] in
+                    self?.openAccessibilitySettings()
+                },
+                openModelSettings: { [weak self] in
+                    self?.openModelSupportSettings()
+                },
+                refreshReadiness: { [weak self] in
+                    self?.refreshOnboardingReadiness()
+                }
+            )
+        }
+
+        onboardingWindowController?.show()
+    }
+
+    func refreshOnboardingReadiness() {
+        Task {
+            let permission = await textCaptureService.preflightPermission()
+            let modelAvailability = modelAvailabilityProvider.availability()
+
+            await MainActor.run {
+                appState.updateOnboardingSystemReadiness(
+                    accessibilityGranted: permission == .granted,
+                    modelAvailability: modelAvailability
+                )
+            }
+        }
+    }
+
+    func openAccessibilitySettings() {
+        openSystemSettings(
+            primaryURL: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility",
+            fallbackURL: "x-apple.systempreferences:com.apple.SystemSettings"
+        )
+    }
+
+    func openModelSupportSettings() {
+        openSystemSettings(
+            primaryURL: "x-apple.systempreferences:com.apple.preference.siri",
+            fallbackURL: "x-apple.systempreferences:com.apple.SystemSettings"
+        )
+    }
+
+    func openSystemSettings(primaryURL: String, fallbackURL: String) {
+        if
+            let primary = URL(string: primaryURL),
+            NSWorkspace.shared.open(primary)
+        {
+            return
+        }
+
+        if let fallback = URL(string: fallbackURL) {
+            _ = NSWorkspace.shared.open(fallback)
+        }
+    }
+
+    func exportDiagnosticsLog() -> String {
+        guard !diagnosticsLogger.recentEvents().isEmpty else {
+            return "No diagnostics captured yet"
+        }
+
+        let savePanel = NSSavePanel()
+        savePanel.canCreateDirectories = true
+        savePanel.nameFieldStringValue = "freethinker-diagnostics.json"
+        savePanel.title = "Export Diagnostics"
+        savePanel.message = "Select where to save diagnostics JSON"
+
+        guard savePanel.runModal() == .OK, let url = savePanel.url else {
+            return "Export cancelled"
+        }
+
+        do {
+            try diagnosticsLogger.exportEvents(to: url)
+            diagnosticsLogger.record(
+                stage: .export,
+                category: .info,
+                message: "Diagnostics exported",
+                metadata: ["destination": url.lastPathComponent]
+            )
+            return "Exported to \(url.lastPathComponent)"
+        } catch {
+            Logger.warning("Diagnostics export failed error=\(error.localizedDescription)", category: .diagnostics)
+            return "Export failed: \(error.localizedDescription)"
+        }
+    }
+
+    func checkForUpdates() {
+        if let releaseURL = ProcessInfo.processInfo.environment["FREETHINKER_RELEASE_URL"],
+           let url = URL(string: releaseURL)
+        {
+            _ = NSWorkspace.shared.open(url)
+            return
+        }
+
+        appState.presentErrorMessage("Updates are delivered via direct download in this build. Set FREETHINKER_RELEASE_URL for quick access.")
     }
 
     static func makeCallbacks(

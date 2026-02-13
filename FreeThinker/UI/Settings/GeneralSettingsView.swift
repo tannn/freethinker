@@ -6,6 +6,8 @@ public struct GeneralSettingsView: View {
 
     private let onCheckForUpdates: (() -> Void)?
 
+    @State private var exportStatus: String?
+
     public init(
         appState: AppState,
         onCheckForUpdates: (() -> Void)? = nil
@@ -26,9 +28,14 @@ public struct GeneralSettingsView: View {
                 behaviorSection
                 launchSection
                 updatesSection
+                diagnosticsSection
+                onboardingSection
             }
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
+        }
+        .onDisappear {
+            appState.clearSettingsFeedback()
         }
     }
 }
@@ -134,7 +141,7 @@ private extension GeneralSettingsView {
                 }
                 .accessibilityIdentifier(SettingsAccessibility.Identifier.generalCheckForUpdatesButton)
 
-                Text("Updater integration ships in WP08. These controls are stored now so channel behavior is ready.")
+                Text("Updates are delivered via direct download in this build.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -142,13 +149,56 @@ private extension GeneralSettingsView {
         }
     }
 
+    var diagnosticsSection: some View {
+        GroupBox("Diagnostics") {
+            VStack(alignment: .leading, spacing: 12) {
+                Toggle("Enable local diagnostics logging", isOn: diagnosticsEnabledBinding)
+
+                Text("Diagnostics never store raw selected text or prompts. Sensitive keys are redacted.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
+                    Button("Export Diagnostics Log…") {
+                        exportStatus = appState.onExportDiagnosticsRequested?() ?? "Export unavailable"
+                    }
+                    .disabled(appState.settings.diagnosticsEnabled == false)
+
+                    if let exportStatus {
+                        Text(exportStatus)
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    var onboardingSection: some View {
+        GroupBox("Onboarding") {
+            VStack(alignment: .leading, spacing: 10) {
+                Button("Reopen Onboarding Guide") {
+                    appState.presentOnboarding()
+                }
+
+                if appState.settings.onboardingCompleted {
+                    Text("Checklist complete")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+private extension GeneralSettingsView {
     var hotkeyEnabledBinding: Binding<Bool> {
         Binding(
             get: { appState.settings.hotkeyEnabled },
             set: { isEnabled in
-                Task {
-                    await appState.setHotkeyEnabled(isEnabled)
-                }
+                Task { await appState.setHotkeyEnabled(isEnabled) }
             }
         )
     }
@@ -157,9 +207,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.showMenuBarIcon },
             set: { isEnabled in
-                Task {
-                    await appState.setShowMenuBarIcon(isEnabled)
-                }
+                Task { await appState.setShowMenuBarIcon(isEnabled) }
             }
         )
     }
@@ -168,9 +216,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.dismissOnCopy },
             set: { isEnabled in
-                Task {
-                    await appState.setDismissOnCopy(isEnabled)
-                }
+                Task { await appState.setDismissOnCopy(isEnabled) }
             }
         )
     }
@@ -179,9 +225,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.autoDismissSeconds },
             set: { seconds in
-                Task {
-                    await appState.setAutoDismissSeconds(seconds)
-                }
+                Task { await appState.setAutoDismissSeconds(seconds) }
             }
         )
     }
@@ -190,9 +234,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.fallbackCaptureEnabled },
             set: { isEnabled in
-                Task {
-                    await appState.setFallbackCaptureEnabled(isEnabled)
-                }
+                Task { await appState.setFallbackCaptureEnabled(isEnabled) }
             }
         )
     }
@@ -201,9 +243,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { panelViewModel.isPinned },
             set: { isPinned in
-                Task {
-                    await appState.setPanelPinned(isPinned)
-                }
+                Task { await appState.setPanelPinned(isPinned) }
             }
         )
     }
@@ -212,9 +252,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.launchAtLogin },
             set: { isEnabled in
-                Task {
-                    await appState.setLaunchAtLoginEnabled(isEnabled)
-                }
+                Task { await appState.setLaunchAtLoginEnabled(isEnabled) }
             }
         )
     }
@@ -223,9 +261,7 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.automaticallyCheckForUpdates },
             set: { isEnabled in
-                Task {
-                    await appState.setAutomaticallyCheckForUpdates(isEnabled)
-                }
+                Task { await appState.setAutomaticallyCheckForUpdates(isEnabled) }
             }
         )
     }
@@ -234,9 +270,18 @@ private extension GeneralSettingsView {
         Binding(
             get: { appState.settings.appUpdateChannel },
             set: { channel in
-                Task {
-                    await appState.setAppUpdateChannel(channel)
-                }
+                Task { await appState.setAppUpdateChannel(channel) }
+            }
+        )
+    }
+
+    var diagnosticsEnabledBinding: Binding<Bool> {
+        Binding(
+            get: { appState.settings.diagnosticsEnabled },
+            set: { value in
+                var settings = appState.settings
+                settings.diagnosticsEnabled = value
+                appState.updateSettings(settings)
             }
         )
     }

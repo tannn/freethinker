@@ -4,6 +4,7 @@ import Foundation
 public enum MenuBarCommand: String, Sendable {
     case generate
     case openSettings
+    case openOnboardingGuide
     case toggleLaunchAtLogin
     case checkForUpdates
     case quit
@@ -12,6 +13,7 @@ public enum MenuBarCommand: String, Sendable {
 public enum MenuBarMenuLabel {
     public static let generate = "Generate Provocation"
     public static let settings = "Settings..."
+    public static let onboardingGuide = "Onboarding Guide..."
     public static let launchAtLogin = "Launch at Login"
     public static let checkForUpdates = "Check for Updates"
     public static let quit = "Quit FreeThinker"
@@ -65,6 +67,7 @@ public struct MenuBarMenuBuilder: MenuBarMenuBuilding {
             ),
             MenuBarMenuItemDescriptor(title: "", command: nil, isSeparator: true),
             MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.settings, command: .openSettings),
+            MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.onboardingGuide, command: .openOnboardingGuide),
             MenuBarMenuItemDescriptor(
                 title: MenuBarMenuLabel.launchAtLogin,
                 command: .toggleLaunchAtLogin,

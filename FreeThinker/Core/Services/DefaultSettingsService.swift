@@ -14,43 +14,81 @@ public final class DefaultSettingsService: SettingsServiceProtocol, @unchecked S
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder
     private let storageKey: String
+    private let legacyStorageKeys: [String]
+
     private let lock = NSLock()
 
     public init(
         userDefaults: UserDefaults = .standard,
         encoder: JSONEncoder = JSONEncoder(),
         decoder: JSONDecoder = JSONDecoder(),
-        storageKey: String = "freethinker.app_settings"
+        storageKey: String = "app.settings.v2",
+        legacyStorageKeys: [String] = [
+            "app.settings.v1",
+            "freethinker.app_settings"
+        ]
     ) {
         self.userDefaults = userDefaults
         self.encoder = encoder
         self.decoder = decoder
         self.storageKey = storageKey
+        self.legacyStorageKeys = legacyStorageKeys
     }
 
     public func loadSettings() -> AppSettings {
         lock.lock()
         defer { lock.unlock() }
 
-        guard let data = userDefaults.data(forKey: storageKey) else {
-            return AppSettings()
+        if let current = loadFromKey(storageKey) {
+            return current
+        }
+
+        for legacyKey in legacyStorageKeys {
+            guard legacyKey != storageKey else { continue }
+            guard let migrated = loadFromKey(legacyKey) else { continue }
+
+            do {
+                try persistLocked(migrated)
+                userDefaults.removeObject(forKey: legacyKey)
+                Logger.info("Migrated settings from key=\(legacyKey) to key=\(storageKey)", category: .settings)
+            } catch {
+                Logger.warning(
+                    "Settings migration persistence failed key=\(legacyKey) error=\(error.localizedDescription)",
+                    category: .settings
+                )
+            }
+
+            return migrated
+        }
+
+        return AppSettings().validated()
+    }
+
+    public func saveSettings(_ settings: AppSettings) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        try persistLocked(settings)
+    }
+}
+
+private extension DefaultSettingsService {
+    func loadFromKey(_ key: String) -> AppSettings? {
+        guard let data = userDefaults.data(forKey: key) else {
+            return nil
         }
 
         do {
             return try decoder.decode(AppSettings.self, from: data).validated()
         } catch {
             Logger.warning(
-                "Settings decode failed; falling back to defaults error=\(error.localizedDescription)",
+                "Settings decode failed key=\(key) error=\(error.localizedDescription)",
                 category: .settings
             )
-            return AppSettings()
+            return nil
         }
     }
 
-    public func saveSettings(_ settings: AppSettings) throws {
-        lock.lock()
-        defer { lock.unlock() }
-
+    func persistLocked(_ settings: AppSettings) throws {
         do {
             let data = try encoder.encode(settings.validated())
             userDefaults.set(data, forKey: storageKey)

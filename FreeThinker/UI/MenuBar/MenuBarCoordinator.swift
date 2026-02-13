@@ -5,6 +5,7 @@ import Foundation
 @MainActor
 public final class MenuBarCoordinator: NSObject {
     public var onOpenSettings: (() -> Void)?
+    public var onOpenOnboardingGuide: (() -> Void)?
     public var onCheckForUpdates: (() -> Void)?
     public var onQuit: (() -> Void)?
 
@@ -61,6 +62,9 @@ public final class MenuBarCoordinator: NSObject {
 
         case .openSettings:
             onOpenSettings?()
+
+        case .openOnboardingGuide:
+            onOpenOnboardingGuide?()
 
         case .toggleLaunchAtLogin:
             toggleLaunchAtLogin()
