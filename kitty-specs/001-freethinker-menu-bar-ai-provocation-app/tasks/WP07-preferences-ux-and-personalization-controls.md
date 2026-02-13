@@ -16,8 +16,8 @@ subtasks:
 - T038
 phase: Phase 3 - User Story Delivery
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "OpenCode"
+shell_pid: "36901"
 review_status: ''
 reviewed_by: ''
 history:
@@ -146,3 +146,4 @@ history:
 - 2026-02-13T17:41:11Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T17:49:36Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T17:57:00Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T18:29:26Z – OpenCode – shell_pid=36901 – lane=doing – Assigned agent via workflow command
