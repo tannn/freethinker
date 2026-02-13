@@ -200,7 +200,7 @@ Dependencies: WP03, WP04
 - [x] T029 Build orchestration use-case coordinating `TextCaptureService`, `AIService`, and panel presenter.
 - [x] T030 Implement status bar menu actions (Generate, Settings, Launch at Login toggle, Check for Updates, Quit).
 - [x] T031 Add concurrency control (single-flight generation, cancellation, and trigger debouncing).
-- [ ] T032 Map operational failures to user-visible messaging and non-intrusive notifications.
+- [x] T032 Map operational failures to user-visible messaging and non-intrusive notifications.
 - [ ] T033 Add integration tests for end-to-end orchestration with mocked dependencies.
 
 ### Implementation Notes
