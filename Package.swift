@@ -29,6 +29,11 @@ let package = Package(
             resources: [
                 .copy("Fixtures")
             ]
+        ),
+        .testTarget(
+            name: "FreeThinkerUITests",
+            dependencies: ["FreeThinker"],
+            path: "FreeThinkerUITests"
         )
     ]
 )
