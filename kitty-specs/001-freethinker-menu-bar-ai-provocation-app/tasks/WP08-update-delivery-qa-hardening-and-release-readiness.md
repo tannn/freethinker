@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP08"
-subtasks:
-  - "T040"
-  - "T041"
-  - "T042"
-  - "T043"
-  - "T044"
-title: "Update Delivery, QA Hardening & Release Readiness"
-phase: "Phase 4 - Polish"
+work_package_id: WP08
+title: Update Delivery, QA Hardening & Release Readiness
 lane: "doing"
 dependencies:
-  - "WP06"
-  - "WP07"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP06
+- WP07
+base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP07
+base_commit: a334828c67d197722fd80326a62871dff47540f7
+created_at: '2026-02-13T18:06:45.402577+00:00'
+subtasks:
+- T040
+- T041
+- T042
+- T043
+- T044
+phase: Phase 4 - Polish
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP08 - Update Delivery, QA Hardening & Release Readiness
@@ -139,3 +142,4 @@ history:
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
 - 2026-02-13T18:06:44Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T18:24:54Z – unknown – lane=doing – Automated: start implementation
