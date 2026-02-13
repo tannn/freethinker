@@ -101,7 +101,7 @@ Dependencies: WP01
 - [x] T013 Add safe fallback capture path (clipboard-assisted capture + restoration) for unsupported elements.
 - [x] T014 Implement `TextCaptureService` actor with structured `CaptureResult` and error taxonomy.
 - [x] T015 Integrate preflight permission checks into hotkey/menu trigger entry points.
-- [ ] T016 Add integration tests for permission denied, empty selection, and successful capture scenarios.
+- [x] T016 Add integration tests for permission denied, empty selection, and successful capture scenarios.
 
 ### Implementation Notes
 - Permission handling must avoid repeated prompt loops.
