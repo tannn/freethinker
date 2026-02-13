@@ -17,6 +17,7 @@ public final class AppContainer {
     private let modelAvailabilityProvider: any FoundationModelsAdapterProtocol
 
     private let settingsWindowController: SettingsWindowController
+    private let floatingPanelController: FloatingPanelController
     private var onboardingWindowController: OnboardingWindowController?
 
     public init(
@@ -64,6 +65,8 @@ public final class AppContainer {
         )
 
         settingsWindowController = SettingsWindowController(appState: appState)
+        floatingPanelController = FloatingPanelController(viewModel: appState.panelViewModel)
+        appState.attachPanelController(floatingPanelController)
 
         wireCallbacks()
     }
@@ -157,6 +160,7 @@ public final class AppContainer {
         Task {
             await orchestrator.cancelCurrentGeneration(reason: .appWillTerminate)
         }
+        floatingPanelController.cleanup()
         hotkeyService.unregister()
         menuBarCoordinator.uninstallStatusItem()
 

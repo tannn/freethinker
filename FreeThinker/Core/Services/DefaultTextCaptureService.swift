@@ -16,6 +16,7 @@ public protocol TextCaptureServiceProtocol: Actor, Sendable {
 public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
     private let maxSelectionLength: Int
     private let permissionChecker: @Sendable () -> Bool
+    private let accessibilityReachabilityProbe: @Sendable () -> Bool
     private let accessibilitySelectionProvider: @Sendable () -> String?
     private let clipboardFallbackProvider: @Sendable () -> String?
     private var fallbackCaptureEnabled: Bool
@@ -24,12 +25,16 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
         maxSelectionLength: Int = ProvocationRequest.maxSelectedTextLength,
         fallbackCaptureEnabled: Bool = true,
         permissionChecker: (@Sendable () -> Bool)? = nil,
+        accessibilityReachabilityProbe: (@Sendable () -> Bool)? = nil,
         accessibilitySelectionProvider: (@Sendable () -> String?)? = nil,
         clipboardFallbackProvider: (@Sendable () -> String?)? = nil
     ) {
         self.maxSelectionLength = maxSelectionLength
         self.fallbackCaptureEnabled = fallbackCaptureEnabled
         self.permissionChecker = permissionChecker ?? { AXIsProcessTrusted() }
+        self.accessibilityReachabilityProbe = accessibilityReachabilityProbe ?? {
+            Self.isAccessibilityAPIReachable()
+        }
         self.accessibilitySelectionProvider = accessibilitySelectionProvider ?? {
             Self.captureAccessibilitySelectedText()
         }
@@ -39,7 +44,7 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
     }
 
     public func preflightPermission() -> TextCapturePermissionStatus {
-        permissionChecker() ? .granted : .denied
+        (permissionChecker() || accessibilityReachabilityProbe()) ? .granted : .denied
     }
 
     public func setFallbackCaptureEnabled(_ isEnabled: Bool) {
@@ -125,5 +130,17 @@ private extension DefaultTextCaptureService {
         }
 
         return nil
+    }
+
+    static func isAccessibilityAPIReachable() -> Bool {
+        let systemWideElement = AXUIElementCreateSystemWide()
+        var focusedElementRef: CFTypeRef?
+        let status = AXUIElementCopyAttributeValue(
+            systemWideElement,
+            kAXFocusedUIElementAttribute as CFString,
+            &focusedElementRef
+        )
+
+        return status != .apiDisabled
     }
 }

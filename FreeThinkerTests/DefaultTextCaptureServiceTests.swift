@@ -2,6 +2,28 @@ import XCTest
 @testable import FreeThinker
 
 final class DefaultTextCaptureServiceTests: XCTestCase {
+    func testPreflightTreatsReachableAXAPIAsGrantedWhenTrustFlagIsFalse() async {
+        let service = DefaultTextCaptureService(
+            permissionChecker: { false },
+            accessibilityReachabilityProbe: { true }
+        )
+
+        let status = await service.preflightPermission()
+        XCTAssertEqual(status, .granted)
+    }
+
+    func testCaptureAllowsSelectionWhenTrustFlagIsFalseButAXAPIIsReachable() async throws {
+        let service = DefaultTextCaptureService(
+            permissionChecker: { false },
+            accessibilityReachabilityProbe: { true },
+            accessibilitySelectionProvider: { "selected text" },
+            clipboardFallbackProvider: { nil }
+        )
+
+        let captured = try await service.captureSelectedText()
+        XCTAssertEqual(captured, "selected text")
+    }
+
     func testCapturePrefersAccessibilitySelectionOverClipboardFallback() async throws {
         let service = DefaultTextCaptureService(
             permissionChecker: { true },
@@ -43,4 +65,3 @@ final class DefaultTextCaptureServiceTests: XCTestCase {
         }
     }
 }
-
