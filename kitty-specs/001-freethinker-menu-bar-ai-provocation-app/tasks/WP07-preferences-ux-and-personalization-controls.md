@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Preferences UX & Personalization Controls
-lane: "for_review"
+lane: "doing"
 dependencies:
 - WP02
 - WP06
@@ -144,3 +144,4 @@ history:
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
 - 2026-02-13T17:02:07Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T17:41:11Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T17:49:36Z – unknown – lane=doing – Automated: start implementation
