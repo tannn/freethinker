@@ -269,19 +269,6 @@ The following features are explicitly **not included** in this version:
 
 ---
 
-## 9. Open Questions / Clarifications
-
-**[NEEDS CLARIFICATION: Default Hotkey]**  
-Cmd+Shift+P is proposed. Should we check for conflicts with common apps (Omnifocus, Obsidian, etc.) or provide alternative?
-
-**[NEEDS CLARIFICATION: Model Size]**  
-Which Apple Foundation Model should be used? Smaller models (faster) vs larger models (better quality)? Recommend starting with efficient model for <1s response time.
-
-**[NEEDS CLARIFICATION: Launch at Login]**  
-Should the app support launch at login? This requires additional system permissions and entitlements.
-
----
-
 ## 10. Revision History
 
 | Date | Version | Author | Changes |
