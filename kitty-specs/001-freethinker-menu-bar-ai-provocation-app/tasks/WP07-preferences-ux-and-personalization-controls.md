@@ -8,7 +8,7 @@ subtasks:
   - "T038"
 title: "Preferences UX & Personalization Controls"
 phase: "Phase 3 - User Story Delivery"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP02"
   - "WP06"
@@ -139,4 +139,4 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T17:02:07Z – unknown – lane=doing – Automated: start implementation
