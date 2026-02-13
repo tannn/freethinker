@@ -8,7 +8,7 @@ subtasks:
   - "T005"
 title: "Project Bootstrap & Architecture Guardrails"
 phase: "Phase 1 - Setup"
-lane: "planned"
+lane: "doing"
 dependencies: []
 assignee: ""
 agent: ""
@@ -153,4 +153,4 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T06:32:19Z – unknown – lane=doing – Automated: start implementation
