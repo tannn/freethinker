@@ -76,3 +76,6 @@ fastlane/test_output
 .github/copilot/
 .kittify/.dashboard
 .code/
+.kittify/logs/
+.kittify/orchestration-state*
+.kittify/workspaces/
