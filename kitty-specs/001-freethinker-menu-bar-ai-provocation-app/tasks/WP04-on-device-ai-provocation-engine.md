@@ -17,8 +17,8 @@ subtasks:
 - T022
 phase: Phase 2 - Foundation
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "OpenCode"
+shell_pid: "36901"
 review_status: "approved"
 reviewed_by: "Tanner"
 history:

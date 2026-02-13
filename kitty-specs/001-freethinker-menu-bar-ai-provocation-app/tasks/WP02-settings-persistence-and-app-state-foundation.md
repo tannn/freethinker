@@ -15,8 +15,8 @@ subtasks:
 - T010
 phase: Phase 2 - Foundation
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "OpenCode"
+shell_pid: "36901"
 review_status: ''
 reviewed_by: ''
 history:

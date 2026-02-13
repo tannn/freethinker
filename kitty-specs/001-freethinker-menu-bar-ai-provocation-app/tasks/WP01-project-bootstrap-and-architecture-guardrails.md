@@ -14,8 +14,8 @@ subtasks:
 - T005
 phase: Phase 1 - Setup
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "OpenCode"
+shell_pid: "36901"
 review_status: ''
 reviewed_by: ''
 history:
