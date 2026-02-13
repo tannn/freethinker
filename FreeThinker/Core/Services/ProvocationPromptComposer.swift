@@ -33,10 +33,12 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         FOLLOW_UP: <one optional question, or NONE>
 
         RULES:
-        - Be specific to the provided text.
-        - No markdown, no bullets, no JSON.
-        - Keep language direct and thought-provoking.
-        - Avoid repeating the selected text verbatim.
+        - Be specific to the provided text
+        - No markdown, no bullets, no JSON
+        - Keep language direct and thought-provoking
+        - Avoid repeating the selected text verbatim
+        - Do not be authoritative
+        - Avoid overly long or overly complex sentences
 
         SELECTED_TEXT:
         \"\"\"

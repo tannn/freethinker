@@ -37,6 +37,11 @@ FreeThinker/
 
 ---
 
+# Test Suite
+FreeThinkerTests/ 	            # Unit test suite
+FreeThinkerUITests/ 	        # UI test suite
+FreeThinkerPerformanceTests/ 	# Performance benchmarks
+
 ## Recent Changes
 - 001-freethinker-menu-bar-ai-provocation-app: Added Swift 5.9+ with SwiftUI + - Apple FoundationModels framework (SystemLanguageModel API)
 ### Phase 1 - Design Complete (2026-02-12)
