@@ -8,4 +8,4 @@ agents:
   selection:
     strategy: preferred
     preferred_implementer: codex
-    preferred_reviewer: copilot
+    preferred_reviewer: opencode
