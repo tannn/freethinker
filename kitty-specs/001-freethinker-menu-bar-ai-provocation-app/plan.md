@@ -1,9 +1,9 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: FreeThinker Menu Bar AI Provocation App
+*Path: kitty-specs/001-freethinker-menu-bar-ai-provocation-app/plan.md*
 
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
+**Branch**: `001-freethinker-menu-bar-ai-provocation-app` | **Date**: 2026-02-12 | **Spec**: kitty-specs/001-freethinker-menu-bar-ai-provocation-app/spec.md
+**Input**: Feature specification from `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/spec.md`
 
 **Note**: This template is filled in by the `/spec-kitty.plan` command. See `src/specify_cli/missions/software-dev/command-templates/plan.md` for the execution workflow.
 
@@ -11,38 +11,57 @@ The planner will not begin until all planning questions have been answered—cap
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+FreeThinker is a macOS menu bar application that provides instant AI-powered provocations for selected text using on-device Apple Foundation Models. When users select text and press a global hotkey (Cmd+Shift+P), a floating panel appears displaying hidden assumptions and counterarguments generated locally without network requests. The app features customizable provocation prompts, settings persistence, and launch-at-login support, distributed as a direct-download .app with full Accessibility API access.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Swift 5.9+ with SwiftUI  
+**Primary Dependencies**: 
+- Apple FoundationModels framework (SystemLanguageModel API)
+- ServiceManagement framework (launch at login)
+- Sparkle framework (auto-updates for direct distribution)
+- Accessibility APIs (AXUIElement for text capture)
+- Global hotkey monitoring (NSEvent addGlobalMonitorForEvents/mask:)
+  
+**Storage**: UserDefaults (settings persistence), no backend  
+**Testing**: XCTest (unit tests), XCUITest (UI tests), manual accessibility testing  
+**Target Platform**: macOS 26 (Tahoe) with Apple Silicon (M1+) required  
+**Project Type**: Single native macOS app  
+**Performance Goals**: 
+- Panel display within 200ms of hotkey
+- AI provocations generated within 3 seconds (95th percentile)
+- App memory usage under 200MB during normal operation
+  
+**Constraints**: 
+- Zero network requests for AI processing (offline capable)
+- Full Accessibility API access required for text capture
+- Sandbox restrictions avoided via direct distribution
+- macOS 26 minimum for optimal FoundationModels support
+  
+**Scale/Scope**: Single-user desktop application, no server-side components, no multi-user support
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Based on `/Users/tanner/Documents/experimental/ideas/freethinker/.kittify/memory/constitution.md`:
+
+**Technical Standards Compliance**:
+- ✅ Languages: Swift, SwiftUI - CONFIRMED
+- ✅ Testing: Unit, integration, and UI tests required - WILL IMPLEMENT
+- ✅ Performance: Smooth, fast UI - TARGET: 200ms panel display, <3s AI response
+- ✅ Platform: macOS only, direct distribution - CONFIRMED
+
+**Gate Status**: PASS - All constitution requirements can be met with planned architecture.
+
+**Re-check after Phase 1**: Verify data model supports testability, UI design meets performance goals.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
+kitty-specs/001-freethinker-menu-bar-ai-provocation-app/
 ├── plan.md              # This file (/spec-kitty.plan command output)
 ├── research.md          # Phase 0 output (/spec-kitty.plan command)
 ├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
@@ -52,57 +71,74 @@ kitty-specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+
+**Selected Structure**: Single native macOS application using standard Xcode project layout
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+FreeThinker/
+├── FreeThinker.xcodeproj/
+├── FreeThinker/
+│   ├── App/
+│   │   ├── FreeThinkerApp.swift          # App entry point, menu bar setup
+│   │   └── AppDelegate.swift             # Lifecycle management
+│   ├── Core/
+│   │   ├── Models/
+│   │   │   ├── ProvocationRequest.swift
+│   │   │   ├── ProvocationResponse.swift
+│   │   │   ├── AppSettings.swift
+│   │   │   └── AppState.swift
+│   │   ├── Services/
+│   │   │   ├── TextCaptureService.swift  # Accessibility API integration
+│   │   │   ├── HotkeyService.swift       # Global hotkey monitoring
+│   │   │   ├── AIService.swift           # FoundationModels wrapper
+│   │   │   └── SettingsService.swift     # UserDefaults persistence
+│   │   └── Utilities/
+│   │       └── Extensions/
+│   ├── UI/
+│   │   ├── FloatingPanel/
+│   │   │   ├── FloatingPanelView.swift
+│   │   │   ├── ProvocationCardView.swift
+│   │   │   └── FloatingPanelController.swift
+│   │   ├── MenuBar/
+│   │   │   ├── MenuBarIcon.swift
+│   │   │   └── StatusMenuView.swift
+│   │   └── Settings/
+│   │       ├── SettingsWindow.swift
+│   │       ├── PromptSettingsView.swift
+│   │       └── HotkeySettingsView.swift
+│   └── Resources/
+│       ├── Assets.xcassets/
+│       └── Info.plist
+├── FreeThinkerTests/
+│   ├── Unit/
+│   │   ├── AIServiceTests.swift
+│   │   ├── TextCaptureServiceTests.swift
+│   │   └── SettingsServiceTests.swift
+│   └── Integration/
+│       └── AccessibilityIntegrationTests.swift
+├── FreeThinkerUITests/
+│   └── FreeThinkerUITests.swift
+└── Frameworks/
+    └── Sparkle.framework (auto-update)
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Standard Xcode project with Clean Architecture separation:
+- `App/` - Entry points and lifecycle
+- `Core/` - Business logic, models, and services
+- `UI/` - SwiftUI views organized by feature
+- `Resources/` - Assets and configuration
+- Test targets mirror source structure for maintainability
 
 ## Complexity Tracking
 
 *Fill ONLY if Constitution Check has violations that must be justified*
 
+**Status**: No constitution violations. All technical decisions align with:
+- Swift/SwiftUI mandate
+- Testing requirements (unit, integration, UI)
+- Performance goals (smooth, fast UI)
+- Platform constraints (macOS only, direct distribution)
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| N/A | N/A | N/A |

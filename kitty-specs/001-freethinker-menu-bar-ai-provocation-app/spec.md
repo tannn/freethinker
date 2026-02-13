@@ -49,7 +49,7 @@ A lightweight menu bar app that:
 **Then**: Settings panel opens showing:
   - Provocation 1 prompt (default: "Identify hidden assumptions in this text")
   - Provocation 2 prompt (default: "Provide a strong counterargument")
-  - Global hotkey configuration (default: Cmd+Shift+O)
+  - Global hotkey configuration (default: Cmd+Shift+P)
 **And**: User can edit prompts and hotkey  
 **And**: Changes persist across app launches
 
@@ -58,7 +58,7 @@ A lightweight menu bar app that:
 **Scenario**: No text is selected when hotkey is pressed
 
 **Given**: User has not selected any text  
-**When**: User presses Cmd+Shift+O  
+**When**: User presses Cmd+Shift+P
 **Then**: Subtle menu bar icon animation indicates "no text selected"  
 **And**: No panel appears (non-intrusive feedback)
 
@@ -85,7 +85,7 @@ A lightweight menu bar app that:
 ### 3.1 Core Features
 
 **FR-001**: Global Hotkey Detection  
-The app shall register a global hotkey (default: Cmd+Shift+O) that works across all macOS applications.  
+The app shall register a global hotkey (default: Cmd+Shift+P) that works across all macOS applications.  
 *Acceptance*: Hotkey triggers even when app is not frontmost.
 
 **FR-002**: Text Capture  
@@ -197,7 +197,7 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 
 **AppSettings**
 ```
-- hotkey: KeyCombination (default: Cmd+Shift+O)
+- hotkey: KeyCombination (default: Cmd+Shift+P)
 - prompt1: String (default: "Identify hidden assumptions in this text")
 - prompt2: String (default: "Provide a strong counterargument to this claim")
 - launchAtLogin: Bool (default: false)
@@ -273,7 +273,7 @@ The following features are explicitly **not included** in this version:
 ## 9. Open Questions / Clarifications
 
 **[NEEDS CLARIFICATION: Default Hotkey]**  
-Cmd+Shift+O is proposed. Should we check for conflicts with common apps (Omnifocus, Obsidian, etc.) or provide alternative?
+Cmd+Shift+P is proposed. Should we check for conflicts with common apps (Omnifocus, Obsidian, etc.) or provide alternative?
 
 **[NEEDS CLARIFICATION: Model Size]**  
 Which Apple Foundation Model should be used? Smaller models (faster) vs larger models (better quality)? Recommend starting with efficient model for <1s response time.
