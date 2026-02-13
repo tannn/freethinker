@@ -87,5 +87,5 @@ FreeThinker/
 ---
 
 <!-- MANUAL ADDITIONS - These will be preserved by update-context command -->
-
+When builing `xcodebuild` may need to pass this argument: `-skipMacroValidation`
 <!-- END MANUAL ADDITIONS -->
