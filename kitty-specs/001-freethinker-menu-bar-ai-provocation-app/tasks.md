@@ -1,7 +1,7 @@
 # Work Packages: FreeThinker Menu Bar AI Provocation App
 
 **Inputs**: Design intent from `/kitty-specs/001-freethinker-menu-bar-ai-provocation-app/` and `meta.json` source description
-**Prerequisites**: `plan.md` (not present), `spec.md` (present but empty), optional docs not present (`research.md`, `data-model.md`, `contracts/`, `quickstart.md`)
+**Prerequisites**: `plan.md` (not present), `spec.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`
 
 **Tests**: Included because project context explicitly requires service unit tests, accessibility integration tests, UI tests, and AI performance tests.
 
@@ -21,7 +21,7 @@
 
 ---
 
-## Setup Phase
+## Phase 1 - Setup
 
 ## Work Package WP01: Project Bootstrap & Architecture Guardrails (Priority: P0)
 
@@ -31,11 +31,11 @@
 **Estimated Prompt Size**: ~360 lines
 
 ### Included Subtasks
-- [ ] T001 Create Xcode project structure and module folders to match `App/Core/UI/Resources` architecture.
-- [ ] T002 Configure build settings for macOS 26+, Apple Silicon target, and unsandboxed Accessibility-compatible distribution.
-- [ ] T003 Wire application entry points (`App`, `AppDelegate`, dependency container bootstrap) for menu bar lifecycle.
-- [ ] T004 Define core domain models (`ProvocationRequest`, `ProvocationResponse`, `AppSettings`) and service protocols.
-- [ ] T005 Add shared error/logging primitives and architecture documentation notes to prevent boundary drift.
+- [x] T001 Create Xcode project structure and module folders to match `App/Core/UI/Resources` architecture.
+- [x] T002 Configure build settings for macOS 26+, Apple Silicon target, and unsandboxed Accessibility-compatible distribution.
+- [x] T003 Wire application entry points (`App`, `AppDelegate`, dependency container bootstrap) for menu bar lifecycle.
+- [x] T004 Define core domain models (`ProvocationRequest`, `ProvocationResponse`, `AppSettings`) and service protocols.
+- [x] T005 Add shared error/logging primitives and architecture documentation notes to prevent boundary drift.
 
 ### Implementation Notes
 - Establish file and target layout first so every later WP lands in stable paths.
@@ -54,7 +54,7 @@ Dependencies: None
 
 ---
 
-## Foundational Phase
+## Phase 2 - Foundation
 
 ## Work Package WP02: Settings Persistence & App State Foundation (Priority: P0)
 
@@ -64,11 +64,11 @@ Dependencies: None
 **Estimated Prompt Size**: ~340 lines
 
 ### Included Subtasks
-- [ ] T006 Implement `SettingsService` as an actor backed by UserDefaults with schema-aware defaults.
-- [ ] T007 Create `@Observable` app state store that syncs settings and exposes reactive values to SwiftUI views.
-- [ ] T008 Implement launch-at-login wrapper via `SMAppService` with deterministic error mapping.
-- [ ] T009 Add settings validation, migration/versioning hooks, and reset-to-default behavior.
-- [ ] T010 Add unit tests for settings persistence, migration, and launch-at-login behavior using protocol mocks.
+- [x] T006 Implement `SettingsService` as an actor backed by UserDefaults with schema-aware defaults.
+- [x] T007 Create `@Observable` app state store that syncs settings and exposes reactive values to SwiftUI views.
+- [x] T008 Implement launch-at-login wrapper via `SMAppService` with deterministic error mapping.
+- [x] T009 Add settings validation, migration/versioning hooks, and reset-to-default behavior.
+- [x] T010 Add unit tests for settings persistence, migration, and launch-at-login behavior using protocol mocks.
 
 ### Implementation Notes
 - Keep settings keys centralized to prevent divergent key names.
@@ -96,12 +96,12 @@ Dependencies: WP01
 **Estimated Prompt Size**: ~420 lines
 
 ### Included Subtasks
-- [ ] T011 Implement Accessibility permission manager (check/request/open system settings).
-- [ ] T012 Build AXUIElement-based selected text extractor for focused UI element and selected range.
-- [ ] T013 Add safe fallback capture path (clipboard-assisted capture + restoration) for unsupported elements.
-- [ ] T014 Implement `TextCaptureService` actor with structured `CaptureResult` and error taxonomy.
-- [ ] T015 Integrate preflight permission checks into hotkey/menu trigger entry points.
-- [ ] T016 Add integration tests for permission denied, empty selection, and successful capture scenarios.
+- [x] T011 Implement Accessibility permission manager (check/request/open system settings).
+- [x] T012 Build AXUIElement-based selected text extractor for focused UI element and selected range.
+- [x] T013 Add safe fallback capture path (clipboard-assisted capture + restoration) for unsupported elements.
+- [x] T014 Implement `TextCaptureService` actor with structured `CaptureResult` and error taxonomy.
+- [x] T015 Integrate preflight permission checks into hotkey/menu trigger entry points.
+- [x] T016 Add integration tests for permission denied, empty selection, and successful capture scenarios.
 
 ### Implementation Notes
 - Permission handling must avoid repeated prompt loops.
@@ -129,12 +129,12 @@ Dependencies: WP01, WP02
 **Estimated Prompt Size**: ~440 lines
 
 ### Included Subtasks
-- [ ] T017 Implement FoundationModels adapter around `SystemLanguageModel.default` with availability checks.
-- [ ] T018 Build prompt composer for provocation style, tone, and user custom instruction blending.
-- [ ] T019 Implement `AIService` actor with async generation, cancellation support, and timeout handling.
-- [ ] T020 Normalize model output into `ProvocationResponse` (headline, body, optional follow-up prompt).
-- [ ] T021 Add unit tests for prompt composition and AI error mapping using service protocol mocks.
-- [ ] T022 Add performance tests for response time and memory usage under representative prompt sizes.
+- [x] T017 Implement FoundationModels adapter around `SystemLanguageModel.default` with availability checks.
+- [x] T018 Build prompt composer for provocation style, tone, and user custom instruction blending.
+- [x] T019 Implement `AIService` actor with async generation, cancellation support, and timeout handling.
+- [x] T020 Normalize model output into `ProvocationResponse` (headline, body, optional follow-up prompt).
+- [x] T021 Add unit tests for prompt composition and AI error mapping using service protocol mocks.
+- [x] T022 Add performance tests for response time and memory usage under representative prompt sizes.
 
 ### Implementation Notes
 - Keep all prompt creation local and deterministic for reproducibility.
@@ -154,7 +154,7 @@ Dependencies: WP01, WP02
 
 ---
 
-## User Story Phase
+## Phase 3 - User Story Delivery
 
 ## Work Package WP05: Floating Panel UI & Interaction States (Priority: P1) 🎯 MVP
 
@@ -164,11 +164,11 @@ Dependencies: WP01, WP02
 **Estimated Prompt Size**: ~390 lines
 
 ### Included Subtasks
-- [ ] T023 Implement floating `NSPanel` host integrated with SwiftUI content view.
-- [ ] T024 Build panel state view hierarchy (idle/loading/success/error) and associated view models.
-- [ ] T025 Implement user actions: copy provocation, regenerate, close, and pin/unpin behavior.
-- [ ] T026 Add keyboard and accessibility affordances (Escape, tab order, VoiceOver labels).
-- [ ] T027 Create UI tests for core panel flows and state transitions.
+- [x] T023 Implement floating `NSPanel` host integrated with SwiftUI content view.
+- [x] T024 Build panel state view hierarchy (idle/loading/success/error) and associated view models.
+- [x] T025 Implement user actions: copy provocation, regenerate, close, and pin/unpin behavior.
+- [x] T026 Add keyboard and accessibility affordances (Escape, tab order, VoiceOver labels).
+- [x] T027 Create UI tests for core panel flows and state transitions.
 
 ### Implementation Notes
 - Keep panel above other windows without stealing focus unnecessarily.
@@ -196,12 +196,12 @@ Dependencies: WP03, WP04
 **Estimated Prompt Size**: ~470 lines
 
 ### Included Subtasks
-- [ ] T028 Implement global hotkey registration/lifecycle for Cmd+Shift+P.
-- [ ] T029 Build orchestration use-case coordinating `TextCaptureService`, `AIService`, and panel presenter.
-- [ ] T030 Implement status bar menu actions (Generate, Settings, Launch at Login toggle, Check for Updates, Quit).
-- [ ] T031 Add concurrency control (single-flight generation, cancellation, and trigger debouncing).
-- [ ] T032 Map operational failures to user-visible messaging and non-intrusive notifications.
-- [ ] T033 Add integration tests for end-to-end orchestration with mocked dependencies.
+- [x] T028 Implement global hotkey registration/lifecycle for Cmd+Shift+P.
+- [x] T029 Build orchestration use-case coordinating `TextCaptureService`, `AIService`, and panel presenter.
+- [x] T030 Implement status bar menu actions (Generate, Settings, Launch at Login toggle, Check for Updates, Quit).
+- [x] T031 Add concurrency control (single-flight generation, cancellation, and trigger debouncing).
+- [x] T032 Map operational failures to user-visible messaging and non-intrusive notifications.
+- [x] T033 Add integration tests for end-to-end orchestration with mocked dependencies.
 
 ### Implementation Notes
 - Centralize flow orchestration in one coordinator to avoid duplicated trigger logic.
@@ -229,11 +229,11 @@ Dependencies: WP03, WP04, WP05
 **Estimated Prompt Size**: ~360 lines
 
 ### Included Subtasks
-- [ ] T034 Implement Settings window shell and navigation (General, Provocation, Accessibility Help sections).
-- [ ] T035 Bind UI controls to observable state and `SettingsService` with two-way updates.
-- [ ] T036 Implement provocation style presets plus custom instruction editor with validation.
-- [ ] T037 Integrate launch-at-login and update-channel controls with state feedback.
-- [ ] T038 Add UI tests covering settings mutation, persistence, and relaunch validation.
+- [x] T034 Implement Settings window shell and navigation (General, Provocation, Accessibility Help sections).
+- [x] T035 Bind UI controls to observable state and `SettingsService` with two-way updates.
+- [x] T036 Implement provocation style presets plus custom instruction editor with validation.
+- [x] T037 Integrate launch-at-login and update-channel controls with state feedback.
+- [x] T038 Add UI tests covering settings mutation, persistence, and relaunch validation.
 
 ### Implementation Notes
 - Keep settings UX responsive with optimistic updates and rollback on service failure.
@@ -253,7 +253,7 @@ Dependencies: WP02, WP06
 
 ---
 
-## Polish Phase
+## Phase 4 - Polish
 
 ## Work Package WP08: Update Delivery, QA Hardening & Release Readiness (Priority: P2)
 
@@ -263,11 +263,11 @@ Dependencies: WP02, WP06
 **Estimated Prompt Size**: ~410 lines
 
 ### Included Subtasks
-- [ ] T040 Implement first-run onboarding/checklist for accessibility and model readiness.
-- [ ] T041 Add local diagnostics logging/export flow with privacy-safe redaction.
-- [ ] T042 Author quickstart and manual QA checklist for critical feature scenarios.
-- [ ] T043 Add release scripts/docs for unsigned app direct distribution packaging.
-- [ ] T044 Run final regression/performance pass and document release sign-off gates.
+- [x] T040 Implement first-run onboarding/checklist for accessibility and model readiness.
+- [x] T041 Add local diagnostics logging/export flow with privacy-safe redaction.
+- [x] T042 Author quickstart and manual QA checklist for critical feature scenarios.
+- [x] T043 Add release scripts/docs for unsigned app direct distribution packaging.
+- [x] T044 Run final regression/performance pass and document release sign-off gates.
 
 ### Implementation Notes
 - Keep updater integration optional at runtime when feed URL is unavailable in dev.
@@ -275,15 +275,16 @@ Dependencies: WP02, WP06
 - Final QA checklist should map 1:1 to acceptance criteria from this tasks file.
 
 ### Parallel Opportunities
-- T042 and T043 can run in parallel with T039/T041 implementation.
+- T042 and T043 can run in parallel with T040/T041 implementation.
 - T044 can proceed after all MVP WPs reach implementation-complete.
 
 ### Dependencies
 Dependencies: WP06, WP07
 
 ### Risks & Mitigations
-- **Risk**: Update integration can destabilize startup path.
-- **Mitigation**: Keep updater initialization isolated and fail-safe in T039.
+- **Risk**: Missing onboarding may lead to user confusion about permissions.
+- **Mitigation**: Ensure T040 onboarding clearly guides users through accessibility and AI model requirements.
+- **Execution note**: Automated suites run via `swift test`; OS-driven flows still require manual QA on a host machine.
 
 ---
 
@@ -342,5 +343,4 @@ Dependencies: WP06, WP07
 | T041 | Add diagnostics logging/export | WP08 | P2 | Yes |
 | T042 | Write quickstart + manual QA checklist | WP08 | P2 | Yes |
 | T043 | Release scripts | WP08 | P2 | Yes |
-| T044 | Final regression + sign-off gates | WP08 | P2 | No |
-
+| T044 | Final regression + sign-off gates | WP08 | P2 | No | `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/research/release-signoff.md` |

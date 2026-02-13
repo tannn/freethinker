@@ -1,30 +1,33 @@
 ---
-work_package_id: "WP06"
-subtasks:
-  - "T028"
-  - "T029"
-  - "T030"
-  - "T031"
-  - "T032"
-  - "T033"
-title: "Global Trigger Flow, Menu Bar Actions & Orchestration"
-phase: "Phase 3 - User Story Delivery"
-lane: "planned"
+work_package_id: WP06
+title: Global Trigger Flow, Menu Bar Actions & Orchestration
+lane: "done"
 dependencies:
-  - "WP03"
-  - "WP04"
-  - "WP05"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP03
+- WP04
+- WP05
+base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP05
+base_commit: e078bb639dc8797382e564372fab9a90854b3df9
+created_at: '2026-02-13T09:08:04.420497+00:00'
+subtasks:
+- T028
+- T029
+- T030
+- T031
+- T032
+- T033
+phase: Phase 3 - User Story Delivery
+assignee: ''
+agent: "tanner"
+shell_pid: "8703"
+review_status: "approved"
+reviewed_by: "Tanner"
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP06 - Global Trigger Flow, Menu Bar Actions & Orchestration
@@ -53,8 +56,9 @@ history:
   1. Implement global hotkey manager registering `Cmd+Shift+P` at app startup.
   2. Add lifecycle hooks for register/unregister on app activation/termination.
   3. Detect registration conflicts/failures and expose typed errors.
-  4. Route successful trigger events to orchestration coordinator.
-  5. Add optional setting hook for enabling/disabling hotkey.
+  4. Implement fallback behavior on conflict: notify user via panel notification, offer to open settings to disable conflicting app or change hotkey.
+  5. Route successful trigger events to orchestration coordinator.
+  6. Add optional setting hook for enabling/disabling hotkey.
 - **Files**:
   - `FreeThinker/Core/Services/GlobalHotkeyService.swift`
   - `FreeThinker/App/AppDelegate.swift`
@@ -62,6 +66,7 @@ history:
 - **Parallel?**: Yes.
 - **Notes**:
   - Keep hotkey implementation swappable/mocked for tests.
+  - Conflict resolution: graceful degradation with clear user messaging, not silent failure.
 
 ### Subtask T029 - Build end-to-end orchestration coordinator
 - **Purpose**: Centralize business flow so trigger origin (menu/hotkey) does not duplicate logic.
@@ -135,12 +140,16 @@ history:
   3. Test permission denial and no-selection outcomes produce correct state transitions.
   4. Test single-flight/debounce behavior under rapid trigger bursts.
   5. Test cancellation propagation from UI actions.
+  6. Test mid-generation cancellation: verify cleanup, no orphaned tasks, and correct state reset.
+  7. Test cancellation during text capture vs AI generation phases.
 - **Files**:
   - `FreeThinkerTests/ProvocationOrchestratorIntegrationTests.swift`
   - `FreeThinkerTests/GlobalHotkeyServiceTests.swift`
+  - `FreeThinkerTests/CancellationIntegrationTests.swift`
 - **Parallel?**: Yes.
 - **Notes**:
   - Keep orchestration tests deterministic by stubbing clocks/timers where needed.
+  - Cancellation tests must verify resource cleanup and state consistency.
 
 ## Test Strategy
 - Run integration suite for orchestrator and trigger services.
@@ -159,4 +168,6 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T09:08:03Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T16:53:57Z – tanner – shell_pid=8703 – lane=doing – Started review via workflow command
+- 2026-02-13T17:00:00Z – tanner – shell_pid=8703 – lane=done – Review passed: Global hotkey, orchestration, menu bar, concurrency, error mapping all implemented. Build succeeds, core tests pass.

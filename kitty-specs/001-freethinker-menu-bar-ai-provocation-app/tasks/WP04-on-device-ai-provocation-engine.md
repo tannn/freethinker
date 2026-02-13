@@ -1,29 +1,32 @@
 ---
-work_package_id: "WP04"
-subtasks:
-  - "T017"
-  - "T018"
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-title: "On-Device AI Provocation Engine"
-phase: "Phase 2 - Foundation"
-lane: "planned"
+work_package_id: WP04
+title: On-Device AI Provocation Engine
+lane: "done"
 dependencies:
-  - "WP01"
-  - "WP02"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP01
+- WP02
+base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP02
+base_commit: 081f87d5f93fc0cd91c6f206380bd7a4d17147bc
+created_at: '2026-02-13T08:17:31.623372+00:00'
+subtasks:
+- T017
+- T018
+- T019
+- T020
+- T021
+- T022
+phase: Phase 2 - Foundation
+assignee: ''
+agent: "OpenCode"
+shell_pid: "36901"
+review_status: "approved"
+reviewed_by: "Tanner"
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - On-Device AI Provocation Engine
@@ -117,6 +120,7 @@ history:
   3. Mock adapter failures and verify `AIService` error mapping.
   4. Test parser handling for good, partial, and malformed model output.
   5. Validate cancellation/timeout branches in service logic.
+  6. Test cancellation token propagation: verify adapter receives cancellation, no memory leaks, proper Task cleanup.
 - **Files**:
   - `FreeThinkerTests/ProvocationPromptComposerTests.swift`
   - `FreeThinkerTests/DefaultAIServiceTests.swift`
@@ -124,6 +128,7 @@ history:
 - **Parallel?**: Yes.
 - **Notes**:
   - Keep tests deterministic by avoiding live model calls.
+  - Cancellation tests should verify cooperative cancellation behavior, not just timeout.
 
 ### Subtask T022 - Add AI performance tests
 - **Purpose**: Establish measurable latency/performance confidence for the interactive trigger flow.
@@ -157,4 +162,5 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T08:17:31Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T08:42:36Z – unknown – lane=done – Review passed: On-device AI engine implemented with FoundationModelsAdapter, prompt composer, AIService actor with timeout/retry/cancellation, response parser, and comprehensive unit/performance tests. No network dependencies.

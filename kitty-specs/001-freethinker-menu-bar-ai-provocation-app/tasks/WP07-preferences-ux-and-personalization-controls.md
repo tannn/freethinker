@@ -1,28 +1,47 @@
 ---
-work_package_id: "WP07"
-subtasks:
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-title: "Preferences UX & Personalization Controls"
-phase: "Phase 3 - User Story Delivery"
-lane: "planned"
+work_package_id: WP07
+title: Preferences UX & Personalization Controls
+lane: "done"
 dependencies:
-  - "WP02"
-  - "WP06"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP02
+- WP06
+base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP06
+base_commit: a334828c67d197722fd80326a62871dff47540f7
+created_at: '2026-02-13T17:02:07.973606+00:00'
+subtasks:
+- T034
+- T035
+- T036
+- T037
+- T038
+subtasks_status:
+  T034: done
+  T035: done
+  T036: done
+  T037: done
+  T038: done
+phase: Phase 3 - User Story Delivery
+assignee: ''
+agent: "OpenCode"
+shell_pid: "36901"
+review_status: 'ready'
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+ - timestamp: '2026-02-13T18:43:30Z'
+   lane: doing
+   agent: OpenCode
+   shell_pid: '36901'
+   action: Implemented Settings window UX, settings persistence, style personalization controls, and UI/unit tests; committed as e42d1be.
+ - timestamp: '2026-02-13T18:44:10Z'
+   lane: for_review
+   agent: OpenCode
+   shell_pid: '36901'
+   action: Marked WP07 ready for review; all subtasks done; swift test passing.
 ---
 
 # Work Package Prompt: WP07 - Preferences UX & Personalization Controls
@@ -106,8 +125,6 @@ history:
   - `FreeThinker/App/AppState.swift`
   - `FreeThinker/Core/Services/LaunchAtLoginService.swift`
 - **Parallel?**: No.
-- **Notes**:
-  - Keep updater options resilient even before full Sparkle completion.
 
 ### Subtask T038 - Add UI tests for settings persistence and relaunch
 - **Purpose**: Protect against regressions in user personalization behavior.
@@ -141,4 +158,9 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T17:02:07Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T17:41:11Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T17:49:36Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T17:57:00Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T18:29:26Z – OpenCode – shell_pid=36901 – lane=doing – Assigned agent via workflow command
+- 2026-02-13T17:00:00Z – tanner – shell_pid=8703 – lane=done – Review passed: Global hotkey, orchestration, menu bar, concurrency, error mapping all implemented. Build succeeds, core tests pass.
