@@ -128,7 +128,7 @@ The settings panel shall allow customization of:
 *Acceptance*: All settings persist between app launches via UserDefaults.
 
 **FR-008**: On-Device AI Processing  
-All AI provocations shall be generated using Apple Foundation Models (MLX framework or similar) running locally on device.  
+All AI provocations shall be generated using Apple Foundation Models running locally on device.  
 *Acceptance*: No network requests made for AI generation; works offline.
 
 ### 3.2 Performance Requirements
@@ -248,7 +248,7 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 
 ### 7.2 Framework Dependencies
 - SwiftUI (UI)
-- MLX Swift (on-device AI inference)
+- Apple Foundation Model (on-device AI inference)
 - ServiceManagement (launch at login)
 
 ### 7.3 External Dependencies
