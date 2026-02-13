@@ -166,7 +166,7 @@ Dependencies: WP01, WP02
 ### Included Subtasks
 - [x] T023 Implement floating `NSPanel` host integrated with SwiftUI content view.
 - [x] T024 Build panel state view hierarchy (idle/loading/success/error) and associated view models.
-- [ ] T025 Implement user actions: copy provocation, regenerate, close, and pin/unpin behavior.
+- [x] T025 Implement user actions: copy provocation, regenerate, close, and pin/unpin behavior.
 - [ ] T026 Add keyboard and accessibility affordances (Escape, tab order, VoiceOver labels).
 - [ ] T027 Create UI tests for core panel flows and state transitions.
 
