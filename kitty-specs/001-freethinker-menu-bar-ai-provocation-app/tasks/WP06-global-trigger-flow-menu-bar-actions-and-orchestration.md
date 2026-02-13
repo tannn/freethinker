@@ -1,7 +1,7 @@
 ---
 work_package_id: WP06
 title: Global Trigger Flow, Menu Bar Actions & Orchestration
-lane: "doing"
+lane: "done"
 dependencies:
 - WP03
 - WP04
@@ -20,8 +20,8 @@ phase: Phase 3 - User Story Delivery
 assignee: ''
 agent: "tanner"
 shell_pid: "8703"
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-13T05:57:37Z'
   lane: planned
@@ -170,3 +170,4 @@ history:
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
 - 2026-02-13T09:08:03Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T16:53:57Z – tanner – shell_pid=8703 – lane=doing – Started review via workflow command
+- 2026-02-13T17:00:00Z – tanner – shell_pid=8703 – lane=done – Review passed: Global hotkey, orchestration, menu bar, concurrency, error mapping all implemented. Build succeeds, core tests pass.
