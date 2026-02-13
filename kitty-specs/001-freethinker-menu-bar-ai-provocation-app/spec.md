@@ -33,7 +33,7 @@ A lightweight menu bar app that:
 
 **Given**: User is reading an article in Safari  
 **When**: User selects text "AI will replace all human jobs by 2030"  
-**And**: User presses Cmd+Shift+O  
+**And**: User presses Cmd+Shift+P
 **Then**: Floating panel appears within 200ms showing:
   - Hidden Assumptions: "This assumes AI capabilities will advance linearly without regulatory intervention..."
   - Counterargument: "Historical data shows technology typically creates new job categories while displacing others..."
@@ -89,8 +89,8 @@ The app shall register a global hotkey (default: Cmd+Shift+O) that works across 
 *Acceptance*: Hotkey triggers even when app is not frontmost.
 
 **FR-002**: Text Capture  
-The app shall capture currently selected text from the active application when the hotkey is pressed.  
-*Acceptance*: Works with text selected in Safari, Mail, Notes, TextEdit, and other standard apps.
+The app shall capture currently selected text using macOS Accessibility API (`AXUIElementCopyAttributeValue` with `kAXSelectedTextAttribute`) when the hotkey is pressed.
+*Acceptance*: Works with text selected in Safari, Mail, Notes, TextEdit, and other standard apps. Requires Accessibility permission.
 
 **FR-003**: Dual Provocation Generation  
 The app shall generate 2 parallel provocations using Apple Foundation Models:  
@@ -99,11 +99,12 @@ The app shall generate 2 parallel provocations using Apple Foundation Models:
 *Acceptance*: Both provocations appear in the panel within 3 seconds.
 
 **FR-004**: Floating Panel Display  
-The app shall display a floating panel near the cursor position containing:  
+The app shall display a floating panel near selection bounds:  
 - Original selected text (truncated if >200 chars)  
 - Two provocation sections with headers  
 - "More..." button for additional provocations  
 - Close button (X)  
+- Use AXUIElementCopyAttributeValue(systemWideElement,kAXSelectedTextRangeAttribute)) for precise positioning
 *Acceptance*: Panel appears within 200ms, is readable, and follows macOS design conventions.
 
 **FR-005**: Panel Interaction  
@@ -112,10 +113,11 @@ The panel shall support:
 - Click outside panel to dismiss  
 - Press Escape to dismiss  
 - Click X button to dismiss  
+- Clicking the provocation text copies it to clipboard
 *Acceptance*: All interaction methods work consistently.
 
 **FR-006**: Menu Bar Presence  
-The app shall display an icon in the macOS menu bar indicating it is running.  
+The app shall display an icon (✨) in the macOS menu bar indicating it is running.  
 *Acceptance*: Icon visible in menu bar; clicking shows menu with Settings, About, Quit options.
 
 **FR-007**: Settings Panel  
@@ -169,7 +171,7 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 | SC-004 | Zero network requests for AI processing | Verified via network monitoring tools |
 | SC-005 | Settings persist across app restarts | Verified via UserDefaults inspection |
 | SC-006 | App uses less than 200MB RAM | Activity Monitor measurement |
-| SC-007 | Works on macOS 14+ (Sonoma) | Tested on target OS versions |
+| SC-007 | Works on macOS 26 (Tahoe) | Tested on target OS versions |
 
 ---
 
@@ -200,6 +202,12 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 - prompt2: String (default: "Provide a strong counterargument to this claim")
 - launchAtLogin: Bool (default: false)
 ```
+
+**AppState**
+- isGenerating: Bool
+- provocations: [ProvocationResponse]
+- errorMessage: String?
+
 
 ### 5.2 UI Components
 
@@ -240,7 +248,6 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 
 ### 7.2 Framework Dependencies
 - SwiftUI (UI)
-- Combine (reactive programming)
 - MLX Swift (on-device AI inference)
 - ServiceManagement (launch at login)
 
@@ -259,7 +266,6 @@ The following features are explicitly **not included** in this version:
 4. **Custom Model Training**: Users cannot train or fine-tune models
 5. **Non-English Languages**: Initial version optimized for English text
 6. **iOS/iPadOS**: macOS only (no Universal app)
-7. **Keyboard Shortcuts Customization**: Limited to predefined hotkey combinations
 8. **Collaboration**: No multi-user or sync features
 
 ---
