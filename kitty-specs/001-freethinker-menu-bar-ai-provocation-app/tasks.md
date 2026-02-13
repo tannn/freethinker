@@ -229,11 +229,11 @@ Dependencies: WP03, WP04, WP05
 **Estimated Prompt Size**: ~360 lines
 
 ### Included Subtasks
-- [ ] T034 Implement Settings window shell and navigation (General, Provocation, Accessibility Help sections).
-- [ ] T035 Bind UI controls to observable state and `SettingsService` with two-way updates.
-- [ ] T036 Implement provocation style presets plus custom instruction editor with validation.
-- [ ] T037 Integrate launch-at-login and update-channel controls with state feedback.
-- [ ] T038 Add UI tests covering settings mutation, persistence, and relaunch validation.
+- [x] T034 Implement Settings window shell and navigation (General, Provocation, Accessibility Help sections).
+- [x] T035 Bind UI controls to observable state and `SettingsService` with two-way updates.
+- [x] T036 Implement provocation style presets plus custom instruction editor with validation.
+- [x] T037 Integrate launch-at-login and update-channel controls with state feedback.
+- [x] T038 Add UI tests covering settings mutation, persistence, and relaunch validation.
 
 ### Implementation Notes
 - Keep settings UX responsive with optimistic updates and rollback on service failure.
