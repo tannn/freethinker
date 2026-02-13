@@ -8,7 +8,7 @@ subtasks:
   - "T044"
 title: "Update Delivery, QA Hardening & Release Readiness"
 phase: "Phase 4 - Polish"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP06"
   - "WP07"
@@ -138,4 +138,4 @@ history:
 
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
-
+- 2026-02-13T18:06:44Z – unknown – lane=doing – Automated: start implementation
