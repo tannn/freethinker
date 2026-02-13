@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Project Bootstrap & Architecture Guardrails
-lane: "doing"
+lane: "for_review"
 dependencies: []
 base_branch: main
 base_commit: 081f87d5f93fc0cd91c6f206380bd7a4d17147bc
