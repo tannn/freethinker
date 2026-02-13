@@ -37,11 +37,11 @@ require_env() {
   [[ -n "${!name:-}" ]] || fail "Missing required environment variable: $name"
 }
 
-run_step() {
+run_publish_step() {
   if [[ "$PUBLISH" -eq 1 ]]; then
     "$@"
   else
-    log "DRY-RUN: $*"
+    log "SKIP (publish only): $*"
   fi
 }
 
@@ -112,10 +112,16 @@ ZIP_PATH="$RELEASE_DIR/FreeThinker-$VERSION.zip"
 if [[ -z "$APP_PATH" && -n "$PROJECT_PATH" ]]; then
   APP_PATH="$ARCHIVE_PATH/Products/Applications/FreeThinker.app"
   log "Building archive from project: $PROJECT_PATH"
-  run_step xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -configuration "$CONFIGURATION" -archivePath "$ARCHIVE_PATH" archive
+  if [[ "$PUBLISH" -eq 1 ]]; then
+    xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -configuration "$CONFIGURATION" -archivePath "$ARCHIVE_PATH" archive
+  else
+    # Dry-run still builds a local unsigned release candidate for validation.
+    xcodebuild -project "$PROJECT_PATH" -scheme "$SCHEME" -configuration "$CONFIGURATION" -archivePath "$ARCHIVE_PATH" archive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+  fi
 fi
 
 [[ -n "$APP_PATH" ]] || fail "Provide --app-path or --project"
+[[ -d "$APP_PATH" ]] || fail "App bundle not found: $APP_PATH"
 
 if [[ "$PUBLISH" -eq 1 ]]; then
   require_env SIGNING_IDENTITY
@@ -136,23 +142,30 @@ fi
 
 if [[ "$PUBLISH" -eq 1 ]]; then
   log "Signing app bundle"
-  run_step codesign --force --deep --options runtime --timestamp --sign "$SIGNING_IDENTITY" "$APP_PATH"
+  codesign --force --deep --options runtime --timestamp --sign "$SIGNING_IDENTITY" "$APP_PATH"
 fi
 
-log "Verifying code signature"
-run_step codesign --verify --deep --strict "$APP_PATH"
+if [[ "$PUBLISH" -eq 1 ]]; then
+  log "Verifying code signature"
+  codesign --verify --deep --strict "$APP_PATH"
+else
+  log "Skipping signature verification in dry-run (unsigned candidates are allowed)."
+fi
 
 log "Packaging app bundle"
-run_step ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+
+log "Writing checksum"
+shasum -a 256 "$ZIP_PATH" > "$ZIP_PATH.sha256"
 
 if [[ "$PUBLISH" -eq 1 ]]; then
   log "Notarization + stapling"
-  run_step xcrun notarytool submit "$ZIP_PATH" --apple-id "$APPLE_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
-  run_step xcrun stapler staple "$APP_PATH"
-  run_step xcrun stapler validate "$APP_PATH"
+  run_publish_step xcrun notarytool submit "$ZIP_PATH" --apple-id "$APPLE_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
+  run_publish_step xcrun stapler staple "$APP_PATH"
+  run_publish_step xcrun stapler validate "$APP_PATH"
 
   log "Appcast prerequisites"
-  run_step /usr/bin/env bash -lc "echo 'Update appcast at \"$APPCAST_PATH\" for version $VERSION and sign with \"$APPCAST_PRIVATE_KEY_PATH\".'"
+  run_publish_step /usr/bin/env bash -lc "echo 'Update appcast at \"$APPCAST_PATH\" for version $VERSION and sign with \"$APPCAST_PRIVATE_KEY_PATH\".'"
 else
   log "DRY-RUN: notarization and appcast steps are skipped until --publish is provided."
 fi

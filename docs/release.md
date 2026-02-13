@@ -1,7 +1,7 @@
 # Release Guide (Direct Download)
 
 ## Scope
-This flow prepares an unsigned/direct-download style release candidate and supports optional publish actions (signing/notarization/appcast) behind an explicit flag.
+This flow prepares an unsigned/direct-download style release candidate by default and keeps publish actions (signing/notarization/appcast) behind an explicit `--publish` flag.
 
 ## Required Tooling
 - Xcode command line tools (`xcodebuild`, `xcrun`)
@@ -21,18 +21,23 @@ Reference template: `.env.example`
 
 ## Preflight Checks Implemented
 - Required commands available
+- App bundle exists (always, either from `--app-path` or `--project` archive output)
 - Required env vars present (when `--publish`)
 - Signing identity present in keychain (when `--publish`)
-- App bundle exists (when `--publish`)
 - Appcast file exists (when `--publish`)
 - Appcast private key exists (when `--publish`)
 
-## Publish Flow Steps
+## Default (Dry-Run) Steps
+1. Build unsigned archive when `--project` is provided.
+2. Package zip artifact.
+3. Write SHA-256 checksum file next to the zip.
+4. Skip signing/notarization/appcast operations.
+
+## Publish Flow Additional Steps
 1. Sign app bundle with `SIGNING_IDENTITY`.
 2. Verify code signature.
-3. Package zip artifact.
-4. Submit for notarization, staple ticket, validate staple.
-5. Perform appcast prerequisite step.
+3. Submit for notarization, staple ticket, validate staple.
+4. Perform appcast prerequisite step.
 
 ## Script Usage
 Dry-run (default, non-destructive):
@@ -48,7 +53,7 @@ scripts/release.sh --version 0.1.0 --app-path /path/to/FreeThinker.app --publish
 
 Build archive from project then package:
 ```bash
-scripts/release.sh --version 0.1.0 --project FreeThinker.xcodeproj --scheme FreeThinker --publish
+scripts/release.sh --version 0.1.0 --project FreeThinker.xcodeproj --scheme FreeThinker
 ```
 
 Build a runnable app bundle via SwiftPM (developer convenience):
@@ -62,6 +67,7 @@ For shipping artifacts, prefer the `--app-path` (prebuilt `.app`) or `--project`
 Generated artifacts are written to:
 - `dist/FreeThinker-<version>/FreeThinker.xcarchive`
 - `dist/FreeThinker-<version>/FreeThinker-<version>.zip`
+- `dist/FreeThinker-<version>/FreeThinker-<version>.zip.sha256`
 
 ## Failure Guidance
 - `Missing required environment variable`: load `.env` and retry.
