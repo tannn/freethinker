@@ -284,6 +284,7 @@ Dependencies: WP06, WP07
 ### Risks & Mitigations
 - **Risk**: Missing onboarding may lead to user confusion about permissions.
 - **Mitigation**: Ensure T040 onboarding clearly guides users through accessibility and AI model requirements.
+- **Execution note**: Automated suites run via `swift test`; OS-driven flows still require manual QA on a host machine.
 
 ---
 
@@ -343,4 +344,3 @@ Dependencies: WP06, WP07
 | T042 | Write quickstart + manual QA checklist | WP08 | P2 | Yes |
 | T043 | Release scripts | WP08 | P2 | Yes |
 | T044 | Final regression + sign-off gates | WP08 | P2 | No | `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/research/release-signoff.md` |
-
