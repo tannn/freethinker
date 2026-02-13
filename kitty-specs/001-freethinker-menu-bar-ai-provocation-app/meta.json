@@ -1,0 +1,10 @@
+{
+  "feature_number": "001",
+  "slug": "freethinker-menu-bar-ai-provocation-app",
+  "friendly_name": "FreeThinker Menu Bar AI Provocation App",
+  "mission": "software-dev",
+  "source_description": "Create a complete, ready-to-use menu bar app called \"FreeThinker\" that provides on-device AI provocations (powered by apple foundation models) via a floating panel for selected text.",
+  "created_at": "2026-02-12T00:00:00Z",
+  "target_branch": "main",
+  "vcs": "git"
+}
