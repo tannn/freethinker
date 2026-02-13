@@ -29,6 +29,29 @@ final class SettingsUITests: XCTestCase {
         XCTAssertEqual(persisted?.automaticallyCheckForUpdates, false)
     }
 
+    func testPersistenceKeepsLatestSettingsWhenEarlierSaveFinishesLast() async throws {
+        let recorder = ControlledPersistenceRecorder()
+        let appState = makeAppState()
+        appState.onSettingsPersistRequested = { settings in
+            await recorder.persist(settings)
+        }
+
+        await appState.setDismissOnCopy(false)
+        await recorder.waitForFirstSaveToStart()
+
+        await appState.setDismissOnCopy(true)
+        try await Task.sleep(nanoseconds: 30_000_000)
+        await recorder.allowFirstSaveToFinish()
+        try await Task.sleep(nanoseconds: 80_000_000)
+
+        let saveCount = await recorder.saveCount()
+        let lastSaved = await recorder.lastSaved()
+
+        XCTAssertEqual(saveCount, 2)
+        XCTAssertEqual(lastSaved?.dismissOnCopy, true)
+        XCTAssertFalse(appState.isPersistingSettings)
+    }
+
     func testPinBehaviorPersistsAcrossRelaunchSimulation() async {
         let pinningStore = InMemoryPinningStore()
         let firstLaunch = makeAppState(pinningStore: pinningStore)
@@ -160,6 +183,42 @@ private actor PersistenceRecorder {
 
     func record(_ settings: AppSettings) {
         lastSaved = settings
+    }
+}
+
+private actor ControlledPersistenceRecorder {
+    private var persisted: [AppSettings] = []
+    private var saveCallCount = 0
+    private var firstSaveReleaseContinuation: CheckedContinuation<Void, Never>?
+
+    func persist(_ settings: AppSettings) async {
+        saveCallCount += 1
+        if saveCallCount == 1 {
+            await withCheckedContinuation { continuation in
+                firstSaveReleaseContinuation = continuation
+            }
+        }
+
+        persisted.append(settings)
+    }
+
+    func waitForFirstSaveToStart() async {
+        while saveCallCount == 0 {
+            await Task.yield()
+        }
+    }
+
+    func allowFirstSaveToFinish() {
+        firstSaveReleaseContinuation?.resume()
+        firstSaveReleaseContinuation = nil
+    }
+
+    func lastSaved() -> AppSettings? {
+        persisted.last
+    }
+
+    func saveCount() -> Int {
+        persisted.count
     }
 }
 

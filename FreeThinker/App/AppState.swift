@@ -76,7 +76,8 @@ public final class AppState: ObservableObject {
 
     private let pinningStore: any PanelPinningStore
     private var panelController: FloatingPanelController?
-    private var settingsSaveToken: UInt64 = 0
+    private var pendingSettingsSave: AppSettings?
+    private var settingsSaveTask: Task<Void, Never>?
 
     public init(
         settings: AppSettings = AppSettings(),
@@ -339,30 +340,39 @@ private extension AppState {
     }
 
     func persistSettingsIfNeeded(_ settings: AppSettings) {
-        guard let onSettingsPersistRequested else {
+        guard onSettingsPersistRequested != nil else {
             return
         }
 
-        settingsSaveToken += 1
-        let saveToken = settingsSaveToken
+        pendingSettingsSave = settings
         isPersistingSettings = true
 
-        Task { [weak self] in
-            guard let self else { return }
+        guard settingsSaveTask == nil else {
+            return
+        }
+
+        settingsSaveTask = Task { [weak self] in
+            await self?.drainPendingSettingsSaves()
+        }
+    }
+
+    func drainPendingSettingsSaves() async {
+        defer {
+            settingsSaveTask = nil
+            isPersistingSettings = false
+        }
+
+        while let settingsToPersist = pendingSettingsSave {
+            pendingSettingsSave = nil
+            guard let onSettingsPersistRequested else {
+                continue
+            }
 
             do {
-                try await onSettingsPersistRequested(settings)
-                await MainActor.run {
-                    guard saveToken == self.settingsSaveToken else { return }
-                    self.settingsSaveErrorMessage = nil
-                    self.isPersistingSettings = false
-                }
+                try await onSettingsPersistRequested(settingsToPersist)
+                settingsSaveErrorMessage = nil
             } catch {
-                await MainActor.run {
-                    guard saveToken == self.settingsSaveToken else { return }
-                    self.settingsSaveErrorMessage = "Could not save settings. \(self.mapSettingsError(error))"
-                    self.isPersistingSettings = false
-                }
+                settingsSaveErrorMessage = "Could not save settings. \(mapSettingsError(error))"
             }
         }
     }

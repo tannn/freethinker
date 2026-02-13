@@ -36,8 +36,10 @@ Reference template: `.env.example`
 ## Publish Flow Additional Steps
 1. Sign app bundle with `SIGNING_IDENTITY`.
 2. Verify code signature.
-3. Submit for notarization, staple ticket, validate staple.
-4. Perform appcast prerequisite step.
+3. Package ZIP for notarization submission.
+4. Submit for notarization, staple ticket, validate staple.
+5. Re-package the stapled app bundle for distribution.
+6. Perform appcast prerequisite step.
 
 ## Script Usage
 Dry-run (default, non-destructive):

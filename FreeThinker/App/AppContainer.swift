@@ -175,12 +175,6 @@ private extension AppContainer {
 
         appState.onSettingsUpdated = { [weak self] settings in
             guard let self else { return }
-            do {
-                try self.settingsService.saveSettings(settings)
-            } catch {
-                Logger.warning("Settings persistence failed error=\(error.localizedDescription)", category: .settings)
-            }
-
             self.hotkeyService.refreshRegistration(using: settings)
             self.diagnosticsLogger.setEnabled(settings.diagnosticsEnabled)
 
@@ -203,7 +197,12 @@ private extension AppContainer {
 
         appState.onSettingsPersistRequested = { [weak self] settings in
             guard let self else { return }
-            try self.settingsService.saveSettings(settings)
+            do {
+                try self.settingsService.saveSettings(settings)
+            } catch {
+                Logger.warning("Settings persistence failed error=\(error.localizedDescription)", category: .settings)
+                throw error
+            }
         }
 
         appState.onOnboardingPresentationChanged = { [weak self] isPresented in

@@ -152,23 +152,29 @@ else
   log "Skipping signature verification in dry-run (unsigned candidates are allowed)."
 fi
 
-log "Packaging app bundle"
-ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
-
-log "Writing checksum"
-shasum -a 256 "$ZIP_PATH" > "$ZIP_PATH.sha256"
-
 if [[ "$PUBLISH" -eq 1 ]]; then
+  log "Packaging app bundle for notarization submission"
+  ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+
   log "Notarization + stapling"
   run_publish_step xcrun notarytool submit "$ZIP_PATH" --apple-id "$APPLE_ID" --password "$APPLE_APP_SPECIFIC_PASSWORD" --team-id "$APPLE_TEAM_ID" --wait
   run_publish_step xcrun stapler staple "$APP_PATH"
   run_publish_step xcrun stapler validate "$APP_PATH"
 
+  log "Re-packaging stapled app bundle for distribution"
+  ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+
   log "Appcast prerequisites"
   run_publish_step /usr/bin/env bash -lc "echo 'Update appcast at \"$APPCAST_PATH\" for version $VERSION and sign with \"$APPCAST_PRIVATE_KEY_PATH\".'"
 else
+  log "Packaging app bundle"
+  ditto -c -k --keepParent "$APP_PATH" "$ZIP_PATH"
+
   log "DRY-RUN: notarization and appcast steps are skipped until --publish is provided."
 fi
+
+log "Writing checksum"
+shasum -a 256 "$ZIP_PATH" > "$ZIP_PATH.sha256"
 
 if [[ "$PUBLISH" -eq 1 ]]; then
   log "Release publish flow completed."
