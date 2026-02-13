@@ -164,7 +164,7 @@ Dependencies: WP01, WP02
 **Estimated Prompt Size**: ~390 lines
 
 ### Included Subtasks
-- [ ] T023 Implement floating `NSPanel` host integrated with SwiftUI content view.
+- [x] T023 Implement floating `NSPanel` host integrated with SwiftUI content view.
 - [ ] T024 Build panel state view hierarchy (idle/loading/success/error) and associated view models.
 - [ ] T025 Implement user actions: copy provocation, regenerate, close, and pin/unpin behavior.
 - [ ] T026 Add keyboard and accessibility affordances (Escape, tab order, VoiceOver labels).
