@@ -3,7 +3,9 @@ vcs:
 agents:
   available:
   - opencode
+  - codex
+  - copilot
   selection:
     strategy: preferred
-    preferred_implementer: opencode
-    preferred_reviewer: opencode
+    preferred_implementer: codex
+    preferred_reviewer: copilot
