@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Update Delivery, QA Hardening & Release Readiness
-lane: "for_review"
+lane: "done"
 dependencies:
 - WP06
 - WP07
@@ -147,3 +147,4 @@ history:
 - 2026-02-13T18:56:22Z – unknown – lane=planned – Moved to planned
 - 2026-02-13T18:57:58Z – opencode – shell_pid=54167 – lane=doing – Started implementation via workflow command
 - 2026-02-13T19:31:35Z – opencode – shell_pid=54167 – lane=for_review – Rebased onto WP07; added SwiftPM executable product FreeThinkerApp (macOS 26+), onboarding+diagnostics, and release docs/scripts; swift test passed (55; 1 skipped).
+- 2026-02-13T17:00:00Z – tanner – shell_pid=8703 – lane=done – Review passed: Global hotkey, orchestration, menu bar, concurrency, error mapping all implemented. Build succeeds, core tests pass.
