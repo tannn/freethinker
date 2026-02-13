@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-  - "T005"
-title: "Project Bootstrap & Architecture Guardrails"
-phase: "Phase 1 - Setup"
+work_package_id: WP01
+title: Project Bootstrap & Architecture Guardrails
 lane: "doing"
 dependencies: []
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+base_branch: main
+base_commit: 081f87d5f93fc0cd91c6f206380bd7a4d17147bc
+created_at: '2026-02-13T06:32:19.567451+00:00'
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+phase: Phase 1 - Setup
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Project Bootstrap & Architecture Guardrails
@@ -154,3 +157,4 @@ history:
 ## Activity Log
 - 2026-02-13T05:57:37Z - system - lane=planned - Prompt created.
 - 2026-02-13T06:32:19Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T06:53:14Z – unknown – lane=doing – Automated: start implementation
