@@ -133,7 +133,7 @@ Dependencies: WP01, WP02
 - [x] T018 Build prompt composer for provocation style, tone, and user custom instruction blending.
 - [x] T019 Implement `AIService` actor with async generation, cancellation support, and timeout handling.
 - [x] T020 Normalize model output into `ProvocationResponse` (headline, body, optional follow-up prompt).
-- [ ] T021 Add unit tests for prompt composition and AI error mapping using service protocol mocks.
+- [x] T021 Add unit tests for prompt composition and AI error mapping using service protocol mocks.
 - [ ] T022 Add performance tests for response time and memory usage under representative prompt sizes.
 
 ### Implementation Notes
