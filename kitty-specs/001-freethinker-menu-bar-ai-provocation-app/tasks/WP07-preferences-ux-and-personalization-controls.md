@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP07"
-subtasks:
-  - "T034"
-  - "T035"
-  - "T036"
-  - "T037"
-  - "T038"
-title: "Preferences UX & Personalization Controls"
-phase: "Phase 3 - User Story Delivery"
-lane: "doing"
+work_package_id: WP07
+title: Preferences UX & Personalization Controls
+lane: for_review
 dependencies:
-  - "WP02"
-  - "WP06"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP02
+- WP06
+base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP06
+base_commit: a334828c67d197722fd80326a62871dff47540f7
+created_at: '2026-02-13T17:02:07.973606+00:00'
+subtasks:
+- T034
+- T035
+- T036
+- T037
+- T038
+phase: Phase 3 - User Story Delivery
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-13T05:57:37Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-13T05:57:37Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP07 - Preferences UX & Personalization Controls
