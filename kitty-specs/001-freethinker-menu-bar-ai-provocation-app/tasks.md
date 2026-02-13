@@ -196,7 +196,7 @@ Dependencies: WP03, WP04
 **Estimated Prompt Size**: ~470 lines
 
 ### Included Subtasks
-- [ ] T028 Implement global hotkey registration/lifecycle for Cmd+Shift+P.
+- [x] T028 Implement global hotkey registration/lifecycle for Cmd+Shift+P.
 - [ ] T029 Build orchestration use-case coordinating `TextCaptureService`, `AIService`, and panel presenter.
 - [ ] T030 Implement status bar menu actions (Generate, Settings, Launch at Login toggle, Check for Updates, Quit).
 - [ ] T031 Add concurrency control (single-flight generation, cancellation, and trigger debouncing).
