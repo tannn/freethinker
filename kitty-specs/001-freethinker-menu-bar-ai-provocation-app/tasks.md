@@ -129,7 +129,7 @@ Dependencies: WP01, WP02
 **Estimated Prompt Size**: ~440 lines
 
 ### Included Subtasks
-- [ ] T017 Implement FoundationModels adapter around `SystemLanguageModel.default` with availability checks.
+- [x] T017 Implement FoundationModels adapter around `SystemLanguageModel.default` with availability checks.
 - [ ] T018 Build prompt composer for provocation style, tone, and user custom instruction blending.
 - [ ] T019 Implement `AIService` actor with async generation, cancellation support, and timeout handling.
 - [ ] T020 Normalize model output into `ProvocationResponse` (headline, body, optional follow-up prompt).
