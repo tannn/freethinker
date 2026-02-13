@@ -1,6 +1,5 @@
 # Agent Context: FreeThinker
 
-**Agent**: opencode  
 **Feature**: 001-freethinker-menu-bar-ai-provocation-app  
 **Updated**: 2026-02-12
 
