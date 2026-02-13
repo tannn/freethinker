@@ -197,7 +197,7 @@ Dependencies: WP03, WP04
 
 ### Included Subtasks
 - [x] T028 Implement global hotkey registration/lifecycle for Cmd+Shift+P.
-- [ ] T029 Build orchestration use-case coordinating `TextCaptureService`, `AIService`, and panel presenter.
+- [x] T029 Build orchestration use-case coordinating `TextCaptureService`, `AIService`, and panel presenter.
 - [ ] T030 Implement status bar menu actions (Generate, Settings, Launch at Login toggle, Check for Updates, Quit).
 - [ ] T031 Add concurrency control (single-flight generation, cancellation, and trigger debouncing).
 - [ ] T032 Map operational failures to user-visible messaging and non-intrusive notifications.
