@@ -257,13 +257,12 @@ Dependencies: WP02, WP06
 
 ## Work Package WP08: Update Delivery, QA Hardening & Release Readiness (Priority: P2)
 
-**Goal**: Prepare production-grade distribution with Sparkle updates, operational diagnostics, and final validation artifacts.
-**Independent Test**: App update path works in staging, quickstart checklist passes, and release build is reproducible with documented workflow.
+**Goal**: Prepare unsigned app for operational diagnostics and final validation artifacts.
+**Independent Test**: Quickstart checklist passes and release build is reproducible with documented workflow.
 **Prompt**: `/tasks/WP08-update-delivery-qa-hardening-and-release-readiness.md`
 **Estimated Prompt Size**: ~410 lines
 
 ### Included Subtasks
-- [ ] T039 Integrate Sparkle updater into menu bar app lifecycle and menu actions.
 - [ ] T040 Implement first-run onboarding/checklist for accessibility and model readiness.
 - [ ] T041 Add local diagnostics logging/export flow with privacy-safe redaction.
 - [ ] T042 Author quickstart and manual QA checklist for critical feature scenarios.
@@ -338,10 +337,10 @@ Dependencies: WP06, WP07
 | T036 | Style presets + custom instructions | WP07 | P1 | Yes |
 | T037 | Launch-at-login + update controls | WP07 | P1 | No |
 | T038 | UI tests for settings persistence | WP07 | P1 | Yes |
-| T039 | Integrate Sparkle updater | WP08 | P2 | No |
+| T039 | REMOVED | WP08 | P2 | No |
 | T040 | First-run onboarding checklist | WP08 | P2 | No |
 | T041 | Add diagnostics logging/export | WP08 | P2 | Yes |
 | T042 | Write quickstart + manual QA checklist | WP08 | P2 | Yes |
-| T043 | Signing/notarization/release scripts | WP08 | P2 | Yes |
+| T043 | Release scripts | WP08 | P2 | Yes |
 | T044 | Final regression + sign-off gates | WP08 | P2 | No |
 

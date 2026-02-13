@@ -78,7 +78,6 @@ history:
 - **Parallel?**: No.
 - **Notes**:
   - Avoid adding broad permissions not required for this feature set.
-  - Keep signing configuration placeholders production-friendly for later notarization work in WP08.
 
 ### Subtask T003 - Wire app entry points and dependency bootstrap
 - **Purpose**: Create the thin composition root and ensure startup path is stable.

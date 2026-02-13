@@ -111,12 +111,12 @@ history:
 - **Notes**:
   - Prefer concise task-oriented documentation over narrative prose.
 
-### Subtask T043 - Add release scripts/docs for signing and notarization flow
-- **Purpose**: Make release process reproducible and less error-prone.
+### Subtask T043 - Add release scripts/docs
+- **Purpose**: Make unsigned release process reproducible and less error-prone.
 - **Steps**:
-  1. Add release script skeleton for archive/sign/notarize/staple/package operations.
+  1. Add release script skeleton for archive/staple/package operations.
   2. Externalize secrets and credentials to environment variables.
-  3. Document required Apple Developer tooling and credential setup.
+  3. Document required tooling
   4. Add preflight checks to script (required env vars, certificate presence, appcast prerequisites).
   5. Add failure guidance and rollback notes.
 - **Files**:
