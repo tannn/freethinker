@@ -37,6 +37,12 @@ public struct ProvocationResponseParser: ProvocationResponseParsing, Sendable {
 }
 
 private extension ProvocationResponseParser {
+    enum TaggedSection {
+        case headline
+        case body
+        case followUp
+    }
+
     struct ExtractedSections {
         let headline: String?
         let body: String?
@@ -44,26 +50,69 @@ private extension ProvocationResponseParser {
     }
 
     func extractTaggedSections(from text: String) -> ExtractedSections {
-        var headline: String?
-        var body: String?
-        var followUp: String?
+        var sectionBuffers: [TaggedSection: [String]] = [:]
+        var currentSection: TaggedSection?
 
         for rawLine in text.components(separatedBy: .newlines) {
             let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
-            if line.isEmpty { continue }
-            let lower = line.lowercased()
 
-            if lower.hasPrefix("headline:") {
-                headline = String(line.dropFirst("headline:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
-            } else if lower.hasPrefix("body:") {
-                body = String(line.dropFirst("body:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
-            } else if lower.hasPrefix("follow_up:") || lower.hasPrefix("follow-up:") || lower.hasPrefix("followup:") {
-                let suffix = line.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false).dropFirst().first ?? ""
-                followUp = String(suffix).trimmingCharacters(in: .whitespacesAndNewlines)
+            if let (section, initialValue) = parseTaggedLine(line) {
+                currentSection = section
+                if !initialValue.isEmpty {
+                    sectionBuffers[section, default: []].append(initialValue)
+                }
+                continue
             }
+
+            guard let currentSection, !line.isEmpty else {
+                continue
+            }
+
+            sectionBuffers[currentSection, default: []].append(line)
         }
 
-        return ExtractedSections(headline: headline, body: body, followUp: followUp)
+        return ExtractedSections(
+            headline: joinedSection(sectionBuffers[.headline]),
+            body: joinedSection(sectionBuffers[.body]),
+            followUp: joinedSection(sectionBuffers[.followUp])
+        )
+    }
+
+    func parseTaggedLine(_ line: String) -> (TaggedSection, String)? {
+        guard let tagSeparator = line.firstIndex(of: ":") else {
+            return nil
+        }
+
+        let tag = line[..<tagSeparator]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        let value = line[line.index(after: tagSeparator)...]
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        switch tag {
+        case "headline":
+            return (.headline, value)
+        case "body":
+            return (.body, value)
+        case "follow_up", "follow-up", "followup":
+            return (.followUp, value)
+        default:
+            return nil
+        }
+    }
+
+    func joinedSection(_ lines: [String]?) -> String? {
+        guard let lines else {
+            return nil
+        }
+
+        let joined = lines
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return joined.isEmpty ? nil : joined
     }
 
     func fallbackHeadline(from text: String) -> String {

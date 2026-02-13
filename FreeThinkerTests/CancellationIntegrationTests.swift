@@ -102,6 +102,36 @@ final class CancellationIntegrationTests: XCTestCase {
             await recorder.responseCount == 1
         }
     }
+
+    func testCancellationSuppressesLateSuccessPayload() async throws {
+        let capture = CancellationTextCaptureService(
+            delayNanoseconds: 0,
+            capturedText: "Prompt input"
+        )
+        let ai = CancellationIgnoringSuccessAIService(delayNanoseconds: 700_000_000)
+        let recorder = CancellationCallbackRecorder()
+
+        let orchestrator = makeOrchestrator(
+            capture: capture,
+            aiService: ai,
+            recorder: recorder
+        )
+
+        _ = await orchestrator.trigger(source: .hotkey, regenerateFromResponseID: nil)
+
+        try await waitUntil("AI started") {
+            await ai.generateCallCount == 1
+        }
+
+        await orchestrator.cancelCurrentGeneration(reason: .userClosedPanel)
+        try await Task.sleep(nanoseconds: 80_000_000)
+
+        let responseCount = await recorder.responseCount
+        XCTAssertEqual(responseCount, 0)
+
+        let metrics = await orchestrator.currentMetrics()
+        XCTAssertEqual(metrics.cancellationCount, 1)
+    }
 }
 
 private extension CancellationIntegrationTests {
@@ -111,9 +141,23 @@ private extension CancellationIntegrationTests {
         recorder: CancellationCallbackRecorder,
         debounceNanoseconds: UInt64 = 300_000_000
     ) -> ProvocationOrchestrator {
+        makeOrchestrator(
+            capture: capture,
+            aiService: ai,
+            recorder: recorder,
+            debounceNanoseconds: debounceNanoseconds
+        )
+    }
+
+    func makeOrchestrator(
+        capture: CancellationTextCaptureService,
+        aiService: any AIServiceProtocol,
+        recorder: CancellationCallbackRecorder,
+        debounceNanoseconds: UInt64 = 300_000_000
+    ) -> ProvocationOrchestrator {
         ProvocationOrchestrator(
             textCaptureService: capture,
-            aiService: ai,
+            aiService: aiService,
             settingsProvider: { AppSettings() },
             callbacks: ProvocationOrchestratorCallbacks(
                 setGenerating: { value in
@@ -151,6 +195,51 @@ private extension CancellationIntegrationTests {
             try await Task.sleep(nanoseconds: pollNanoseconds)
         }
         XCTFail("Timed out waiting for \(label)")
+    }
+}
+
+private actor CancellationIgnoringSuccessAIService: AIServiceProtocol {
+    private(set) var currentModel: ModelOption = .default
+    private let delayNanoseconds: UInt64
+    private(set) var generateCallCount = 0
+
+    nonisolated var isAvailable: Bool { true }
+
+    init(delayNanoseconds: UInt64) {
+        self.delayNanoseconds = delayNanoseconds
+    }
+
+    func setCurrentModel(_ model: ModelOption) {
+        currentModel = model
+    }
+
+    func preloadModel() async throws {}
+
+    func generateProvocation(request: ProvocationRequest, settings: AppSettings) async -> ProvocationResponse {
+        generateCallCount += 1
+
+        if delayNanoseconds > 0 {
+            do {
+                try await Task.sleep(nanoseconds: delayNanoseconds)
+            } catch {
+                // Intentionally ignore cancellation and return success to simulate a non-cooperative provider.
+            }
+        }
+
+        return ProvocationResponse(
+            requestId: request.id,
+            originalText: request.selectedText,
+            provocationType: request.provocationType,
+            styleUsed: settings.provocationStylePreset,
+            outcome: .success(
+                content: ProvocationContent(
+                    headline: "Should Not Be Shown",
+                    body: "Cancelled results must not be presented.",
+                    followUpQuestion: nil
+                )
+            ),
+            generationTime: 0.1
+        )
     }
 }
 

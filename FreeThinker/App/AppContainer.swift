@@ -256,8 +256,26 @@ private extension AppContainer {
     }
 
     func presentHotkeyRegistrationError(_ error: GlobalHotkeyServiceError) {
+        ensureReachableAfterHotkeyFailure()
+
         let presentation = errorMapper.map(error: error.mappedFreeThinkerError, source: .hotkey)
         appState.presentErrorPresentation(presentation)
+    }
+
+    func ensureReachableAfterHotkeyFailure() {
+        guard appState.settings.showMenuBarIcon == false else {
+            return
+        }
+
+        Logger.warning(
+            "Hotkey failed while menu bar icon hidden; re-enabling status item for recovery.",
+            category: .hotkey
+        )
+
+        var settings = appState.settings
+        settings.showMenuBarIcon = true
+        appState.updateSettings(settings)
+        appState.openSettings(section: .general)
     }
 
     func syncLaunchAtLoginFromSystem() {

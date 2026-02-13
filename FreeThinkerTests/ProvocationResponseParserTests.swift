@@ -17,6 +17,26 @@ final class ProvocationResponseParserTests: XCTestCase {
         XCTAssertEqual(parsed.followUpQuestion, "What assumptions about failure modes are left unstated?")
     }
 
+    func testParseStructuredOutputKeepsMultilineBodyBlock() throws {
+        let parser = ProvocationResponseParser()
+        let raw = """
+        HEADLINE: Ambition hides tradeoffs
+        BODY:
+        The argument assumes speed and quality can both maximize at once.
+        It underestimates rework risk in later stages.
+        FOLLOW_UP: Which quality constraints are being deferred?
+        """
+
+        let parsed = try parser.parse(rawOutput: raw)
+
+        XCTAssertEqual(parsed.headline, "Ambition hides tradeoffs")
+        XCTAssertEqual(
+            parsed.body,
+            "The argument assumes speed and quality can both maximize at once.\nIt underestimates rework risk in later stages."
+        )
+        XCTAssertEqual(parsed.followUpQuestion, "Which quality constraints are being deferred?")
+    }
+
     func testParseFallsBackWhenTagsAreMissing() throws {
         let parser = ProvocationResponseParser()
         let raw = """

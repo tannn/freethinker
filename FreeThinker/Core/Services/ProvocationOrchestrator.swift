@@ -247,6 +247,20 @@ private extension ProvocationOrchestrator {
             )
             let response = await aiService.generateProvocation(request: request, settings: settings)
 
+            if Task.isCancelled || pendingCancellationReason != nil {
+                metrics.cancellationCount += 1
+                let reason = pendingCancellationReason?.rawValue ?? "task-cancelled"
+                Logger.info("Pipeline cancelled source=\(source.rawValue) reason=\(reason)", category: .orchestrator)
+                recordDiagnostic(
+                    stage: .aiGeneration,
+                    category: .warning,
+                    message: "Pipeline cancelled",
+                    source: source,
+                    metadata: ["reason": reason]
+                )
+                return
+            }
+
             if let error = response.error {
                 if error == .cancelled || Task.isCancelled {
                     metrics.cancellationCount += 1
