@@ -20,7 +20,7 @@ public enum GlobalHotkeyServiceError: Error, Equatable, Sendable {
     }
 }
 
-public protocol GlobalHotkeyRegistering {
+public protocol GlobalHotkeyRegistering: AnyObject {
     func installHandler(_ handler: @escaping (UInt32) -> Void) throws
     func removeHandler()
     func register(id: UInt32, keyCode: UInt32, modifiers: UInt32) throws

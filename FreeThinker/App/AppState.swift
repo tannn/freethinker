@@ -32,15 +32,22 @@ public final class UserDefaultsPanelPinningStore: PanelPinningStore, @unchecked 
 public final class AppState: ObservableObject {
     @Published public private(set) var settings: AppSettings
     @Published public private(set) var isGenerating: Bool = false
+    @Published public private(set) var settingsSaveErrorMessage: String?
+    @Published public private(set) var settingsValidationMessage: String?
+    @Published public private(set) var isPersistingSettings: Bool = false
 
     public let panelViewModel: FloatingPanelViewModel
 
     public var onRegenerateRequested: ((_ regenerateFromResponseID: UUID?) async -> Void)?
     public var onCloseRequested: (() -> Void)?
     public var onSettingsUpdated: ((AppSettings) -> Void)?
+    public var onSettingsPersistRequested: ((AppSettings) async throws -> Void)?
+    public var onLaunchAtLoginChangeRequested: ((Bool) async throws -> Void)?
+    public var onOpenSettingsRequested: ((SettingsSection) -> Void)?
 
     private let pinningStore: any PanelPinningStore
     private var panelController: FloatingPanelController?
+    private var settingsSaveToken: UInt64 = 0
 
     public init(
         settings: AppSettings = AppSettings(),
@@ -62,6 +69,7 @@ public final class AppState: ObservableObject {
         panelViewModel = FloatingPanelViewModel(
             isPinned: pinningStore.loadPinnedState(),
             dismissOnCopy: validatedSettings.dismissOnCopy,
+            autoDismissSeconds: validatedSettings.autoDismissSeconds,
             timing: timing,
             pasteboardWriter: resolvedPasteboardWriter
         )
@@ -127,9 +135,26 @@ public final class AppState: ObservableObject {
     }
 
     public func updateSettings(_ settings: AppSettings) {
-        self.settings = settings.validated()
-        panelViewModel.dismissOnCopy = self.settings.dismissOnCopy
-        onSettingsUpdated?(self.settings)
+        let candidate = settings.validated()
+        guard let validationIssue = validateSettings(candidate) else {
+            settingsValidationMessage = nil
+            if onSettingsPersistRequested == nil {
+                settingsSaveErrorMessage = nil
+            }
+
+            guard candidate != self.settings else {
+                return
+            }
+
+            self.settings = candidate
+            panelViewModel.dismissOnCopy = self.settings.dismissOnCopy
+            panelViewModel.autoDismissSeconds = self.settings.autoDismissSeconds
+            onSettingsUpdated?(self.settings)
+            persistSettingsIfNeeded(self.settings)
+            return
+        }
+
+        settingsValidationMessage = validationIssue
     }
 
     public func setGenerating(_ isGenerating: Bool) {
@@ -138,5 +163,143 @@ public final class AppState: ObservableObject {
 
     public var isPanelVisible: Bool {
         panelController?.panel.isVisible ?? false
+    }
+
+    public func mutateSettings(_ mutation: (inout AppSettings) -> Void) async {
+        var next = settings
+        mutation(&next)
+        updateSettings(next)
+    }
+
+    public func setDismissOnCopy(_ isEnabled: Bool) async {
+        await mutateSettings { $0.dismissOnCopy = isEnabled }
+    }
+
+    public func setAutoDismissSeconds(_ seconds: TimeInterval) async {
+        await mutateSettings { $0.autoDismissSeconds = seconds }
+    }
+
+    public func setHotkeyEnabled(_ isEnabled: Bool) async {
+        await mutateSettings { $0.hotkeyEnabled = isEnabled }
+    }
+
+    public func setShowMenuBarIcon(_ isEnabled: Bool) async {
+        await mutateSettings { $0.showMenuBarIcon = isEnabled }
+    }
+
+    public func setFallbackCaptureEnabled(_ isEnabled: Bool) async {
+        await mutateSettings { $0.fallbackCaptureEnabled = isEnabled }
+    }
+
+    public func setPanelPinned(_ isPinned: Bool) async {
+        guard panelViewModel.isPinned != isPinned else {
+            return
+        }
+        panelViewModel.togglePin()
+    }
+
+    public func setAutomaticallyCheckForUpdates(_ isEnabled: Bool) async {
+        await mutateSettings { $0.automaticallyCheckForUpdates = isEnabled }
+    }
+
+    public func setAppUpdateChannel(_ channel: AppUpdateChannel) async {
+        await mutateSettings { $0.appUpdateChannel = channel }
+    }
+
+    public func setProvocationStylePreset(_ preset: ProvocationStylePreset) async {
+        await mutateSettings { $0.provocationStylePreset = preset }
+    }
+
+    public func setCustomStyleInstructions(_ instructions: String) async {
+        await mutateSettings { $0.customStyleInstructions = instructions }
+    }
+
+    public func resetProvocationStyleCustomization() async {
+        await mutateSettings {
+            $0.provocationStylePreset = .socratic
+            $0.customStyleInstructions = ""
+        }
+    }
+
+    public func setLaunchAtLoginEnabled(_ isEnabled: Bool) async {
+        settingsSaveErrorMessage = nil
+
+        do {
+            try await onLaunchAtLoginChangeRequested?(isEnabled)
+        } catch {
+            let reason = mapSettingsError(error)
+            settingsSaveErrorMessage = "Could not update Launch at Login. \(reason)"
+            return
+        }
+
+        await mutateSettings { $0.launchAtLogin = isEnabled }
+    }
+
+    public func openSettings(section: SettingsSection = .general) {
+        onOpenSettingsRequested?(section)
+    }
+
+    public func clearSettingsFeedback() {
+        settingsSaveErrorMessage = nil
+        settingsValidationMessage = nil
+    }
+}
+
+private extension AppState {
+    func validateSettings(_ settings: AppSettings) -> String? {
+        if settings.hotkeyEnabled == false, settings.showMenuBarIcon == false {
+            return "Keep either Global Hotkey or Menu Bar Icon enabled so FreeThinker stays reachable."
+        }
+
+        return nil
+    }
+
+    func persistSettingsIfNeeded(_ settings: AppSettings) {
+        guard let onSettingsPersistRequested else {
+            return
+        }
+
+        settingsSaveToken += 1
+        let saveToken = settingsSaveToken
+        isPersistingSettings = true
+
+        Task { [weak self] in
+            guard let self else { return }
+
+            do {
+                try await onSettingsPersistRequested(settings)
+                await MainActor.run {
+                    guard saveToken == self.settingsSaveToken else { return }
+                    self.settingsSaveErrorMessage = nil
+                    self.isPersistingSettings = false
+                }
+            } catch {
+                await MainActor.run {
+                    guard saveToken == self.settingsSaveToken else { return }
+                    self.settingsSaveErrorMessage = "Could not save settings. \(self.mapSettingsError(error))"
+                    self.isPersistingSettings = false
+                }
+            }
+        }
+    }
+
+    func mapSettingsError(_ error: Error) -> String {
+        if let launchError = error as? LaunchAtLoginError {
+            switch launchError {
+            case .unsupported:
+                return "Launch at Login is not supported on this macOS configuration."
+            case .failed(let message):
+                return message
+            }
+        }
+
+        if let settingsError = error as? SettingsServiceError {
+            switch settingsError {
+            case .encodingFailed:
+                return "Your changes are active now but may not persist after relaunch."
+            }
+        }
+
+        return error.localizedDescription
     }
 }

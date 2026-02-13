@@ -75,8 +75,7 @@ final class ProvocationOrchestratorIntegrationTests: XCTestCase {
         )
         let coordinator = MenuBarCoordinator(
             appState: appState,
-            orchestrator: orchestrator,
-            launchAtLoginController: NoOpLaunchAtLoginController()
+            orchestrator: orchestrator
         )
 
         coordinator.perform(.generate)
@@ -428,14 +427,6 @@ private final class MutableOrchestratorClock: ProvocationOrchestratorClock, @unc
         value = newValue
         lock.unlock()
     }
-}
-
-private final class NoOpLaunchAtLoginController: LaunchAtLoginControlling, @unchecked Sendable {
-    func isEnabled() -> Bool {
-        false
-    }
-
-    func setEnabled(_ isEnabled: Bool) throws {}
 }
 
 private struct ImmediateTiming: FloatingPanelTiming {

@@ -219,6 +219,13 @@ private extension ProvocationOrchestrator {
             let response = await aiService.generateProvocation(request: request, settings: settings)
 
             if let error = response.error {
+                if error == .cancelled {
+                    metrics.cancellationCount += 1
+                    let reason = pendingCancellationReason?.rawValue ?? "service-cancelled"
+                    Logger.info("Pipeline cancelled source=\(source.rawValue) reason=\(reason)", category: .orchestrator)
+                    return
+                }
+
                 await present(error: error, source: source)
                 return
             }

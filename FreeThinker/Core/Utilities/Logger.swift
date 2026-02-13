@@ -10,6 +10,7 @@ public enum Logger {
         case hotkey = "hotkey"
         case textCapture = "text-capture"
         case menuBar = "menu-bar"
+        case settings = "settings"
     }
 
     private static let subsystem = "com.freethinker.app"

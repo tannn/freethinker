@@ -8,8 +8,11 @@ public final class AppContainer {
     public let orchestrator: any ProvocationOrchestrating
     public let hotkeyService: any GlobalHotkeyServiceProtocol
     public let menuBarCoordinator: MenuBarCoordinator
+    public let settingsWindowController: SettingsWindowController
 
     private let errorMapper: ErrorPresentationMapping
+    private let settingsService: any SettingsServiceProtocol
+    private let launchAtLoginController: any LaunchAtLoginControlling
 
     public init(
         appState: AppState,
@@ -18,13 +21,16 @@ public final class AppContainer {
         notificationService: any UserNotificationServiceProtocol = LoggerUserNotificationService(),
         errorMapper: ErrorPresentationMapping = ErrorPresentationMapper(),
         hotkeyService: any GlobalHotkeyServiceProtocol,
-        launchAtLoginController: any LaunchAtLoginControlling = LaunchAtLoginService()
+        launchAtLoginController: any LaunchAtLoginControlling = LaunchAtLoginService(),
+        settingsService: any SettingsServiceProtocol = DefaultSettingsService()
     ) {
         self.appState = appState
         self.aiService = aiService
         self.textCaptureService = textCaptureService
         self.errorMapper = errorMapper
         self.hotkeyService = hotkeyService
+        self.launchAtLoginController = launchAtLoginController
+        self.settingsService = settingsService
 
         let callbacks = AppContainer.makeCallbacks(
             appState: appState,
@@ -44,27 +50,50 @@ public final class AppContainer {
 
         menuBarCoordinator = MenuBarCoordinator(
             appState: appState,
-            orchestrator: orchestrator,
-            launchAtLoginController: launchAtLoginController
+            orchestrator: orchestrator
         )
+
+        settingsWindowController = SettingsWindowController(appState: appState)
 
         wireCallbacks()
     }
 
     public convenience init() {
+        let settingsService = DefaultSettingsService()
+        let loadedSettings = settingsService.loadSettings()
+
         self.init(
-            appState: AppState(),
+            appState: AppState(settings: loadedSettings),
             aiService: DefaultAIService(),
             textCaptureService: DefaultTextCaptureService(),
             notificationService: LoggerUserNotificationService(),
             errorMapper: ErrorPresentationMapper(),
             hotkeyService: GlobalHotkeyService(),
-            launchAtLoginController: LaunchAtLoginService()
+            launchAtLoginController: LaunchAtLoginService(),
+            settingsService: settingsService
         )
     }
 
     public func start() {
-        let settings = appState.settings
+        var settings = appState.settings
+
+        if settings.hotkeyEnabled == false, settings.showMenuBarIcon == false {
+            Logger.warning(
+                "Recovered unreachable startup settings by re-enabling menu bar icon and opening Settings.",
+                category: .settings
+            )
+            settings.showMenuBarIcon = true
+            appState.updateSettings(settings)
+            settings = appState.settings
+            appState.openSettings(section: .general)
+        }
+
+        let launchAtLoginEnabled = launchAtLoginController.isEnabled()
+        if settings.launchAtLogin != launchAtLoginEnabled {
+            settings.launchAtLogin = launchAtLoginEnabled
+            appState.updateSettings(settings)
+            settings = appState.settings
+        }
 
         hotkeyService.onTrigger = { [weak self] in
             guard let self else { return }
@@ -121,12 +150,30 @@ private extension AppContainer {
             }
         }
 
+        appState.onSettingsPersistRequested = { [weak self] settings in
+            guard let self else { return }
+            try self.settingsService.saveSettings(settings)
+        }
+
+        appState.onLaunchAtLoginChangeRequested = { [weak self] isEnabled in
+            guard let self else { return }
+            try self.launchAtLoginController.setEnabled(isEnabled)
+        }
+
+        appState.onOpenSettingsRequested = { [weak self] section in
+            self?.settingsWindowController.show(section: section)
+        }
+
         menuBarCoordinator.onOpenSettings = { [weak self] in
-            self?.appState.presentErrorMessage("Settings window is not wired yet in this package target.")
+            self?.appState.openSettings(section: .general)
         }
 
         menuBarCoordinator.onCheckForUpdates = { [weak self] in
-            self?.appState.presentErrorMessage("Update checks are not wired yet in this package target.")
+            self?.appState.presentErrorMessage("Updater integration ships in WP08. Select channel in Settings now.")
+        }
+
+        settingsWindowController.onCheckForUpdates = { [weak self] in
+            self?.menuBarCoordinator.onCheckForUpdates?()
         }
     }
 

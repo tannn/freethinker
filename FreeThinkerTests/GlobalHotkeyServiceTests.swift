@@ -61,7 +61,6 @@ final class GlobalHotkeyServiceTests: XCTestCase {
     }
 }
 
-@MainActor
 private final class MockGlobalHotkeyRegistrar: GlobalHotkeyRegistering {
     private(set) var installCalls = 0
     private(set) var removeHandlerCalls = 0

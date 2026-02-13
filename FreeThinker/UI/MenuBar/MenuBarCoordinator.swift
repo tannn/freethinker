@@ -13,20 +13,17 @@ public final class MenuBarCoordinator: NSObject {
     private let appState: AppState
     private let orchestrator: any ProvocationOrchestrating
     private let menuBuilder: MenuBarMenuBuilder
-    private let launchAtLoginController: any LaunchAtLoginControlling
 
     private var cancellables: Set<AnyCancellable> = []
 
     public init(
         appState: AppState,
         orchestrator: any ProvocationOrchestrating,
-        menuBuilder: MenuBarMenuBuilder = MenuBarMenuBuilder(),
-        launchAtLoginController: any LaunchAtLoginControlling = LaunchAtLoginService()
+        menuBuilder: MenuBarMenuBuilder = MenuBarMenuBuilder()
     ) {
         self.appState = appState
         self.orchestrator = orchestrator
         self.menuBuilder = menuBuilder
-        self.launchAtLoginController = launchAtLoginController
         super.init()
 
         bindState()
@@ -129,15 +126,8 @@ private extension MenuBarCoordinator {
 
     func toggleLaunchAtLogin() {
         let targetState = !appState.settings.launchAtLogin
-
-        do {
-            try launchAtLoginController.setEnabled(targetState)
-            var settings = appState.settings
-            settings.launchAtLogin = targetState
-            appState.updateSettings(settings)
-        } catch {
-            Logger.warning("Launch at login update failed error=\(error.localizedDescription)", category: .menuBar)
-            appState.presentErrorMessage("Could not update launch at login. Try again from Settings.")
+        Task {
+            await appState.setLaunchAtLoginEnabled(targetState)
         }
     }
 }

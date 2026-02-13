@@ -104,8 +104,17 @@ private extension DefaultAIServiceTests {
 }
 
 private final class MockFoundationModelsAdapter: FoundationModelsAdapterProtocol, @unchecked Sendable {
-    private let lock = NSLock()
-    private var queue: [Result<String, Error>]
+    fileprivate actor State {
+        var queue: [Result<String, Error>]
+        var generateCallCount = 0
+        var didObserveCancellation = false
+
+        init(queue: [Result<String, Error>]) {
+            self.queue = queue
+        }
+    }
+
+    private let state: State
 
     private(set) var generateCallCount = 0
     private(set) var didObserveCancellation = false
@@ -122,7 +131,7 @@ private final class MockFoundationModelsAdapter: FoundationModelsAdapterProtocol
     ) {
         self.availabilityResult = availability
         self.preloadError = preloadError
-        self.queue = scriptedResults
+        self.state = State(queue: scriptedResults)
         self.generateDelayNanoseconds = generateDelayNanoseconds
     }
 
@@ -137,19 +146,20 @@ private final class MockFoundationModelsAdapter: FoundationModelsAdapterProtocol
     }
 
     func generate(prompt: String, options: FoundationGenerationOptions) async throws -> String {
-        lock.lock()
-        generateCallCount += 1
-        lock.unlock()
+        await state.incrementGenerateCallCount(on: self)
 
         if generateDelayNanoseconds > 0 {
             var remaining = generateDelayNanoseconds
             while remaining > 0 {
                 let step = min(remaining, 25_000_000)
-                try await Task.sleep(nanoseconds: step)
+                do {
+                    try await Task.sleep(nanoseconds: step)
+                } catch {
+                    await state.setDidObserveCancellation(on: self)
+                    throw CancellationError()
+                }
                 if Task.isCancelled {
-                    lock.lock()
-                    didObserveCancellation = true
-                    lock.unlock()
+                    await state.setDidObserveCancellation(on: self)
                     throw CancellationError()
                 }
                 remaining -= step
@@ -157,13 +167,7 @@ private final class MockFoundationModelsAdapter: FoundationModelsAdapterProtocol
         }
 
         let result: Result<String, Error>
-        lock.lock()
-        if queue.isEmpty {
-            result = .success("HEADLINE: H\nBODY: B\nFOLLOW_UP: NONE")
-        } else {
-            result = queue.removeFirst()
-        }
-        lock.unlock()
+        result = await state.dequeueOrDefault()
 
         switch result {
         case .success(let value):
@@ -171,5 +175,25 @@ private final class MockFoundationModelsAdapter: FoundationModelsAdapterProtocol
         case .failure(let error):
             throw error
         }
+    }
+}
+
+private extension MockFoundationModelsAdapter.State {
+    func incrementGenerateCallCount(on adapter: MockFoundationModelsAdapter) async {
+        generateCallCount += 1
+        let value = generateCallCount
+        adapter.generateCallCount = value
+    }
+
+    func setDidObserveCancellation(on adapter: MockFoundationModelsAdapter) async {
+        didObserveCancellation = true
+        adapter.didObserveCancellation = true
+    }
+
+    func dequeueOrDefault() -> Result<String, Error> {
+        if queue.isEmpty {
+            return .success("HEADLINE: H\nBODY: B\nFOLLOW_UP: NONE")
+        }
+        return queue.removeFirst()
     }
 }

@@ -26,12 +26,49 @@ public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable,
     }
 }
 
+public enum AppUpdateChannel: String, Codable, CaseIterable, Identifiable, Sendable {
+    case stable
+    case beta
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .stable:
+            return "Stable"
+        case .beta:
+            return "Beta"
+        }
+    }
+}
+
+public enum SettingsSection: String, CaseIterable, Identifiable, Sendable {
+    case general
+    case provocation
+    case accessibilityHelp
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .general:
+            return "General"
+        case .provocation:
+            return "Provocation"
+        case .accessibilityHelp:
+            return "Accessibility Help"
+        }
+    }
+}
+
 public struct AppSettings: Codable, Equatable, Sendable {
-    public static let currentSchemaVersion = 1
+    public static let currentSchemaVersion = 2
     public static let defaultPrompt1 = "Identify hidden assumptions, unstated premises, or implicit biases in the following text."
     public static let defaultPrompt2 = "Provide a strong, well-reasoned counterargument or alternative perspective to the following claim."
     public static let maxPromptLength = 1_000
     public static let maxCustomInstructionLength = 300
+    public static let minAutoDismissSeconds: TimeInterval = 2
+    public static let maxAutoDismissSeconds: TimeInterval = 20
 
     public var schemaVersion: Int
     public var hotkeyEnabled: Bool = true
@@ -43,8 +80,12 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public var selectedModel: ModelOption
     public var showMenuBarIcon: Bool
     public var dismissOnCopy: Bool
+    public var autoDismissSeconds: TimeInterval
+    public var fallbackCaptureEnabled: Bool
     public var provocationStylePreset: ProvocationStylePreset
     public var customStyleInstructions: String
+    public var automaticallyCheckForUpdates: Bool
+    public var appUpdateChannel: AppUpdateChannel
     public var aiTimeoutSeconds: TimeInterval
 
     public init(
@@ -58,8 +99,12 @@ public struct AppSettings: Codable, Equatable, Sendable {
         selectedModel: ModelOption = .default,
         showMenuBarIcon: Bool = true,
         dismissOnCopy: Bool = true,
+        autoDismissSeconds: TimeInterval = 6.0,
+        fallbackCaptureEnabled: Bool = true,
         provocationStylePreset: ProvocationStylePreset = .socratic,
         customStyleInstructions: String = "",
+        automaticallyCheckForUpdates: Bool = true,
+        appUpdateChannel: AppUpdateChannel = .stable,
         aiTimeoutSeconds: TimeInterval = 5.0
     ) {
         self.schemaVersion = schemaVersion
@@ -72,9 +117,59 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.selectedModel = selectedModel
         self.showMenuBarIcon = showMenuBarIcon
         self.dismissOnCopy = dismissOnCopy
+        self.autoDismissSeconds = autoDismissSeconds
+        self.fallbackCaptureEnabled = fallbackCaptureEnabled
         self.provocationStylePreset = provocationStylePreset
         self.customStyleInstructions = customStyleInstructions
+        self.automaticallyCheckForUpdates = automaticallyCheckForUpdates
+        self.appUpdateChannel = appUpdateChannel
         self.aiTimeoutSeconds = aiTimeoutSeconds
+    }
+}
+
+private extension AppSettings {
+    enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case hotkeyEnabled
+        case hotkeyModifiers
+        case hotkeyKeyCode
+        case prompt1
+        case prompt2
+        case launchAtLogin
+        case selectedModel
+        case showMenuBarIcon
+        case dismissOnCopy
+        case autoDismissSeconds
+        case fallbackCaptureEnabled
+        case provocationStylePreset
+        case customStyleInstructions
+        case automaticallyCheckForUpdates
+        case appUpdateChannel
+        case aiTimeoutSeconds
+    }
+}
+
+public extension AppSettings {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? Self.currentSchemaVersion
+        hotkeyEnabled = try container.decodeIfPresent(Bool.self, forKey: .hotkeyEnabled) ?? true
+        hotkeyModifiers = try container.decodeIfPresent(Int.self, forKey: .hotkeyModifiers) ?? 1_179_648
+        hotkeyKeyCode = try container.decodeIfPresent(Int.self, forKey: .hotkeyKeyCode) ?? 35
+        prompt1 = try container.decodeIfPresent(String.self, forKey: .prompt1) ?? Self.defaultPrompt1
+        prompt2 = try container.decodeIfPresent(String.self, forKey: .prompt2) ?? Self.defaultPrompt2
+        launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? false
+        selectedModel = try container.decodeIfPresent(ModelOption.self, forKey: .selectedModel) ?? .default
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? true
+        dismissOnCopy = try container.decodeIfPresent(Bool.self, forKey: .dismissOnCopy) ?? true
+        autoDismissSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .autoDismissSeconds) ?? 6.0
+        fallbackCaptureEnabled = try container.decodeIfPresent(Bool.self, forKey: .fallbackCaptureEnabled) ?? true
+        provocationStylePreset = try container.decodeIfPresent(ProvocationStylePreset.self, forKey: .provocationStylePreset) ?? .socratic
+        customStyleInstructions = try container.decodeIfPresent(String.self, forKey: .customStyleInstructions) ?? ""
+        automaticallyCheckForUpdates = try container.decodeIfPresent(Bool.self, forKey: .automaticallyCheckForUpdates) ?? true
+        appUpdateChannel = try container.decodeIfPresent(AppUpdateChannel.self, forKey: .appUpdateChannel) ?? .stable
+        aiTimeoutSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .aiTimeoutSeconds) ?? 5.0
     }
 }
 
@@ -82,7 +177,7 @@ public extension AppSettings {
     func validated() -> AppSettings {
         var result = self
 
-        if result.schemaVersion <= 0 {
+        if result.schemaVersion < Self.currentSchemaVersion {
             result.schemaVersion = Self.currentSchemaVersion
         }
 
@@ -106,6 +201,12 @@ public extension AppSettings {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .prefix(Self.maxCustomInstructionLength)
         )
+
+        if result.autoDismissSeconds < Self.minAutoDismissSeconds {
+            result.autoDismissSeconds = Self.minAutoDismissSeconds
+        } else if result.autoDismissSeconds > Self.maxAutoDismissSeconds {
+            result.autoDismissSeconds = Self.maxAutoDismissSeconds
+        }
 
         if result.aiTimeoutSeconds < 1 {
             result.aiTimeoutSeconds = 1

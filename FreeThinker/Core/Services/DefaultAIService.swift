@@ -126,7 +126,8 @@ private extension DefaultAIService {
 
         return try await withThrowingTaskGroup(of: T.self) { group in
             group.addTask {
-                try await operation()
+                try Task.checkCancellation()
+                return try await operation()
             }
             group.addTask {
                 try await Task.sleep(nanoseconds: timeoutNanoseconds)
