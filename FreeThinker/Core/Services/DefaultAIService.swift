@@ -50,9 +50,20 @@ public actor DefaultAIService: AIServiceProtocol {
             currentModel = normalizedSettings.selectedModel
             let prompt = promptComposer.composePrompt(for: request, settings: normalizedSettings)
             let options = FoundationGenerationOptions(model: currentModel)
+            let adapter = self.adapter
+            let maxInitializationRetries = self.maxInitializationRetries
+            let retryBackoffNanoseconds = self.retryBackoffNanoseconds
+            let clock = self.clock
 
             let rawOutput = try await withTimeout(seconds: normalizedSettings.aiTimeoutSeconds) {
-                try await self.generateWithRetry(prompt: prompt, options: options)
+                try await Self.generateWithRetry(
+                    prompt: prompt,
+                    options: options,
+                    adapter: adapter,
+                    maxInitializationRetries: maxInitializationRetries,
+                    retryBackoffNanoseconds: retryBackoffNanoseconds,
+                    clock: clock
+                )
             }
 
             let content = try parser.parse(rawOutput: rawOutput)
@@ -71,7 +82,7 @@ public actor DefaultAIService: AIServiceProtocol {
                 timestamp: clock.now()
             )
         } catch {
-            let mapped = mapError(error)
+            let mapped = Self.mapError(error)
             Logger.warning(
                 "Provocation generation failed requestId=\(request.id.uuidString) error=\(String(describing: mapped))",
                 category: .aiService
@@ -90,7 +101,14 @@ public actor DefaultAIService: AIServiceProtocol {
 }
 
 private extension DefaultAIService {
-    func generateWithRetry(prompt: String, options: FoundationGenerationOptions) async throws -> String {
+    static func generateWithRetry(
+        prompt: String,
+        options: FoundationGenerationOptions,
+        adapter: any FoundationModelsAdapterProtocol,
+        maxInitializationRetries: Int,
+        retryBackoffNanoseconds: UInt64,
+        clock: any AIServiceClock
+    ) async throws -> String {
         var attempt = 0
         var lastError: FreeThinkerError = .generationFailed
 
@@ -123,31 +141,50 @@ private extension DefaultAIService {
         operation: @escaping @Sendable () async throws -> T
     ) async throws -> T {
         let timeoutNanoseconds = UInt64(max(0, seconds) * 1_000_000_000)
+        let timeoutClock = clock
+        let taskStore = TimeoutTaskStore()
 
-        return try await withThrowingTaskGroup(of: T.self) { group in
-            group.addTask {
-                try Task.checkCancellation()
-                return try await operation()
-            }
-            group.addTask {
-                try await Task.sleep(nanoseconds: timeoutNanoseconds)
-                throw FreeThinkerError.timeout
-            }
+        defer {
+            taskStore.cancelAll()
+        }
 
-            do {
-                guard let first = try await group.next() else {
-                    throw FreeThinkerError.generationFailed
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<T, Error>) in
+                let race = TimeoutRaceBox(continuation)
+
+                let launchedOperationTask = Task.detached(priority: Task.currentPriority) {
+                    do {
+                        let value = try await operation()
+                        await race.resume(.success(value))
+                    } catch {
+                        await race.resume(.failure(error))
+                    }
+
+                    taskStore.cancelTimeout()
                 }
-                group.cancelAll()
-                return first
-            } catch {
-                group.cancelAll()
-                throw error
+
+                let launchedTimeoutTask = Task.detached(priority: Task.currentPriority) {
+                    do {
+                        try await timeoutClock.sleep(nanoseconds: timeoutNanoseconds)
+                    } catch {
+                        return
+                    }
+
+                    launchedOperationTask.cancel()
+                    await race.resume(.failure(FreeThinkerError.timeout))
+                }
+
+                taskStore.set(
+                    operation: launchedOperationTask,
+                    timeout: launchedTimeoutTask
+                )
             }
+        } onCancel: {
+            taskStore.cancelAll()
         }
     }
 
-    func mapError(_ error: Error) -> FreeThinkerError {
+    static func mapError(_ error: Error) -> FreeThinkerError {
         if let typed = error as? FreeThinkerError {
             return typed
         }
@@ -155,6 +192,55 @@ private extension DefaultAIService {
             return .cancelled
         }
         return .generationFailed
+    }
+}
+
+private actor TimeoutRaceBox<T> {
+    private var continuation: CheckedContinuation<T, Error>?
+
+    init(_ continuation: CheckedContinuation<T, Error>) {
+        self.continuation = continuation
+    }
+
+    func resume(_ result: Result<T, Error>) {
+        guard let continuation else {
+            return
+        }
+
+        self.continuation = nil
+        continuation.resume(with: result)
+    }
+}
+
+private final class TimeoutTaskStore: @unchecked Sendable {
+    private let lock = NSLock()
+    private var operation: Task<Void, Never>?
+    private var timeout: Task<Void, Never>?
+
+    func set(operation: Task<Void, Never>, timeout: Task<Void, Never>) {
+        lock.lock()
+        self.operation = operation
+        self.timeout = timeout
+        lock.unlock()
+    }
+
+    func cancelOperation() {
+        lock.lock()
+        operation?.cancel()
+        lock.unlock()
+    }
+
+    func cancelTimeout() {
+        lock.lock()
+        timeout?.cancel()
+        lock.unlock()
+    }
+
+    func cancelAll() {
+        lock.lock()
+        operation?.cancel()
+        timeout?.cancel()
+        lock.unlock()
     }
 }
 

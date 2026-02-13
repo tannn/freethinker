@@ -92,6 +92,22 @@ final class DefaultAIServiceTests: XCTestCase {
 
         XCTAssertEqual(response.error, .generationFailed)
     }
+
+    func testGenerateProvocationTimeoutDoesNotWaitForNonCooperativeTask() async throws {
+        let adapter = NonCooperativeFoundationModelsAdapter(blockSeconds: 2.2)
+        let service = DefaultAIService(adapter: adapter)
+        let request = try makeRequest(text: "Timeout should remain bounded.")
+
+        let startedAt = Date()
+        let response = await service.generateProvocation(
+            request: request,
+            settings: AppSettings(aiTimeoutSeconds: 1)
+        )
+        let elapsed = Date().timeIntervalSince(startedAt)
+
+        XCTAssertEqual(response.error, .timeout)
+        XCTAssertLessThan(elapsed, 1.5)
+    }
 }
 
 private extension DefaultAIServiceTests {
@@ -194,5 +210,28 @@ private extension MockFoundationModelsAdapter.State {
             return .success("HEADLINE: H\nBODY: B\nFOLLOW_UP: NONE")
         }
         return queue.removeFirst()
+    }
+}
+
+private final class NonCooperativeFoundationModelsAdapter: FoundationModelsAdapterProtocol, @unchecked Sendable {
+    private let blockSeconds: TimeInterval
+
+    init(blockSeconds: TimeInterval) {
+        self.blockSeconds = blockSeconds
+    }
+
+    func availability() -> FoundationModelAvailability {
+        .available
+    }
+
+    func preload(model: ModelOption) async throws {}
+
+    func generate(prompt: String, options: FoundationGenerationOptions) async throws -> String {
+        // Simulate a non-cooperative provider that ignores cancellation.
+        return await withCheckedContinuation { continuation in
+            DispatchQueue.global().asyncAfter(deadline: .now() + blockSeconds) {
+                continuation.resume(returning: "HEADLINE: H\nBODY: B\nFOLLOW_UP: NONE")
+            }
+        }
     }
 }

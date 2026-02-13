@@ -1,0 +1,87 @@
+name: FreeThinker
+options:
+  deploymentTarget:
+    macOS: "26.0"
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+targets:
+  FreeThinker:
+    type: framework
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FreeThinker
+        excludes:
+          - Resources/**
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.freethinker.FreeThinkerCore
+  FreeThinkerApp:
+    type: application
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FreeThinkerApp
+        includes:
+          - "*.swift"
+    resources:
+      - path: FreeThinker/Resources
+    dependencies:
+      - target: FreeThinker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.freethinker.FreeThinker
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: FreeThinker/Resources/Info.plist
+        CODE_SIGN_ENTITLEMENTS: FreeThinker.entitlements
+  FreeThinkerTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FreeThinkerTests
+    dependencies:
+      - target: FreeThinker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.freethinker.FreeThinkerTests
+  FreeThinkerUITests:
+    type: bundle.ui-testing
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FreeThinkerUITests
+    dependencies:
+      - target: FreeThinkerApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.freethinker.FreeThinkerUITests
+  FreeThinkerPerformanceTests:
+    type: bundle.unit-test
+    platform: macOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: FreeThinkerPerformanceTests
+    resources:
+      - path: FreeThinkerPerformanceTests/Fixtures
+    dependencies:
+      - target: FreeThinker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.freethinker.FreeThinkerPerformanceTests
+schemes:
+  FreeThinker:
+    build:
+      targets:
+        FreeThinkerApp: all
+        FreeThinker: all
+    test:
+      gatherCoverageData: false
+      targets:
+        - FreeThinkerTests
+        - FreeThinkerUITests
+        - FreeThinkerPerformanceTests

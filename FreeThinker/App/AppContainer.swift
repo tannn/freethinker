@@ -124,6 +124,9 @@ public final class AppContainer {
 
         hotkeyService.refreshRegistration(using: settings)
 
+        // Hotkey registration callbacks may mutate reachability settings.
+        settings = appState.settings
+
         Task {
             await textCaptureService.setFallbackCaptureEnabled(settings.fallbackCaptureEnabled)
         }

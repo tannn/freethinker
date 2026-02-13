@@ -19,7 +19,10 @@ let package = Package(
     targets: [
         .target(
             name: "FreeThinker",
-            path: "FreeThinker"
+            path: "FreeThinker",
+            exclude: [
+                "Resources"
+            ]
         ),
         .executableTarget(
             name: "FreeThinkerApp",
