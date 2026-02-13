@@ -1,7 +1,7 @@
 ---
 work_package_id: WP07
 title: Preferences UX & Personalization Controls
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 - WP06
