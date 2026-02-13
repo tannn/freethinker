@@ -1,7 +1,7 @@
 ---
 work_package_id: WP08
 title: Update Delivery, QA Hardening & Release Readiness
-lane: "doing"
+lane: "planned"
 dependencies:
 - WP06
 - WP07
@@ -18,8 +18,8 @@ phase: Phase 4 - Polish
 assignee: ''
 agent: ''
 shell_pid: ''
-review_status: ''
-reviewed_by: ''
+review_status: "has_feedback"
+reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-13T05:57:37Z'
   lane: planned
@@ -144,3 +144,4 @@ history:
 - 2026-02-13T18:06:44Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T18:24:54Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-13T18:38:28Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-13T18:56:22Z – unknown – lane=planned – Moved to planned
