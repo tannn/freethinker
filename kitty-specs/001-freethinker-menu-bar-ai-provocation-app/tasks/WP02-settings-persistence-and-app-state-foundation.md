@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Settings Persistence & App State Foundation
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 base_branch: 001-freethinker-menu-bar-ai-provocation-app-WP01
