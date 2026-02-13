@@ -21,9 +21,6 @@ xcode-select --version
 
 # Verify Swift version
 swift --version
-
-# Install Homebrew dependencies (if needed)
-brew install --cask sparkle
 ```
 
 ---
@@ -47,19 +44,6 @@ open FreeThinker/FreeThinker.xcodeproj
 3. Go to "Signing & Capabilities" tab
 4. Set Team to your Apple Developer account (or Personal Team)
 5. Update Bundle Identifier (e.g., `com.yourname.freethinker`)
-
-### 3. Add Sparkle Framework
-
-**Option A: Swift Package Manager (Recommended)**
-1. File -> Add Package Dependencies
-2. Enter: `https://github.com/sparkle-project/Sparkle`
-3. Select version 2.6.0 or later
-4. Add to FreeThinker target
-
-**Option B: Manual Download**
-1. Download from https://sparkle-project.org/
-2. Drag `Sparkle.framework` into project
-3. Add to "Frameworks, Libraries, and Embedded Content"
 
 ### 4. Configure Entitlements
 
@@ -264,13 +248,6 @@ settingsService.settings.prompt1 = "Custom prompt"
 
 ### Build Errors
 
-**"Sparkle framework not found"**
-```bash
-# Verify Sparkle is linked
-# Project -> FreeThinker target -> General -> Frameworks
-# Should see Sparkle.framework
-```
-
 **"Accessibility permission denied"**
 - Check System Settings -> Privacy & Security -> Accessibility
 - Ensure FreeThinker is checked
@@ -345,34 +322,6 @@ xcrun altool --notarize-app \
              --password "@keychain:AC_PASSWORD" \
              --file FreeThinker.dmg
 ```
-
-### Auto-Updates with Sparkle
-
-1. Host appcast.xml on your server
-2. Configure SUFeedURL in Info.plist
-3. Sign updates with EdDSA key
-
-```xml
-<!-- appcast.xml -->
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-  <channel>
-    <title>FreeThinker Changelog</title>
-    <item>
-      <title>Version 1.0</title>
-      <sparkle:version>1.0</sparkle:version>
-      <sparkle:shortVersionString>1.0</sparkle:shortVersionString>
-      <pubDate>Thu, 12 Feb 2026 12:00:00 +0000</pubDate>
-      <enclosure url="https://yourserver.com/FreeThinker-1.0.dmg"
-                 sparkle:edSignature="..."
-                 length="12345678"
-                 type="application/octet-stream"/>
-    </item>
-  </channel>
-</rss>
-```
-
----
 
 ## Contributing
 

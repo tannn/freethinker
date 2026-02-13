@@ -19,7 +19,6 @@ FreeThinker is a macOS menu bar application that provides instant AI-powered pro
 **Primary Dependencies**: 
 - Apple FoundationModels framework (SystemLanguageModel API)
 - ServiceManagement framework (launch at login)
-- Sparkle framework (auto-updates for direct distribution)
 - Accessibility APIs (AXUIElement for text capture)
 - Global hotkey monitoring (NSEvent addGlobalMonitorForEvents/mask:)
   
@@ -118,8 +117,6 @@ FreeThinker/
 │       └── AccessibilityIntegrationTests.swift
 ├── FreeThinkerUITests/
 │   └── FreeThinkerUITests.swift
-└── Frameworks/
-    └── Sparkle.framework (auto-update)
 ```
 
 **Structure Decision**: Standard Xcode project with Clean Architecture separation:

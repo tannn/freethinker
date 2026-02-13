@@ -29,7 +29,6 @@ history:
 # Work Package Prompt: WP08 - Update Delivery, QA Hardening & Release Readiness
 
 ## Objectives & Success Criteria
-- Integrate Sparkle update flow appropriate for direct-distribution macOS app.
 - Deliver first-run onboarding guidance for permission/model readiness.
 - Add privacy-safe diagnostics support for local troubleshooting.
 - Produce quickstart/manual QA/release docs for repeatable validation and shipment.
@@ -45,23 +44,6 @@ history:
 - Testing requirements from project context include integration, UI, and performance validation.
 
 ## Subtasks & Detailed Guidance
-
-### Subtask T039 - Integrate Sparkle updater into app lifecycle
-- **Purpose**: Enable safe update checks and delivery for non-App-Store distribution.
-- **Steps**:
-  1. Add Sparkle dependency/framework integration to project and build settings.
-  2. Initialize updater in app lifecycle with safe failure fallback.
-  3. Wire menu action for manual update check.
-  4. Add configuration points for feed URL/channel and signature requirements.
-  5. Validate updater integration does not block app startup.
-- **Files**:
-  - `FreeThinker/App/AppDelegate.swift`
-  - `FreeThinker/Core/Services/UpdateService.swift`
-  - `FreeThinker/UI/MenuBar/MenuBarCoordinator.swift`
-  - `FreeThinker/Resources/Info.plist` (if required keys)
-- **Parallel?**: No.
-- **Notes**:
-  - Keep updater initialization optional in debug/developer environments where feed is absent.
 
 ### Subtask T040 - Implement first-run onboarding and readiness checklist
 - **Purpose**: Reduce first-use confusion around permissions and model support.
@@ -153,7 +135,6 @@ history:
 - **Release process drift**: Script and document one canonical release flow.
 
 ## Review Guidance
-- Confirm Sparkle integration does not regress core trigger workflow.
 - Verify docs are actionable and not placeholders.
 - Check release and QA artifacts are complete enough for another engineer to execute without guesswork.
 

@@ -18,7 +18,6 @@
 ### Core Dependencies
 - **Apple FoundationModels**: On-device AI inference via SystemLanguageModel API
 - **ServiceManagement**: Launch at login support (SMAppService)
-- **Sparkle**: Auto-update framework for direct distribution
 - **Accessibility APIs**: AXUIElement for text capture
 
 ### Project Structure

@@ -60,7 +60,6 @@ let creativeModel = SystemLanguageModel(useCase: .creativeWriting)
 
 ### Implementation
 - **Distribution**: .dmg/.zip via GitHub Releases or website
-- **Updates**: Sparkle framework (2.x) for automatic updates
 - **Code Signing**: Developer ID signing for Gatekeeper compatibility
 - **Notarization**: Required for macOS 10.15+ (automated via CI)
 
@@ -204,7 +203,7 @@ AXUIElementCopyAttributeValue(
 - **Type**: NSStatusItem
 - **SwiftUI Integration**: Menu content via NSHostingView
 - **Features**:
-  - Status icon (sparkle emoji or custom SF Symbol)
+  - Status icon (sparkle emoji  [✨] or custom SF Symbol)
   - Dropdown menu with Settings, About, Quit
   - Animation support for "no text selected" feedback
 
@@ -305,7 +304,6 @@ All planning questions have been answered:
 - [Apple FoundationModels Documentation](https://developer.apple.com/documentation/foundationmodels)
 - [Accessibility Programming Guide](https://developer.apple.com/library/archive/documentation/Accessibility/Conceptual/AccessibilityMacOSX/)
 - [SMAppService Documentation](https://developer.apple.com/documentation/servicemanagement/smappservice)
-- [Sparkle Framework](https://sparkle-project.org/)
 - [SwiftUI App Lifecycle](https://developer.apple.com/documentation/swiftui/app)
 
 ---

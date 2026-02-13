@@ -1,7 +1,7 @@
 # Work Packages: FreeThinker Menu Bar AI Provocation App
 
 **Inputs**: Design intent from `/kitty-specs/001-freethinker-menu-bar-ai-provocation-app/` and `meta.json` source description
-**Prerequisites**: `plan.md` (not present), `spec.md` (present but empty), optional docs not present (`research.md`, `data-model.md`, `contracts/`, `quickstart.md`)
+**Prerequisites**: `plan.md` (not present), `spec.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`
 
 **Tests**: Included because project context explicitly requires service unit tests, accessibility integration tests, UI tests, and AI performance tests.
 

@@ -106,8 +106,6 @@ history:
   - `FreeThinker/App/AppState.swift`
   - `FreeThinker/Core/Services/LaunchAtLoginService.swift`
 - **Parallel?**: No.
-- **Notes**:
-  - Keep updater options resilient even before full Sparkle completion.
 
 ### Subtask T038 - Add UI tests for settings persistence and relaunch
 - **Purpose**: Protect against regressions in user personalization behavior.
