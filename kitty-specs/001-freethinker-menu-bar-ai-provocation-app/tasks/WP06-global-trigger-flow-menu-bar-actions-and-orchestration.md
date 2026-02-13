@@ -53,8 +53,9 @@ history:
   1. Implement global hotkey manager registering `Cmd+Shift+P` at app startup.
   2. Add lifecycle hooks for register/unregister on app activation/termination.
   3. Detect registration conflicts/failures and expose typed errors.
-  4. Route successful trigger events to orchestration coordinator.
-  5. Add optional setting hook for enabling/disabling hotkey.
+  4. Implement fallback behavior on conflict: notify user via panel notification, offer to open settings to disable conflicting app or change hotkey.
+  5. Route successful trigger events to orchestration coordinator.
+  6. Add optional setting hook for enabling/disabling hotkey.
 - **Files**:
   - `FreeThinker/Core/Services/GlobalHotkeyService.swift`
   - `FreeThinker/App/AppDelegate.swift`
@@ -62,6 +63,7 @@ history:
 - **Parallel?**: Yes.
 - **Notes**:
   - Keep hotkey implementation swappable/mocked for tests.
+  - Conflict resolution: graceful degradation with clear user messaging, not silent failure.
 
 ### Subtask T029 - Build end-to-end orchestration coordinator
 - **Purpose**: Centralize business flow so trigger origin (menu/hotkey) does not duplicate logic.
@@ -135,12 +137,16 @@ history:
   3. Test permission denial and no-selection outcomes produce correct state transitions.
   4. Test single-flight/debounce behavior under rapid trigger bursts.
   5. Test cancellation propagation from UI actions.
+  6. Test mid-generation cancellation: verify cleanup, no orphaned tasks, and correct state reset.
+  7. Test cancellation during text capture vs AI generation phases.
 - **Files**:
   - `FreeThinkerTests/ProvocationOrchestratorIntegrationTests.swift`
   - `FreeThinkerTests/GlobalHotkeyServiceTests.swift`
+  - `FreeThinkerTests/CancellationIntegrationTests.swift`
 - **Parallel?**: Yes.
 - **Notes**:
   - Keep orchestration tests deterministic by stubbing clocks/timers where needed.
+  - Cancellation tests must verify resource cleanup and state consistency.
 
 ## Test Strategy
 - Run integration suite for orchestrator and trigger services.

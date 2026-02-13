@@ -1,7 +1,6 @@
 ---
 work_package_id: "WP08"
 subtasks:
-  - "T039"
   - "T040"
   - "T041"
   - "T042"
@@ -126,7 +125,6 @@ history:
 
 ## Test Strategy
 - Ensure all automated test suites are runnable and documented.
-- Verify updater menu action and safe behavior when update feed is unavailable.
 - Validate onboarding and diagnostics behavior with clean install and upgraded install scenarios.
 
 ## Risks & Mitigations

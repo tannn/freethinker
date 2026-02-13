@@ -21,7 +21,7 @@
 
 ---
 
-## Setup Phase
+## Phase 1 - Setup
 
 ## Work Package WP01: Project Bootstrap & Architecture Guardrails (Priority: P0)
 
@@ -54,7 +54,7 @@ Dependencies: None
 
 ---
 
-## Foundational Phase
+## Phase 2 - Foundation
 
 ## Work Package WP02: Settings Persistence & App State Foundation (Priority: P0)
 
@@ -154,7 +154,7 @@ Dependencies: WP01, WP02
 
 ---
 
-## User Story Phase
+## Phase 3 - User Story Delivery
 
 ## Work Package WP05: Floating Panel UI & Interaction States (Priority: P1) 🎯 MVP
 
@@ -253,7 +253,7 @@ Dependencies: WP02, WP06
 
 ---
 
-## Polish Phase
+## Phase 4 - Polish
 
 ## Work Package WP08: Update Delivery, QA Hardening & Release Readiness (Priority: P2)
 
@@ -275,15 +275,15 @@ Dependencies: WP02, WP06
 - Final QA checklist should map 1:1 to acceptance criteria from this tasks file.
 
 ### Parallel Opportunities
-- T042 and T043 can run in parallel with T039/T041 implementation.
+- T042 and T043 can run in parallel with T040/T041 implementation.
 - T044 can proceed after all MVP WPs reach implementation-complete.
 
 ### Dependencies
 Dependencies: WP06, WP07
 
 ### Risks & Mitigations
-- **Risk**: Update integration can destabilize startup path.
-- **Mitigation**: Keep updater initialization isolated and fail-safe in T039.
+- **Risk**: Missing onboarding may lead to user confusion about permissions.
+- **Mitigation**: Ensure T040 onboarding clearly guides users through accessibility and AI model requirements.
 
 ---
 
@@ -342,5 +342,5 @@ Dependencies: WP06, WP07
 | T041 | Add diagnostics logging/export | WP08 | P2 | Yes |
 | T042 | Write quickstart + manual QA checklist | WP08 | P2 | Yes |
 | T043 | Release scripts | WP08 | P2 | Yes |
-| T044 | Final regression + sign-off gates | WP08 | P2 | No |
+| T044 | Final regression + sign-off gates | WP08 | P2 | No | `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/research/release-signoff.md` |
 

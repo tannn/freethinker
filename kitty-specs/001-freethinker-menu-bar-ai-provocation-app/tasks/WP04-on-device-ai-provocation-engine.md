@@ -117,6 +117,7 @@ history:
   3. Mock adapter failures and verify `AIService` error mapping.
   4. Test parser handling for good, partial, and malformed model output.
   5. Validate cancellation/timeout branches in service logic.
+  6. Test cancellation token propagation: verify adapter receives cancellation, no memory leaks, proper Task cleanup.
 - **Files**:
   - `FreeThinkerTests/ProvocationPromptComposerTests.swift`
   - `FreeThinkerTests/DefaultAIServiceTests.swift`
@@ -124,6 +125,7 @@ history:
 - **Parallel?**: Yes.
 - **Notes**:
   - Keep tests deterministic by avoiding live model calls.
+  - Cancellation tests should verify cooperative cancellation behavior, not just timeout.
 
 ### Subtask T022 - Add AI performance tests
 - **Purpose**: Establish measurable latency/performance confidence for the interactive trigger flow.
