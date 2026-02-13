@@ -1,0 +1,526 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A1B2C3D4E5F6000000000030 /* FreeThinkerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000010 /* FreeThinkerApp.swift */; };
+		A1B2C3D4E5F6000000000031 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000011 /* AppDelegate.swift */; };
+		A1B2C3D4E5F6000000000032 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000012 /* AppContainer.swift */; };
+		A1B2C3D4E5F6000000000033 /* ProvocationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000013 /* ProvocationRequest.swift */; };
+		A1B2C3D4E5F6000000000034 /* ProvocationResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000014 /* ProvocationResponse.swift */; };
+		A1B2C3D4E5F6000000000035 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000015 /* AppSettings.swift */; };
+		A1B2C3D4E5F6000000000036 /* AIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000016 /* AIService.swift */; };
+		A1B2C3D4E5F6000000000037 /* TextCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000017 /* TextCaptureService.swift */; };
+		A1B2C3D4E5F6000000000038 /* SettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000018 /* SettingsService.swift */; };
+		A1B2C3D4E5F6000000000039 /* FreeThinkerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000019 /* FreeThinkerError.swift */; };
+		A1B2C3D4E5F600000000003A /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001A /* Logger.swift */; };
+		A1B2C3D4E5F600000000003B /* MenuBarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001B /* MenuBarCoordinator.swift */; };
+		A1B2C3D4E5F600000000003C /* FloatingPanelPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001C /* FloatingPanelPlaceholderView.swift */; };
+		A1B2C3D4E5F600000000003D /* SettingsPlaceholderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F600000000001D /* SettingsPlaceholderView.swift */; };
+		A1B2C3D4E5F600000000003E /* FreeThinkerModelContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000021 /* FreeThinkerModelContractTests.swift */; };
+		A1B2C3D4E5F6000000000110 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000100 /* AppState.swift */; };
+		A1B2C3D4E5F6000000000111 /* DefaultSettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000101 /* DefaultSettingsService.swift */; };
+		A1B2C3D4E5F6000000000112 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000102 /* LaunchAtLoginService.swift */; };
+		A1B2C3D4E5F6000000000113 /* SettingsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000103 /* SettingsServiceTests.swift */; };
+		A1B2C3D4E5F6000000000114 /* LaunchAtLoginServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000104 /* LaunchAtLoginServiceTests.swift */; };
+		A1B2C3D4E5F6000000000115 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6000000000105 /* AppStateTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1B2C3D4E5F6000000000052 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1B2C3D4E5F6000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1B2C3D4E5F6000000000050;
+			remoteInfo = FreeThinker;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A1B2C3D4E5F6000000000010 /* FreeThinkerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeThinkerApp.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000011 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000012 /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000013 /* ProvocationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationRequest.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000014 /* ProvocationResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationResponse.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000015 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000016 /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000017 /* TextCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCaptureService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000018 /* SettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000019 /* FreeThinkerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeThinkerError.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001A /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001B /* MenuBarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarCoordinator.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001C /* FloatingPanelPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelPlaceholderView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001D /* SettingsPlaceholderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPlaceholderView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1B2C3D4E5F600000000001F /* FreeThinker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreeThinker.entitlements; sourceTree = SOURCE_ROOT; };
+		A1B2C3D4E5F6000000000020 /* README_ARCHITECTURE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README_ARCHITECTURE.md; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000021 /* FreeThinkerModelContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreeThinkerModelContractTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000022 /* FreeThinker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreeThinker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6000000000023 /* FreeThinkerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreeThinkerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6000000000100 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000101 /* DefaultSettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSettingsService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000102 /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000103 /* SettingsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsServiceTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000104 /* LaunchAtLoginServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginServiceTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6000000000105 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A1B2C3D4E5F6000000000041 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D4E5F6000000000044 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A1B2C3D4E5F6000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000004 /* FreeThinker */,
+				A1B2C3D4E5F600000000001F /* FreeThinker.entitlements */,
+				A1B2C3D4E5F600000000000F /* FreeThinkerTests */,
+				A1B2C3D4E5F6000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000022 /* FreeThinker.app */,
+				A1B2C3D4E5F6000000000023 /* FreeThinkerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000004 /* FreeThinker */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000005 /* App */,
+				A1B2C3D4E5F6000000000006 /* Core */,
+				A1B2C3D4E5F600000000000A /* UI */,
+				A1B2C3D4E5F600000000000E /* Resources */,
+				A1B2C3D4E5F6000000000020 /* README_ARCHITECTURE.md */,
+			);
+			path = FreeThinker;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000005 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000010 /* FreeThinkerApp.swift */,
+				A1B2C3D4E5F6000000000011 /* AppDelegate.swift */,
+				A1B2C3D4E5F6000000000012 /* AppContainer.swift */,
+				A1B2C3D4E5F6000000000100 /* AppState.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000006 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000007 /* Models */,
+				A1B2C3D4E5F6000000000008 /* Services */,
+				A1B2C3D4E5F6000000000009 /* Utilities */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000007 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000013 /* ProvocationRequest.swift */,
+				A1B2C3D4E5F6000000000014 /* ProvocationResponse.swift */,
+				A1B2C3D4E5F6000000000015 /* AppSettings.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000008 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000016 /* AIService.swift */,
+				A1B2C3D4E5F6000000000017 /* TextCaptureService.swift */,
+				A1B2C3D4E5F6000000000018 /* SettingsService.swift */,
+				A1B2C3D4E5F6000000000101 /* DefaultSettingsService.swift */,
+				A1B2C3D4E5F6000000000102 /* LaunchAtLoginService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6000000000009 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000019 /* FreeThinkerError.swift */,
+				A1B2C3D4E5F600000000001A /* Logger.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F600000000000A /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F600000000000B /* MenuBar */,
+				A1B2C3D4E5F600000000000C /* FloatingPanel */,
+				A1B2C3D4E5F600000000000D /* Settings */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F600000000000B /* MenuBar */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F600000000001B /* MenuBarCoordinator.swift */,
+			);
+			path = MenuBar;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F600000000000C /* FloatingPanel */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F600000000001C /* FloatingPanelPlaceholderView.swift */,
+			);
+			path = FloatingPanel;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F600000000000D /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F600000000001D /* SettingsPlaceholderView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F600000000000E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F600000000001E /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F600000000000F /* FreeThinkerTests */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6000000000021 /* FreeThinkerModelContractTests.swift */,
+				A1B2C3D4E5F6000000000103 /* SettingsServiceTests.swift */,
+				A1B2C3D4E5F6000000000104 /* LaunchAtLoginServiceTests.swift */,
+				A1B2C3D4E5F6000000000105 /* AppStateTests.swift */,
+			);
+			path = FreeThinkerTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A1B2C3D4E5F6000000000050 /* FreeThinker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D4E5F6000000000065 /* Build configuration list for PBXNativeTarget "FreeThinker" */;
+			buildPhases = (
+				A1B2C3D4E5F6000000000040 /* Sources */,
+				A1B2C3D4E5F6000000000041 /* Frameworks */,
+				A1B2C3D4E5F6000000000042 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FreeThinker;
+			productName = FreeThinker;
+			productReference = A1B2C3D4E5F6000000000022 /* FreeThinker.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A1B2C3D4E5F6000000000051 /* FreeThinkerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D4E5F6000000000068 /* Build configuration list for PBXNativeTarget "FreeThinkerTests" */;
+			buildPhases = (
+				A1B2C3D4E5F6000000000043 /* Sources */,
+				A1B2C3D4E5F6000000000044 /* Frameworks */,
+				A1B2C3D4E5F6000000000045 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1B2C3D4E5F6000000000053 /* PBXTargetDependency */,
+			);
+			name = FreeThinkerTests;
+			productName = FreeThinkerTests;
+			productReference = A1B2C3D4E5F6000000000023 /* FreeThinkerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1B2C3D4E5F6000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A1B2C3D4E5F6000000000050 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+					A1B2C3D4E5F6000000000051 = {
+						CreatedOnToolsVersion = 26.2;
+						TestTargetID = A1B2C3D4E5F6000000000050;
+					};
+				};
+			};
+			buildConfigurationList = A1B2C3D4E5F6000000000062 /* Build configuration list for PBXProject "FreeThinker" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A1B2C3D4E5F6000000000002;
+			productRefGroup = A1B2C3D4E5F6000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A1B2C3D4E5F6000000000050 /* FreeThinker */,
+				A1B2C3D4E5F6000000000051 /* FreeThinkerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A1B2C3D4E5F6000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D4E5F6000000000045 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A1B2C3D4E5F6000000000040 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F6000000000030 /* FreeThinkerApp.swift in Sources */,
+				A1B2C3D4E5F6000000000031 /* AppDelegate.swift in Sources */,
+				A1B2C3D4E5F6000000000032 /* AppContainer.swift in Sources */,
+				A1B2C3D4E5F6000000000033 /* ProvocationRequest.swift in Sources */,
+				A1B2C3D4E5F6000000000034 /* ProvocationResponse.swift in Sources */,
+				A1B2C3D4E5F6000000000035 /* AppSettings.swift in Sources */,
+				A1B2C3D4E5F6000000000036 /* AIService.swift in Sources */,
+				A1B2C3D4E5F6000000000037 /* TextCaptureService.swift in Sources */,
+				A1B2C3D4E5F6000000000038 /* SettingsService.swift in Sources */,
+				A1B2C3D4E5F6000000000039 /* FreeThinkerError.swift in Sources */,
+				A1B2C3D4E5F600000000003A /* Logger.swift in Sources */,
+				A1B2C3D4E5F600000000003B /* MenuBarCoordinator.swift in Sources */,
+				A1B2C3D4E5F600000000003C /* FloatingPanelPlaceholderView.swift in Sources */,
+				A1B2C3D4E5F600000000003D /* SettingsPlaceholderView.swift in Sources */,
+				A1B2C3D4E5F6000000000110 /* AppState.swift in Sources */,
+				A1B2C3D4E5F6000000000111 /* DefaultSettingsService.swift in Sources */,
+				A1B2C3D4E5F6000000000112 /* LaunchAtLoginService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D4E5F6000000000043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1B2C3D4E5F600000000003E /* FreeThinkerModelContractTests.swift in Sources */,
+				A1B2C3D4E5F6000000000113 /* SettingsServiceTests.swift in Sources */,
+				A1B2C3D4E5F6000000000114 /* LaunchAtLoginServiceTests.swift in Sources */,
+				A1B2C3D4E5F6000000000115 /* AppStateTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1B2C3D4E5F6000000000053 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1B2C3D4E5F6000000000050 /* FreeThinker */;
+			targetProxy = A1B2C3D4E5F6000000000052 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A1B2C3D4E5F6000000000060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F6000000000061 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A1B2C3D4E5F6000000000063 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CODE_SIGN_ENTITLEMENTS = FreeThinker.entitlements;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F6000000000064 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				CODE_SIGN_ENTITLEMENTS = FreeThinker.entitlements;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		A1B2C3D4E5F6000000000066 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinkerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FreeThinker.app/Contents/MacOS/FreeThinker";
+			};
+			name = Debug;
+		};
+		A1B2C3D4E5F6000000000067 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = arm64;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinkerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FreeThinker.app/Contents/MacOS/FreeThinker";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A1B2C3D4E5F6000000000062 /* Build configuration list for PBXProject "FreeThinker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F6000000000060 /* Debug */,
+				A1B2C3D4E5F6000000000061 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D4E5F6000000000065 /* Build configuration list for PBXNativeTarget "FreeThinker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F6000000000063 /* Debug */,
+				A1B2C3D4E5F6000000000064 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D4E5F6000000000068 /* Build configuration list for PBXNativeTarget "FreeThinkerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D4E5F6000000000066 /* Debug */,
+				A1B2C3D4E5F6000000000067 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1B2C3D4E5F6000000000001 /* Project object */;
+}
