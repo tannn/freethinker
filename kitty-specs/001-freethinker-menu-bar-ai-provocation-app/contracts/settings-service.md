@@ -2,7 +2,7 @@
 
 **Service**: SettingsService  
 **Purpose**: Persist and retrieve user preferences  
-**Implementation**: UserDefaultsSettingsService  
+**Implementation**: UserDefaultsSettingsService
 
 ---
 
@@ -10,19 +10,20 @@
 
 ```swift
 protocol SettingsServiceProtocol {
-    /// The current application settings
+    /// The current application settings.
+    /// Set operations are validated before persistence.
     var settings: AppSettings { get set }
-    
-    /// Resets all settings to default values
+
+    /// Resets all settings to default values.
     func resetToDefaults()
-    
-    /// Exports settings to a JSON file
+
+    /// Exports settings to a JSON file.
     func exportSettings(to url: URL) throws
-    
-    /// Imports settings from a JSON file
+
+    /// Imports settings from a JSON file.
     func importSettings(from url: URL) throws
-    
-    /// Stream of settings changes
+
+    /// Stream of settings changes.
     var settingsChangedStream: AsyncStream<AppSettings> { get }
 }
 ```
@@ -39,8 +40,8 @@ The current application settings object.
 **Access**: Read/Write
 
 **Behavior**:
-- Getting returns the current settings from UserDefaults
-- Setting persists to UserDefaults immediately
+- Getting returns in-memory settings
+- Setting validates and persists to UserDefaults immediately
 - Emits update to `settingsChangedStream`
 
 **Example**:
@@ -51,8 +52,9 @@ let service: SettingsServiceProtocol = UserDefaultsSettingsService()
 let currentHotkey = service.settings.hotkeyKeyCode
 
 // Write
-service.settings.prompt1 = "Custom prompt text"
-// Automatically persisted
+var updated = service.settings
+updated.prompt1 = "Custom prompt text"
+service.settings = updated
 ```
 
 ---
@@ -73,18 +75,11 @@ func resetToDefaults()
 - Persists to UserDefaults
 - Emits update to `settingsChangedStream`
 
-**Example**:
-```swift
-// User wants to start fresh
-service.resetToDefaults()
-// All settings now at factory defaults
-```
-
 ---
 
 ### exportSettings
 
-Exports current settings to a JSON file for backup or sharing.
+Exports current settings to a JSON file for backup.
 
 **Signature**:
 ```swift
@@ -99,20 +94,6 @@ func exportSettings(to url: URL) throws
 **Throws**:
 - `SettingsError.exportFailed` - Cannot write to URL
 - `SettingsError.encodingFailed` - Settings cannot be encoded
-
-**Example**:
-```swift
-let exportURL = FileManager.default
-    .urls(for: .documentDirectory, in: .userDomainMask)[0]
-    .appendingPathComponent("freethinker-settings.json")
-
-do {
-    try service.exportSettings(to: exportURL)
-    print("Settings exported to \(exportURL)")
-} catch {
-    print("Export failed: \(error)")
-}
-```
 
 ---
 
@@ -133,19 +114,12 @@ func importSettings(from url: URL) throws
 **Throws**:
 - `SettingsError.importFailed` - Cannot read from URL
 - `SettingsError.decodingFailed` - Invalid JSON or schema
-- `SettingsError.validationFailed` - Settings values invalid
 
-**Example**:
-```swift
-do {
-    try service.importSettings(from: importURL)
-    print("Settings imported successfully")
-} catch SettingsError.validationFailed {
-    print("Invalid settings file")
-} catch {
-    print("Import failed: \(error)")
-}
-```
+**Behavior**:
+- Decodes `AppSettings`
+- Applies schema migration if needed
+- Runs `validated()` before commit
+- Persists and emits changed settings
 
 ---
 
@@ -160,87 +134,71 @@ AsyncStream that emits whenever settings are modified.
 - Current settings on subscription
 - Updated settings after any change
 
-**Usage**:
-```swift
-Task {
-    for await settings in service.settingsChangedStream {
-        // React to settings changes
-        updateHotkeyMonitor(settings.hotkeyModifiers, settings.hotkeyKeyCode)
-    }
-}
-```
-
 ---
 
 ## Implementation: UserDefaultsSettingsService
 
 ```swift
-import Combine
-
 actor UserDefaultsSettingsService: SettingsServiceProtocol {
     private let userDefaults: UserDefaults
     private let settingsKey = "com.freethinker.settings"
     private var settingsContinuation: AsyncStream<AppSettings>.Continuation?
-    private var cancellables = Set<AnyCancellable>()
-    
+
     private var _settings: AppSettings {
         didSet {
-            // Persist to UserDefaults
             if let encoded = try? JSONEncoder().encode(_settings) {
                 userDefaults.set(encoded, forKey: settingsKey)
             }
-            // Emit change
             settingsContinuation?.yield(_settings)
         }
     }
-    
+
     var settings: AppSettings {
         get { _settings }
-        set { _settings = newValue }
+        set { _settings = newValue.validated() }
     }
-    
+
     var settingsChangedStream: AsyncStream<AppSettings> {
         AsyncStream { continuation in
             self.settingsContinuation = continuation
             continuation.yield(_settings)
-            
+
             continuation.onTermination = { _ in
                 self.settingsContinuation = nil
             }
         }
     }
-    
+
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
-        
-        // Load existing or create defaults
+
         if let data = userDefaults.data(forKey: settingsKey),
            let loaded = try? JSONDecoder().decode(AppSettings.self, from: data) {
-            self._settings = loaded
+            self._settings = Self.migrateIfNeeded(loaded).validated()
         } else {
             self._settings = AppSettings()
         }
     }
-    
+
     func resetToDefaults() {
         settings = AppSettings()
     }
-    
+
     func exportSettings(to url: URL) throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
-        
+
         guard let data = try? encoder.encode(settings) else {
             throw SettingsError.encodingFailed
         }
-        
+
         do {
             try data.write(to: url)
         } catch {
             throw SettingsError.exportFailed(error.localizedDescription)
         }
     }
-    
+
     func importSettings(from url: URL) throws {
         let data: Data
         do {
@@ -248,7 +206,7 @@ actor UserDefaultsSettingsService: SettingsServiceProtocol {
         } catch {
             throw SettingsError.importFailed(error.localizedDescription)
         }
-        
+
         let decoder = JSONDecoder()
         let imported: AppSettings
         do {
@@ -256,34 +214,19 @@ actor UserDefaultsSettingsService: SettingsServiceProtocol {
         } catch {
             throw SettingsError.decodingFailed(error.localizedDescription)
         }
-        
-        // Validate imported settings
-        guard validateSettings(imported) else {
-            throw SettingsError.validationFailed
-        }
-        
-        settings = imported
+
+        settings = Self.migrateIfNeeded(imported).validated()
     }
-    
-    private func validateSettings(_ settings: AppSettings) -> Bool {
-        // Validate hotkey
-        guard settings.hotkeyKeyCode >= 0 && settings.hotkeyKeyCode <= 127 else {
-            return false
+
+    private static func migrateIfNeeded(_ settings: AppSettings) -> AppSettings {
+        var result = settings
+
+        // Reserved migration hook for future schema updates.
+        if result.schemaVersion < AppSettings.currentSchemaVersion {
+            result.schemaVersion = AppSettings.currentSchemaVersion
         }
-        
-        // Validate prompts
-        guard !settings.prompt1.isEmpty && settings.prompt1.count <= 1000,
-              !settings.prompt2.isEmpty && settings.prompt2.count <= 1000 else {
-            return false
-        }
-        
-        // Validate model option
-        switch settings.selectedModel {
-        case .default, .creativeWriting:
-            break
-        }
-        
-        return true
+
+        return result
     }
 }
 
@@ -292,7 +235,6 @@ enum SettingsError: Error {
     case decodingFailed(String)
     case exportFailed(String)
     case importFailed(String)
-    case validationFailed
 }
 ```
 
@@ -307,6 +249,7 @@ Settings are stored as JSON in UserDefaults under key `com.freethinker.settings`
 **Example Storage**:
 ```json
 {
+  "schemaVersion": 1,
   "hotkeyModifiers": 1179648,
   "hotkeyKeyCode": 35,
   "prompt1": "Identify hidden assumptions in this text",
@@ -314,8 +257,7 @@ Settings are stored as JSON in UserDefaults under key `com.freethinker.settings`
   "launchAtLogin": true,
   "selectedModel": "default",
   "showMenuBarIcon": true,
-  "dismissOnCopy": true,
-  "_schemaVersion": 1
+  "dismissOnCopy": true
 }
 ```
 
@@ -323,23 +265,21 @@ Settings are stored as JSON in UserDefaults under key `com.freethinker.settings`
 
 ```swift
 struct AppSettings: Codable {
-    // ... existing fields ...
-    
-    // Schema version for future migrations
     var schemaVersion: Int = 1
-    
-    // Migration logic
+
     static func load(from data: Data) throws -> AppSettings {
         let decoder = JSONDecoder()
-        var settings = try decoder.decode(AppSettings.self, from: data)
-        
-        // Apply migrations
-        if settings.schemaVersion < 2 {
-            // Migration to version 2
-            settings = migrateToV2(settings)
+        let decoded = try decoder.decode(AppSettings.self, from: data)
+        return migrateIfNeeded(decoded).validated()
+    }
+
+    private static func migrateIfNeeded(_ settings: AppSettings) -> AppSettings {
+        var result = settings
+        if result.schemaVersion < 2 {
+            // Example migration to version 2.
+            result.schemaVersion = 2
         }
-        
-        return settings
+        return result
     }
 }
 ```
@@ -353,36 +293,27 @@ struct AppSettings: Codable {
 ```swift
 class MockSettingsService: SettingsServiceProtocol {
     var settings: AppSettings = AppSettings()
-    var shouldFailExport: Bool = false
-    var shouldFailImport: Bool = false
-    
+
     var settingsChangedStream: AsyncStream<AppSettings> {
         AsyncStream { continuation in
             continuation.yield(settings)
             continuation.finish()
         }
     }
-    
+
     func resetToDefaults() {
         settings = AppSettings()
     }
-    
+
     func exportSettings(to url: URL) throws {
-        if shouldFailExport {
-            throw SettingsError.exportFailed("Mock export failure")
-        }
         // Mock successful export
     }
-    
+
     func importSettings(from url: URL) throws {
-        if shouldFailImport {
-            throw SettingsError.importFailed("Mock import failure")
-        }
-        // Mock successful import
         settings = AppSettings(
             prompt1: "Imported prompt 1",
             prompt2: "Imported prompt 2"
-        )
+        ).validated()
     }
 }
 ```
@@ -394,7 +325,7 @@ class MockSettingsService: SettingsServiceProtocol {
 3. **Reset**: Reset restores defaults
 4. **Export/Import**: Round-trip preserves settings
 5. **Invalid Import**: Rejects malformed JSON
-6. **Validation**: Rejects invalid values (e.g., bad keycode)
+6. **Validation on Set/Load/Import**: Invalid values are normalized to valid defaults
 7. **Stream Updates**: Changes emit to stream subscribers
 
 ---
@@ -403,4 +334,5 @@ class MockSettingsService: SettingsServiceProtocol {
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 1.1 | 2026-02-13 | Added validation-first persistence and schema-version alignment |
 | 1.0 | 2026-02-12 | Initial contract |

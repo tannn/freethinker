@@ -228,17 +228,18 @@ Generates provocations using on-device AI:
 let aiService = FoundationModelsService()
 
 // Generate provocation
-let request = ProvocationRequest(
+let request = try ProvocationRequest(
     selectedText: "AI will replace all jobs",
     provocationType: .hiddenAssumptions,
     prompt: "Identify hidden assumptions"
 )
 
-do {
-    let response = try await aiService.generateProvocation(request: request)
-    print(response.content)
-} catch {
-    print("Generation failed: \(error)")
+let response = await aiService.generateProvocation(request: request)
+switch response.outcome {
+case .success(let content):
+    print(content)
+case .failure(let error):
+    print("Generation failed: \(error.userMessage)")
 }
 ```
 

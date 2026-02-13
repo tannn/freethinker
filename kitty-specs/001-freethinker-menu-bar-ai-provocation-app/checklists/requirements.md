@@ -35,7 +35,7 @@
 
 ### Items requiring attention:
 
-1. **[NEEDS CLARIFICATION: Default Hotkey]** - Cmd+Shift+O conflicts possible
+1. **[NEEDS CLARIFICATION: Default Hotkey]** - Cmd+Shift+P conflicts possible
    - **Decision needed**: Confirm hotkey or provide alternatives
    - **Impact**: Low (can be changed in settings)
 

@@ -17,7 +17,7 @@ Users often encounter text (articles, emails, arguments, claims) and want to qui
 
 ### 1.3 Solution
 A lightweight menu bar app that:
-- Captures selected text via global hotkey (Cmd+Shift+O)
+- Captures selected text via global hotkey (Cmd+Shift+P)
 - Generates 2 parallel provocations (hidden assumptions + counterargument) using on-device Apple Foundation Models
 - Displays results in a floating panel near the cursor
 - Allows users to request more provocations or dismiss the panel
@@ -190,9 +190,8 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 ```
 - originalText: String
 - provocationType: Enum
-- content: String
+- outcome: ProvocationOutcome (.success(content) | .failure(error))
 - generationTime: TimeInterval
-- error: Error? (if failed)
 ```
 
 **AppSettings**
@@ -206,7 +205,7 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 **AppState**
 - isGenerating: Bool
 - provocations: [ProvocationResponse]
-- errorMessage: String?
+- currentError: ProvocationError?
 
 
 ### 5.2 UI Components
@@ -230,11 +229,11 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 
 ## 6. Assumptions
 
-1. **Target Platform**: macOS 14.0+ (Sonoma) with Apple Silicon (M1+) for optimal on-device AI performance
-2. **AI Framework**: Apple Foundation Models available via MLX Swift or similar Apple-provided framework
+1. **Target Platform**: macOS 26+ (Tahoe) with Apple Silicon required for FoundationModels support
+2. **AI Framework**: Apple FoundationModels framework via `SystemLanguageModel`
 3. **Accessibility**: System Accessibility permissions may be required for global hotkey and text capture
-4. **Text Selection**: Standard NSTextSelection APIs work across most macOS applications
-5. **Distribution**: Distributed as standalone .app via direct download or Mac App Store
+4. **Text Selection**: Accessibility APIs (`AXUIElement`) can capture selected text across most standard macOS applications
+5. **Distribution**: Distributed as standalone .app via direct download (no Mac App Store sandbox)
 6. **Privacy**: No user data leaves the device; no analytics or telemetry
 
 ---
@@ -242,13 +241,13 @@ If selected text exceeds 1000 characters, the app shall truncate to first 1000 c
 ## 7. Dependencies
 
 ### 7.1 System Dependencies
-- macOS 14.0+
-- Apple Silicon Mac (Intel Macs may have degraded performance)
+- macOS 26+
+- Apple Silicon Mac (required)
 - Accessibility permissions (for text capture)
 
 ### 7.2 Framework Dependencies
 - SwiftUI (UI)
-- Apple Foundation Model (on-device AI inference)
+- Apple FoundationModels (on-device AI inference)
 - ServiceManagement (launch at login)
 
 ### 7.3 External Dependencies

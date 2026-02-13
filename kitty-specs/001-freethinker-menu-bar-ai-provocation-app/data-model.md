@@ -9,8 +9,8 @@
 ## 1. Entity Overview
 
 ### Core Entities
-1. **ProvocationRequest** - Input to AI service
-2. **ProvocationResponse** - Output from AI service
+1. **ProvocationRequest** - Validated input to AI service
+2. **ProvocationResponse** - Output from AI service with type-safe outcome
 3. **AppSettings** - User preferences (persistent)
 4. **AppState** - Runtime application state (non-persistent)
 
@@ -20,26 +20,53 @@
 
 ### 2.1 ProvocationRequest
 
-Represents a request to generate provocations for selected text.
+Represents a validated request to generate provocations for selected text.
 
 ```swift
 struct ProvocationRequest: Codable, Identifiable {
+    static let maxSelectedTextLength = 1000
+    static let maxPromptLength = 1000
+
     let id: UUID
     let selectedText: String
     let provocationType: ProvocationType
     let timestamp: Date
     let prompt: String
-    
+
+    enum ValidationError: LocalizedError {
+        case emptySelectedText
+        case emptyPrompt
+
+        var errorDescription: String? {
+            switch self {
+            case .emptySelectedText:
+                return "Selected text cannot be empty."
+            case .emptyPrompt:
+                return "Prompt cannot be empty."
+            }
+        }
+    }
+
     init(
         selectedText: String,
         provocationType: ProvocationType,
         prompt: String
-    ) {
+    ) throws {
+        let normalizedText = selectedText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedPrompt = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !normalizedText.isEmpty else {
+            throw ValidationError.emptySelectedText
+        }
+        guard !normalizedPrompt.isEmpty else {
+            throw ValidationError.emptyPrompt
+        }
+
         self.id = UUID()
-        self.selectedText = String(selectedText.prefix(1000)) // Truncate to max
+        self.selectedText = String(normalizedText.prefix(Self.maxSelectedTextLength))
         self.provocationType = provocationType
         self.timestamp = Date()
-        self.prompt = prompt
+        self.prompt = String(normalizedPrompt.prefix(Self.maxPromptLength))
     }
 }
 
@@ -47,7 +74,7 @@ enum ProvocationType: String, Codable, CaseIterable {
     case hiddenAssumptions = "hiddenAssumptions"
     case counterargument = "counterargument"
     case custom = "custom"
-    
+
     var displayName: String {
         switch self {
         case .hiddenAssumptions: return "Hidden Assumptions"
@@ -59,7 +86,8 @@ enum ProvocationType: String, Codable, CaseIterable {
 ```
 
 **Validation Rules**:
-- `selectedText`: Max 1000 characters, trimmed whitespace
+- `selectedText`: Trimmed, required, max 1000 characters
+- `prompt`: Trimmed, required, max 1000 characters
 - `provocationType`: Must be valid enum value
 - `timestamp`: Automatically set on creation
 
@@ -67,7 +95,7 @@ enum ProvocationType: String, Codable, CaseIterable {
 
 ### 2.2 ProvocationResponse
 
-Represents the result of a provocation generation.
+Represents the result of a provocation generation with impossible-to-misuse success/failure modeling.
 
 ```swift
 struct ProvocationResponse: Codable, Identifiable {
@@ -75,14 +103,29 @@ struct ProvocationResponse: Codable, Identifiable {
     let requestId: UUID
     let originalText: String
     let provocationType: ProvocationType
-    let content: String?
+    let outcome: ProvocationOutcome
     let generationTime: TimeInterval
-    let error: ProvocationError?
     let timestamp: Date
-    
+
     var isSuccess: Bool {
-        return error == nil
+        if case .success = outcome { return true }
+        return false
     }
+
+    var content: String? {
+        if case let .success(content) = outcome { return content }
+        return nil
+    }
+
+    var error: ProvocationError? {
+        if case let .failure(error) = outcome { return error }
+        return nil
+    }
+}
+
+enum ProvocationOutcome: Codable {
+    case success(content: String)
+    case failure(error: ProvocationError)
 }
 
 enum ProvocationError: String, Codable, Error {
@@ -91,7 +134,7 @@ enum ProvocationError: String, Codable, Error {
     case generationFailed = "generationFailed"
     case textTooLong = "textTooLong"
     case permissionDenied = "permissionDenied"
-    
+
     var userMessage: String {
         switch self {
         case .timeout:
@@ -110,9 +153,9 @@ enum ProvocationError: String, Codable, Error {
 ```
 
 **Validation Rules**:
-- `content`: Non-empty string if success
 - `generationTime`: Must be >= 0
-- Either `content` OR `error` must be present (not both)
+- `outcome`: Exactly one of success or failure by type definition
+- Success outcome requires non-empty content
 
 ---
 
@@ -122,24 +165,27 @@ User-configurable application settings (persisted to UserDefaults).
 
 ```swift
 struct AppSettings: Codable {
+    static let currentSchemaVersion = 1
+
+    // MARK: - Schema
+    var schemaVersion: Int = Self.currentSchemaVersion
+
     // MARK: - Hotkey Configuration
     var hotkeyModifiers: Int        // NSEvent.ModifierFlags.rawValue
     var hotkeyKeyCode: Int          // CGKeyCode
-    
+
     // MARK: - Provocation Prompts
     var prompt1: String             // Hidden assumptions prompt
     var prompt2: String             // Counterargument prompt
-    
+
     // MARK: - Behavior
     var launchAtLogin: Bool
     var selectedModel: ModelOption
-    let isEphemeral: Bool = true  // Never persisted
-    var retryCount: Int = 0  // Limit to 3 retries
 
     // MARK: - UI Preferences
     var showMenuBarIcon: Bool
     var dismissOnCopy: Bool         // Auto-dismiss after copying provocation
-    
+
     // MARK: - Initialization
     init(
         hotkeyModifiers: Int = 1179648,  // Cmd+Shift
@@ -149,7 +195,8 @@ struct AppSettings: Codable {
         launchAtLogin: Bool = false,
         selectedModel: ModelOption = .default,
         showMenuBarIcon: Bool = true,
-        dismissOnCopy: Bool = true
+        dismissOnCopy: Bool = true,
+        schemaVersion: Int = AppSettings.currentSchemaVersion
     ) {
         self.hotkeyModifiers = hotkeyModifiers
         self.hotkeyKeyCode = hotkeyKeyCode
@@ -159,26 +206,53 @@ struct AppSettings: Codable {
         self.selectedModel = selectedModel
         self.showMenuBarIcon = showMenuBarIcon
         self.dismissOnCopy = dismissOnCopy
+        self.schemaVersion = schemaVersion
     }
-    
+
     // MARK: - Default Prompts
     static let defaultPrompt1 = "Identify hidden assumptions, unstated premises, or implicit biases in the following text:"
     static let defaultPrompt2 = "Provide a strong, well-reasoned counterargument or alternative perspective to the following claim:"
+
+    // MARK: - Validation
+    func validated() -> AppSettings {
+        var result = self
+
+        if result.schemaVersion <= 0 {
+            result.schemaVersion = Self.currentSchemaVersion
+        }
+
+        // Valid CGKeyCode range
+        if result.hotkeyKeyCode < 0 || result.hotkeyKeyCode > 127 {
+            result.hotkeyKeyCode = 35
+        }
+
+        result.prompt1 = String(result.prompt1.trimmingCharacters(in: .whitespacesAndNewlines).prefix(ProvocationRequest.maxPromptLength))
+        result.prompt2 = String(result.prompt2.trimmingCharacters(in: .whitespacesAndNewlines).prefix(ProvocationRequest.maxPromptLength))
+
+        if result.prompt1.isEmpty {
+            result.prompt1 = Self.defaultPrompt1
+        }
+        if result.prompt2.isEmpty {
+            result.prompt2 = Self.defaultPrompt2
+        }
+
+        return result
+    }
 }
 
 enum ModelOption: String, Codable, CaseIterable, Identifiable {
     case `default` = "default"
     case creativeWriting = "creativeWriting"
-    
+
     var id: String { rawValue }
-    
+
     var displayName: String {
         switch self {
         case .default: return "Balanced (Fast)"
         case .creativeWriting: return "Creative (Higher Quality)"
         }
     }
-    
+
     var description: String {
         switch self {
         case .default:
@@ -191,14 +265,18 @@ enum ModelOption: String, Codable, CaseIterable, Identifiable {
 ```
 
 Validate settings on load:
-```
+```swift
 static func load() -> AppSettings {
-    let settings = // ... load logic
-    return settings.validated()  // Reset invalid values to defaults
+    guard let data = UserDefaults.standard.data(forKey: settingsKey),
+          let settings = try? JSONDecoder().decode(AppSettings.self, from: data) else {
+        return AppSettings() // Return defaults
+    }
+    return settings.validated()
 }
 ```
 
 **Validation Rules**:
+- `schemaVersion`: Must be >= 1
 - `hotkeyModifiers`: Must be valid NSEvent.ModifierFlags combination
 - `hotkeyKeyCode`: Must be valid CGKeyCode (0-127)
 - `prompt1`, `prompt2`: Non-empty, max 1000 characters each
@@ -208,19 +286,19 @@ static func load() -> AppSettings {
 ```swift
 extension AppSettings {
     private static let settingsKey = "com.freethinker.settings"
-    
+
     func save() {
-        if let encoded = try? JSONEncoder().encode(self) {
+        if let encoded = try? JSONEncoder().encode(self.validated()) {
             UserDefaults.standard.set(encoded, forKey: Self.settingsKey)
         }
     }
-    
+
     static func load() -> AppSettings {
         guard let data = UserDefaults.standard.data(forKey: settingsKey),
               let settings = try? JSONDecoder().decode(AppSettings.self, from: data) else {
             return AppSettings() // Return defaults
         }
-        return settings
+        return settings.validated()
     }
 }
 ```
@@ -232,46 +310,65 @@ extension AppSettings {
 Runtime application state (not persisted).
 
 ```swift
+@MainActor
 @Observable
-class AppState {
+final class AppState {
+    static let maxStoredProvocations = 10
+
+    enum GenerationState {
+        case idle
+        case capturingText
+        case generating
+        case displayingResults
+    }
+
     // MARK: - Generation State
-    var isGenerating: Bool = false
+    var generationState: GenerationState = .idle
     var currentRequest: ProvocationRequest?
     var provocations: [ProvocationResponse] = []
     var currentError: ProvocationError?
-    
+    var retryCount: Int = 0
+
     // MARK: - UI State
     var isPanelVisible: Bool = false
     var panelPosition: CGPoint = .zero
     var selectedTextPreview: String = ""
-    
+
     // MARK: - Permissions
     var hasAccessibilityPermission: Bool = false
-    
+
     // MARK: - Settings
     var settings: AppSettings = .load()
-    
+
     // MARK: - Computed Properties
+    var isGenerating: Bool {
+        generationState == .generating
+    }
+
     var canGenerate: Bool {
         !isGenerating && hasAccessibilityPermission
     }
-    
+
     var hasError: Bool {
-        errorMessage != nil
+        currentError != nil
     }
-    
+
     // MARK: - Methods
     func clearProvocations() {
         provocations.removeAll()
-        errorMessage = nil
+        currentError = nil
+        retryCount = 0
     }
-    
+
     func addProvocation(_ response: ProvocationResponse) {
         provocations.append(response)
+        if provocations.count > Self.maxStoredProvocations {
+            provocations.removeFirst(provocations.count - Self.maxStoredProvocations)
+        }
     }
-    
+
     func setError(_ error: ProvocationError) {
-        self.errorMessage = error.userMessage
+        currentError = error
     }
 
     func checkPermissions() {
@@ -327,11 +424,12 @@ State: IDLE
 │   AppSettings       │         │     AppState        │
 │  (Persistent)       │         │   (Runtime)         │
 ├─────────────────────┤         ├─────────────────────┤
-│ - hotkeyModifiers   │         │ - isGenerating      │
+│ - hotkeyModifiers   │         │ - generationState   │
 │ - hotkeyKeyCode     │◄────────│ - provocations[]    │
-│ - prompt1/2         │         │ - settings          │
-│ - selectedModel     │         └─────────────────────┘
-└─────────────────────┘                    │
+│ - prompt1/2         │         │ - currentError      │
+│ - selectedModel     │         │ - settings          │
+└─────────────────────┘         └─────────────────────┘
+                                           │
                                            │ owns
                                            v
 ┌─────────────────────┐         ┌─────────────────────┐
@@ -339,9 +437,9 @@ State: IDLE
 │   (Input)           │         │    (Output)         │
 ├─────────────────────┤         ├─────────────────────┤
 │ - selectedText      │         │ - requestId         │
-│ - provocationType   │         │ - content?          │
-│ - prompt            │         │ - error             │
-│ - timestamp         │         │ - generationTime    │
+│ - provocationType   │         │ - outcome           │
+│ - prompt            │         │ - generationTime    │
+│ - timestamp         │         │ - timestamp         │
 └─────────────────────┘         └─────────────────────┘
 ```
 
@@ -379,9 +477,12 @@ State: IDLE
   "requestId": "550e8400-e29b-41d4-a716-446655440000",
   "originalText": "AI will replace all human jobs by 2030",
   "provocationType": "hiddenAssumptions",
-  "content": "This assumes AI capabilities will advance linearly without regulatory intervention...",
+  "outcome": {
+    "success": {
+      "content": "This assumes AI capabilities will advance linearly without regulatory intervention..."
+    }
+  },
   "generationTime": 1.234,
-  "error": null,
   "timestamp": "2026-02-12T10:30:01Z"
 }
 ```
@@ -389,6 +490,7 @@ State: IDLE
 ### 6.3 AppSettings (UserDefaults)
 ```json
 {
+  "schemaVersion": 1,
   "hotkeyModifiers": 1179648,
   "hotkeyKeyCode": 35,
   "prompt1": "Identify hidden assumptions in this text",
@@ -408,7 +510,7 @@ State: IDLE
 
 **Short text**:
 ```swift
-ProvocationRequest(
+try ProvocationRequest(
     selectedText: "The sky is blue.",
     provocationType: .hiddenAssumptions,
     prompt: AppSettings.defaultPrompt1
@@ -417,7 +519,7 @@ ProvocationRequest(
 
 **Long text (exactly 1000 chars)**:
 ```swift
-ProvocationRequest(
+try ProvocationRequest(
     selectedText: String(repeating: "A", count: 1000),
     provocationType: .counterargument,
     prompt: AppSettings.defaultPrompt2
@@ -428,22 +530,25 @@ ProvocationRequest(
 
 **Empty text** (should fail validation):
 ```swift
-ProvocationRequest(
-    selectedText: "",
-    provocationType: .hiddenAssumptions,
-    prompt: AppSettings.defaultPrompt1
-)
-// Error: selectedText cannot be empty
+do {
+    _ = try ProvocationRequest(
+        selectedText: "",
+        provocationType: .hiddenAssumptions,
+        prompt: AppSettings.defaultPrompt1
+    )
+} catch {
+    // Expected: ValidationError.emptySelectedText
+}
 ```
 
 **Text too long** (should truncate):
 ```swift
-ProvocationRequest(
+let request = try ProvocationRequest(
     selectedText: String(repeating: "A", count: 1500),
     provocationType: .hiddenAssumptions,
     prompt: AppSettings.defaultPrompt1
 )
-// Result: Truncated to 1000 chars
+// Result: request.selectedText.count == 1000
 ```
 
 ---
@@ -452,13 +557,13 @@ ProvocationRequest(
 
 **Version 1.0**:
 - Initial schema
-- All fields required
-- No migration needed (first version)
+- `schemaVersion` persisted as `1`
+- Validation performed on every load/import path
 
 **Future Versions**:
-- Add `schemaVersion` field to AppSettings
-- Implement migration closure in `AppSettings.load()`
-- Maintain backward compatibility
+- Increment `schemaVersion` when changing persisted shape
+- Implement migration in `AppSettings.load()` based on decoded version
+- Maintain backward compatibility by applying deterministic transformations
 
 ---
 
