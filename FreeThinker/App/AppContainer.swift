@@ -71,11 +71,14 @@ public final class AppContainer {
     public convenience init() {
         let settingsService = DefaultSettingsService()
         let loadedSettings = settingsService.loadSettings()
+        let textCaptureService = DefaultTextCaptureService(
+            fallbackCaptureEnabled: loadedSettings.fallbackCaptureEnabled
+        )
 
         self.init(
             appState: AppState(settings: loadedSettings),
             aiService: DefaultAIService(),
-            textCaptureService: DefaultTextCaptureService(),
+            textCaptureService: textCaptureService,
             notificationService: LoggerUserNotificationService(),
             errorMapper: ErrorPresentationMapper(),
             hotkeyService: GlobalHotkeyService(),
@@ -120,6 +123,10 @@ public final class AppContainer {
         }
 
         hotkeyService.refreshRegistration(using: settings)
+
+        Task {
+            await textCaptureService.setFallbackCaptureEnabled(settings.fallbackCaptureEnabled)
+        }
 
         if settings.showMenuBarIcon {
             menuBarCoordinator.installStatusItemIfNeeded()
@@ -177,6 +184,9 @@ private extension AppContainer {
             guard let self else { return }
             self.hotkeyService.refreshRegistration(using: settings)
             self.diagnosticsLogger.setEnabled(settings.diagnosticsEnabled)
+            Task {
+                await self.textCaptureService.setFallbackCaptureEnabled(settings.fallbackCaptureEnabled)
+            }
 
             if settings.showMenuBarIcon {
                 self.menuBarCoordinator.installStatusItemIfNeeded()

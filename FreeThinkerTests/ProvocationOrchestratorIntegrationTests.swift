@@ -260,6 +260,8 @@ private actor MockTextCaptureService: TextCaptureServiceProtocol {
         return permission
     }
 
+    func setFallbackCaptureEnabled(_ isEnabled: Bool) {}
+
     func captureSelectedText() async throws -> String {
         captureCallCount += 1
 
