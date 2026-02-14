@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import XCTest
 @testable import FreeThinker
@@ -25,6 +26,9 @@ final class DefaultSettingsServiceTests: XCTestCase {
         settings.fallbackCaptureEnabled = false
         settings.provocationStylePreset = .systemsThinking
         settings.customStyleInstructions = "Challenge second-order effects."
+        settings.appUpdateChannel = .beta
+        settings.hotkeyModifiers = Int(NSEvent.ModifierFlags.command.union(.option).rawValue)
+        settings.hotkeyKeyCode = 46
 
         try service.saveSettings(settings)
         let loaded = service.loadSettings()
@@ -40,6 +44,7 @@ final class DefaultSettingsServiceTests: XCTestCase {
         XCTAssertEqual(loaded.fallbackCaptureEnabled, false)
         XCTAssertEqual(loaded.provocationStylePreset, .systemsThinking)
         XCTAssertEqual(loaded.customStyleInstructions, "Challenge second-order effects.")
+        XCTAssertEqual(loaded.appUpdateChannel, .beta)
     }
 
     func testLoadSupportsLegacyPayloadWithoutNewFields() throws {

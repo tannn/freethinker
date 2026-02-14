@@ -13,8 +13,8 @@ subtasks:
 - T004
 phase: Phase 1 - Foundation
 assignee: ''
-agent: "opencode"
-shell_pid: "63335"
+agent: ''
+shell_pid: ''
 review_status: "approved"
 reviewed_by: "Tanner"
 history:

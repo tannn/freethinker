@@ -368,6 +368,10 @@ private extension ProvocationOrchestrator {
             return "accessibility_permission_denied"
         case .noSelection:
             return "no_selection"
+        case .hotkeyShortcutInvalid:
+            return "hotkey_shortcut_invalid"
+        case .hotkeyShortcutReserved:
+            return "hotkey_shortcut_reserved"
         case .hotkeyRegistrationConflict:
             return "hotkey_registration_conflict"
         case .hotkeyRegistrationFailed:

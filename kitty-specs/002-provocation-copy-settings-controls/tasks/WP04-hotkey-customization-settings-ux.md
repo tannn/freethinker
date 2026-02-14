@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Hotkey Customization Settings UX
-lane: "done"
+lane: "doing"
 dependencies:
 - WP01
 - WP03
@@ -16,9 +16,9 @@ subtasks:
 - T018
 phase: Phase 2 - User Story Delivery
 assignee: ''
-agent: "opencode"
-shell_pid: "63335"
-review_status: "acknowledged"
+agent: "Code"
+shell_pid: "53429"
+review_status: "has_feedback"
 reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-14T07:24:26Z'
@@ -59,8 +59,6 @@ history:
 
 **Dependent Rebase Warning**: WP05 depends on WP04 and must rebase after WP04 is fixed.  
 Command: `cd /Users/tanner/Documents/experimental/ideas/freethinker/.worktrees/002-provocation-copy-settings-controls-WP05 && git rebase 002-provocation-copy-settings-controls-WP04`
-
-- [x] DONE: Feedback addressed by Code. <!-- done: addressed by Code at 2026-02-14T18:07:48Z -->
 
 ## Objectives & Success Criteria
 
@@ -193,6 +191,3 @@ xcodebuild test \
 - 2026-02-14T08:07:48Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-14T17:51:47Z – unknown – lane=planned – Moved to planned
 - 2026-02-14T17:57:04Z – Code – shell_pid=53429 – lane=doing – Started implementation via workflow command
-- 2026-02-14T18:07:48Z – Code – shell_pid=53429 – lane=for_review – Ready for review: switched to canonical hotkey validation/apply types, made hotkey apply atomic with registration-before-persist rollback semantics, and added hotkey UX + regression tests.
-- 2026-02-14T18:09:03Z – opencode – shell_pid=63335 – lane=doing – Started review via workflow command
-- 2026-02-14T18:12:07Z – opencode – shell_pid=63335 – lane=done – Review passed: Hotkey customization UI fully implemented with canonical WP01 API integration, atomic registration-before-persistence flow, comprehensive tests, and all accessibility identifiers. Previous feedback issues resolved.

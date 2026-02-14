@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import XCTest
 @testable import FreeThinker
@@ -175,6 +176,110 @@ final class SettingsUITests: XCTestCase {
         )
     }
 
+    func testApplyHotkeyShortcutValidProposalPersistsShortcut() async {
+        let recorder = CountingPersistenceRecorder()
+        let appState = makeAppState()
+        appState.onHotkeyValidationRequested = { proposed, _ in
+            .valid(proposedShortcut: proposed, effectiveShortcut: proposed)
+        }
+        appState.onSettingsPersistRequested = { settings in
+            await recorder.record(settings)
+        }
+
+        let proposed = HotkeyShortcut(
+            modifiers: AppSettings.defaultHotkeyModifiers,
+            keyCode: 40 // K
+        )
+        let result = appState.applyHotkeyShortcut(proposed)
+        await Task.yield()
+
+        XCTAssertEqual(result.status, .valid)
+        XCTAssertEqual(appState.settings.hotkeyShortcut, proposed)
+        let persisted = await recorder.lastSaved()
+        XCTAssertEqual(persisted?.hotkeyShortcut, proposed)
+    }
+
+    func testRejectedHotkeyProposalsPreserveExistingShortcutAndDoNotPersist() async {
+        let prior = AppSettings().hotkeyShortcut
+        let proposed = HotkeyShortcut(modifiers: AppSettings.defaultHotkeyModifiers, keyCode: 40)
+        let statuses: [HotkeyValidationStatus] = [.invalid, .reserved, .conflict]
+
+        for status in statuses {
+            let recorder = CountingPersistenceRecorder()
+            let appState = makeAppState()
+            appState.onSettingsPersistRequested = { settings in
+                await recorder.record(settings)
+            }
+            appState.onHotkeyValidationRequested = { proposedShortcut, effectiveShortcut in
+                HotkeyValidationResult(
+                    status: status,
+                    message: "\(status.rawValue) test failure",
+                    proposedShortcut: proposedShortcut,
+                    effectiveShortcut: effectiveShortcut
+                )
+            }
+
+            let result = appState.applyHotkeyShortcut(proposed)
+            await Task.yield()
+            let saveCount = await recorder.saveCount()
+
+            XCTAssertEqual(result.status, status)
+            XCTAssertEqual(appState.settings.hotkeyShortcut, prior)
+            XCTAssertEqual(saveCount, 0)
+            XCTAssertEqual(appState.settingsValidationMessage, "\(status.rawValue) test failure")
+        }
+    }
+
+    func testHotkeyApplyFailureSkipsPersistenceEvenAfterAcceptedValidation() async {
+        let recorder = CountingPersistenceRecorder()
+        let appState = makeAppState()
+        appState.onHotkeyValidationRequested = { proposed, _ in
+            .valid(proposedShortcut: proposed, effectiveShortcut: proposed)
+        }
+        appState.onHotkeyApplyRequested = { _ in
+            throw GlobalHotkeyServiceError.conflict
+        }
+        appState.onSettingsPersistRequested = { settings in
+            await recorder.record(settings)
+        }
+
+        let proposed = HotkeyShortcut(
+            modifiers: AppSettings.defaultHotkeyModifiers,
+            keyCode: 40
+        )
+        let result = appState.applyHotkeyShortcut(proposed)
+        await Task.yield()
+
+        XCTAssertEqual(result.status, .conflict)
+        XCTAssertEqual(appState.settings.hotkeyShortcut, .defaultShortcut)
+        let saveCount = await recorder.saveCount()
+        XCTAssertEqual(saveCount, 0)
+    }
+
+    func testResetHotkeyShortcutToDefault() async {
+        let recorder = CountingPersistenceRecorder()
+        let customSettings = AppSettings(
+            hotkeyModifiers: Int(NSEvent.ModifierFlags.command.rawValue),
+            hotkeyKeyCode: 40
+        )
+        let appState = makeAppState(settings: customSettings)
+        appState.onHotkeyValidationRequested = { proposed, _ in
+            .valid(proposedShortcut: proposed, effectiveShortcut: proposed)
+        }
+        appState.onSettingsPersistRequested = { settings in
+            await recorder.record(settings)
+        }
+
+        let result = appState.resetHotkeyShortcutToDefault()
+        await Task.yield()
+
+        XCTAssertEqual(result.status, .valid)
+        XCTAssertEqual(appState.settings.hotkeyShortcut, .defaultShortcut)
+        let persisted = await recorder.lastSaved()
+        XCTAssertEqual(persisted?.hotkeyShortcut, .defaultShortcut)
+        XCTAssertEqual(result.message, "Global hotkey reset to Cmd+Shift+P.")
+    }
+
     func testLaunchAtLoginFailureShowsActionableFeedback() async {
         let appState = makeAppState()
         appState.onLaunchAtLoginChangeRequested = { _ in
@@ -269,6 +374,9 @@ final class SettingsUITests: XCTestCase {
         XCTAssertEqual(SettingsAccessibility.Identifier.root, "settings.root")
         XCTAssertEqual(SettingsAccessibility.Identifier.sectionGeneral, "settings.section.general")
         XCTAssertEqual(SettingsAccessibility.Identifier.sectionProvocation, "settings.section.provocation")
+        XCTAssertEqual(SettingsAccessibility.Identifier.generalHotkeyEditor, "settings.general.hotkey_editor")
+        XCTAssertEqual(SettingsAccessibility.Identifier.generalHotkeyResetButton, "settings.general.hotkey_reset")
+        XCTAssertEqual(SettingsAccessibility.Identifier.generalHotkeyFeedback, "settings.general.hotkey_feedback")
         XCTAssertEqual(SettingsAccessibility.Identifier.generalPinPanelToggle, "settings.general.pin_panel")
         XCTAssertEqual(SettingsAccessibility.Identifier.generalLaunchAtLoginToggle, "settings.general.launch_at_login")
         XCTAssertEqual(SettingsAccessibility.Identifier.provocationCustomInstructionEditor, "settings.provocation.custom_instruction")
@@ -320,6 +428,22 @@ private actor PersistenceRecorder {
 
     func record(_ settings: AppSettings) {
         lastSaved = settings
+    }
+}
+
+private actor CountingPersistenceRecorder {
+    private(set) var saved: [AppSettings] = []
+
+    func record(_ settings: AppSettings) {
+        saved.append(settings)
+    }
+
+    func saveCount() -> Int {
+        saved.count
+    }
+
+    func lastSaved() -> AppSettings? {
+        saved.last
     }
 }
 

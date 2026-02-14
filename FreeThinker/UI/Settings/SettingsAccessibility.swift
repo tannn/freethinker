@@ -13,6 +13,9 @@ public enum SettingsAccessibility {
         public static let feedbackSaving = "settings.feedback.saving"
 
         public static let generalHotkeyToggle = "settings.general.hotkey_enabled"
+        public static let generalHotkeyEditor = "settings.general.hotkey_editor"
+        public static let generalHotkeyResetButton = "settings.general.hotkey_reset"
+        public static let generalHotkeyFeedback = "settings.general.hotkey_feedback"
         public static let generalMenuBarToggle = "settings.general.menu_bar_icon"
         public static let generalDismissOnCopyToggle = "settings.general.dismiss_on_copy"
         public static let generalAutoDismissStepper = "settings.general.auto_dismiss_seconds"
