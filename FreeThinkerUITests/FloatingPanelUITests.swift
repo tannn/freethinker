@@ -58,7 +58,7 @@ final class FloatingPanelUITests: XCTestCase {
         XCTAssertEqual(response.id, expectedResponse.id)
     }
 
-    func testCopyAndCloseActions() throws {
+    func testFR002_CopyActionClosesPanelWhenDismissOnCopyEnabled_SC01() throws {
         var copiedText: String?
         var closeCount = 0
 
@@ -79,6 +79,53 @@ final class FloatingPanelUITests: XCTestCase {
         XCTAssertNotNil(copiedText)
         XCTAssertTrue(copiedText?.contains("Question the certainty") ?? false)
         XCTAssertEqual(closeCount, 1)
+    }
+
+    func testFR002_CopyActionOnlyCopiesWhenDismissOnCopyDisabled_SC02() throws {
+        var copiedPayloads: [String] = []
+        var closeCount = 0
+
+        let viewModel = FloatingPanelViewModel(
+            isPinned: false,
+            dismissOnCopy: false,
+            timing: ImmediateTiming(),
+            pasteboardWriter: { copiedPayloads.append($0) }
+        )
+
+        let response = try makeSuccessResponse()
+        viewModel.onCloseRequested = {
+            closeCount += 1
+        }
+
+        viewModel.setSuccess(response)
+        viewModel.copyCurrentResult()
+
+        XCTAssertEqual(copiedPayloads.count, 1)
+        XCTAssertEqual(closeCount, 0)
+        XCTAssertEqual(viewModel.copyFeedback, "Copied")
+        XCTAssertFalse(viewModel.isRegenerating)
+        guard case let .success(currentResponse) = viewModel.state else {
+            return XCTFail("Expected success state after copy action")
+        }
+        XCTAssertEqual(currentResponse.id, response.id)
+    }
+
+    func testFR002_CopyActionDoesNotCloseWhenPinnedEvenIfDismissOnCopyEnabled_SC03() throws {
+        var closeCount = 0
+        let viewModel = FloatingPanelViewModel(
+            isPinned: true,
+            dismissOnCopy: true,
+            timing: ImmediateTiming(),
+            pasteboardWriter: { _ in }
+        )
+        viewModel.onCloseRequested = {
+            closeCount += 1
+        }
+
+        viewModel.setSuccess(try makeSuccessResponse())
+        viewModel.copyCurrentResult()
+
+        XCTAssertEqual(closeCount, 0)
     }
 
     func testPinnedPanelPersistsAcrossTriggerCycles() {

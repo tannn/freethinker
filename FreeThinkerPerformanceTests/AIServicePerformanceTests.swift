@@ -78,7 +78,8 @@ final class AIServicePerformanceTests: XCTestCase {
 
 private extension AIServicePerformanceTests {
     func loadFixture(_ name: String) -> String {
-        guard let url = Bundle.module.url(forResource: name, withExtension: "txt", subdirectory: "Fixtures") else {
+        let bundle = Bundle(for: AIServicePerformanceTests.self)
+        guard let url = bundle.url(forResource: name, withExtension: "txt", subdirectory: "Fixtures") else {
             XCTFail("Missing performance fixture: Fixtures/\(name).txt")
             return "Missing fixture \(name)"
         }
@@ -91,7 +92,7 @@ private extension AIServicePerformanceTests {
             return "Unreadable fixture \(name)"
         }
 
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
         if trimmed.isEmpty {
             XCTFail("Performance fixture was empty: Fixtures/\(name).txt")
             return "Empty fixture \(name)"

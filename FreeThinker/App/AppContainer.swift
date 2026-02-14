@@ -252,14 +252,6 @@ private extension AppContainer {
         menuBarCoordinator.onOpenOnboardingGuide = { [weak self] in
             self?.appState.presentOnboarding()
         }
-
-        menuBarCoordinator.onCheckForUpdates = { [weak self] in
-            self?.checkForUpdates()
-        }
-
-        settingsWindowController.onCheckForUpdates = { [weak self] in
-            self?.menuBarCoordinator.onCheckForUpdates?()
-        }
     }
 
     func presentHotkeyRegistrationError(_ error: GlobalHotkeyServiceError) {
@@ -397,17 +389,6 @@ private extension AppContainer {
             Logger.warning("Diagnostics export failed error=\(error.localizedDescription)", category: .diagnostics)
             return "Export failed: \(error.localizedDescription)"
         }
-    }
-
-    func checkForUpdates() {
-        if let releaseURL = ProcessInfo.processInfo.environment["FREETHINKER_RELEASE_URL"],
-           let url = URL(string: releaseURL)
-        {
-            _ = NSWorkspace.shared.open(url)
-            return
-        }
-
-        appState.presentErrorMessage("Updates are delivered via direct download in this build. Set FREETHINKER_RELEASE_URL for quick access.")
     }
 
     static func makeCallbacks(

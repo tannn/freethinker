@@ -13,17 +13,14 @@ public struct SettingsRootView: View {
     @ObservedObject private var appState: AppState
     @ObservedObject private var navigationState: SettingsNavigationState
 
-    private let onCheckForUpdates: (() -> Void)?
     @State private var localSelectedSection: SettingsSection? = nil
 
     public init(
         appState: AppState,
-        navigationState: SettingsNavigationState,
-        onCheckForUpdates: (() -> Void)? = nil
+        navigationState: SettingsNavigationState
     ) {
         self.appState = appState
         self.navigationState = navigationState
-        self.onCheckForUpdates = onCheckForUpdates
         self._localSelectedSection = State(initialValue: navigationState.selectedSection)
     }
 
@@ -56,10 +53,7 @@ private extension SettingsRootView {
     func detailView(for section: SettingsSection) -> some View {
         switch section {
         case .general:
-            GeneralSettingsView(
-                appState: appState,
-                onCheckForUpdates: onCheckForUpdates
-            )
+            GeneralSettingsView(appState: appState)
         case .provocation:
             ProvocationSettingsView(appState: appState)
         case .accessibilityHelp:
