@@ -118,6 +118,10 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
     }
 
+    public func copyFromResponseContent() {
+        copyCurrentResult()
+    }
+
     public func requestRegenerate() {
         guard canRegenerate else {
             return
