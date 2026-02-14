@@ -7,7 +7,7 @@ subtasks:
   - "T022"
 title: "Regression Hardening and Verification"
 phase: "Phase 3 - Polish & Verification"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP02"
   - "WP03"
@@ -158,3 +158,4 @@ xcodebuild test \
 ## Activity Log
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
+- 2026-02-14T08:16:33Z – unknown – lane=doing – Automated: start implementation
