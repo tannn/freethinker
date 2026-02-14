@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Hotkey Customization Settings UX
-lane: "doing"
+lane: "planned"
 dependencies:
 - WP01
 - WP03
@@ -18,8 +18,8 @@ phase: Phase 2 - User Story Delivery
 assignee: ''
 agent: ''
 shell_pid: ''
-review_status: ''
-reviewed_by: ''
+review_status: "has_feedback"
+reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-14T07:24:26Z'
   lane: planned
@@ -44,6 +44,21 @@ history:
 *[This section is empty initially.]*
 
 ---
+
+---
+
+**Reviewed by**: Tanner
+**Status**: ❌ Changes Requested
+**Date**: 2026-02-14
+
+**Issue 1 (dependency contract mismatch)**: `WP04` duplicates hotkey validation/application logic in `FreeThinker/App/AppState.swift` (`applyHotkeyShortcut(modifiers:keyCode:)`, local reserved/invalid checks, and `onHotkeyRegistrationValidationRequested`) instead of consuming the WP01 canonical hotkey API/result pathway. This breaks the dependency intent (`WP04` depends on `WP01`) and risks divergent behavior/messages between settings and hotkey service.  
+**How to fix**: Rebase WP04 onto latest `main`, remove the duplicate AppState validation pathway, and wire `GeneralSettingsView` to WP01 hotkey types/APIs (single canonical validation/apply/reset path and status messaging).
+
+**Issue 2 (FR-009 rollback gap)**: The current flow validates first (`onHotkeyRegistrationValidationRequested`) and then persists via `updateSettings`, while actual registration happens later in `onSettingsUpdated -> hotkeyService.refreshRegistration(...)` (`FreeThinker/App/AppContainer.swift`). If registration fails after precheck (timing/race/unavailable state), settings can be persisted even though the hotkey did not register, violating FR-009 (“current saved shortcut remains unchanged” on rejection).  
+**How to fix**: Make hotkey apply atomic with registration outcome before persistence (or reuse WP01 rollback semantics), so rejected/unavailable registrations never mutate persisted shortcut values.
+
+**Dependent Rebase Warning**: WP05 depends on WP04 and must rebase after WP04 is fixed.  
+Command: `cd /Users/tanner/Documents/experimental/ideas/freethinker/.worktrees/002-provocation-copy-settings-controls-WP05 && git rebase 002-provocation-copy-settings-controls-WP04`
 
 ## Objectives & Success Criteria
 
@@ -174,3 +189,4 @@ xcodebuild test \
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
 - 2026-02-14T07:56:47Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-14T08:07:48Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-14T17:51:47Z – unknown – lane=planned – Moved to planned
