@@ -28,8 +28,8 @@ targets:
       - path: FreeThinkerApp
         includes:
           - "*.swift"
-    resources:
-      - path: FreeThinker/Resources
+      - path: FreeThinker/Resources/Assets.xcassets
+      - path: FreeThinker/Resources/Info.plist
     dependencies:
       - target: FreeThinker
     settings:
