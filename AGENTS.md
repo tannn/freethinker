@@ -9,6 +9,8 @@
 
 - Swift 5.9+ with SwiftUI + - Apple FoundationModels framework (SystemLanguageModel API) (001-freethinker-menu-bar-ai-provocation-app)
 - UserDefaults (settings persistence), no backend (001-freethinker-menu-bar-ai-provocation-app)
+- Swift 5.9+ with SwiftUI + - AppKit + SwiftUI for macOS menu bar and settings UI (002-provocation-copy-settings-controls)
+- UserDefaults via existing settings service (no backend) (002-provocation-copy-settings-controls)
 ### Primary Stack
 - **Language**: Swift 5.9+
 - **Framework**: SwiftUI
@@ -43,6 +45,7 @@ FreeThinkerUITests/ 	        # UI test suite
 FreeThinkerPerformanceTests/ 	# Performance benchmarks
 
 ## Recent Changes
+- 002-provocation-copy-settings-controls: Added Swift 5.9+ with SwiftUI + - AppKit + SwiftUI for macOS menu bar and settings UI
 - 001-freethinker-menu-bar-ai-provocation-app: Added Swift 5.9+ with SwiftUI + - Apple FoundationModels framework (SystemLanguageModel API)
 ### Phase 1 - Design Complete (2026-02-12)
 - ✅ Data models defined (data-model.md)

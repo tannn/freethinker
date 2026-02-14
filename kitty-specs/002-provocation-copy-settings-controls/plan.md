@@ -1,48 +1,73 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Provocation Copy & Settings Controls
+*Path: kitty-specs/002-provocation-copy-settings-controls/plan.md*
 
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
+**Branch**: `main` | **Date**: 2026-02-13 | **Spec**: kitty-specs/002-provocation-copy-settings-controls/spec.md
+**Input**: Feature specification from `kitty-specs/002-provocation-copy-settings-controls/spec.md`
 
 **Note**: This template is filled in by the `/spec-kitty.plan` command. See `src/specify_cli/missions/software-dev/command-templates/plan.md` for the execution workflow.
 
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+Planning alignment confirmed with stakeholder:
+- Implement as one cohesive workstream.
+- Include automated test coverage updates (unit + UI where applicable).
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+This feature streamlines key interaction points in FreeThinker by making provocation text directly copyable, removing redundant copy controls, hiding currently disabled update controls, enabling customizable global hotkeys with robust validation and safe rollback behavior, and exposing style preset switching directly in the menu bar dropdown. The implementation keeps existing provocation generation behavior intact while improving discoverability and reducing friction in daily use.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Swift 5.9+ with SwiftUI  
+**Primary Dependencies**:
+- AppKit + SwiftUI for macOS menu bar and settings UI
+- Carbon hotkey APIs via existing `GlobalHotkeyService`
+- UserDefaults-backed `DefaultSettingsService` for persistence
+- Existing app state orchestration in `FreeThinker/App/AppState.swift`
+  
+**Storage**: UserDefaults via existing settings service (no backend)  
+**Testing**: XCTest unit/integration tests and XCUITest UI tests in existing test targets  
+**Target Platform**: macOS 26+ (Tahoe), Apple Silicon  
+**Project Type**: Single native macOS app  
+**Performance Goals**:
+- Copy action from panel click responds immediately (<100ms perceived)
+- Menu and settings state updates remain visually immediate
+- No regressions to existing panel display or hotkey trigger responsiveness
+  
+**Constraints**:
+- Preserve existing generation/regenerate/dismiss behavior; click on provocation text is copy-only
+- Keep updates functionally disabled and hidden from visible controls
+- Reject invalid/reserved/conflicting hotkeys without mutating the last valid saved shortcut
+- Maintain settings sync across settings window and menu dropdown style selection
+  
+**Scale/Scope**: Targeted UX enhancement across floating panel, settings, menu builder/coordinator, and hotkey settings/persistence paths
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Based on `.kittify/memory/constitution.md`:
+
+**Pre-Phase 0 Gate**:
+- PASS: Languages/frameworks remain Swift + SwiftUI.
+- PASS: Plan includes automated test updates in unit and UI suites.
+- PASS: Performance expectation remains smooth/fast UI with no new heavy runtime work.
+- PASS: Deployment constraints (macOS-only, direct distribution) remain unchanged.
+
+**Gate Status Before Phase 0**: PASS
+
+**Post-Phase 1 Re-check**:
+- PASS: Data model and contracts are incremental and do not introduce unsupported architecture.
+- PASS: Quickstart verification flow includes automated tests and regression checks.
+- PASS: No constitution conflicts introduced by design artifacts.
+
+**Gate Status After Phase 1**: PASS
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
+kitty-specs/002-provocation-copy-settings-controls/
 ├── plan.md              # This file (/spec-kitty.plan command output)
 ├── research.md          # Phase 0 output (/spec-kitty.plan command)
 ├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
@@ -52,57 +77,52 @@ kitty-specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+
+**Selected Structure**: Existing single-project macOS app with feature-scoped UI and service layers.
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+FreeThinker/
+├── App/
+│   ├── AppState.swift
+│   ├── AppContainer.swift
+│   └── AppDelegate.swift
+├── Core/
+│   ├── Models/
+│   │   └── AppSettings.swift
+│   └── Services/
+│       ├── DefaultSettingsService.swift
+│       └── GlobalHotkeyService.swift
+├── UI/
+│   ├── FloatingPanel/
+│   │   ├── FloatingPanelView.swift
+│   │   ├── FloatingPanelComponents.swift
+│   │   └── FloatingPanelViewModel.swift
+│   ├── MenuBar/
+│   │   ├── MenuBarMenuBuilder.swift
+│   │   └── MenuBarCoordinator.swift
+│   └── Settings/
+│       ├── GeneralSettingsView.swift
+│       ├── ProvocationSettingsView.swift
+│       └── SettingsRootView.swift
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+FreeThinkerTests/
+├── GlobalHotkeyServiceTests.swift
+├── DefaultSettingsServiceTests.swift
+└── AppStateOnboardingTests.swift
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+FreeThinkerUITests/
+├── FloatingPanelUITests.swift
+└── SettingsUITests.swift
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Keep existing Clean Architecture boundaries and implement all changes in place. No new top-level modules are required.
 
 ## Complexity Tracking
 
 *Fill ONLY if Constitution Check has violations that must be justified*
 
+No constitution violations identified.
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| N/A | N/A | N/A |
