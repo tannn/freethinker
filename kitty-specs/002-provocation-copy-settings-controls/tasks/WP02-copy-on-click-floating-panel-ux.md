@@ -7,7 +7,7 @@ subtasks:
   - "T008"
 title: "Copy-on-Click Floating Panel UX"
 phase: "Phase 2 - User Story Delivery"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP01"
 assignee: ""
@@ -149,3 +149,4 @@ xcodebuild test \
 ## Activity Log
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
+- 2026-02-14T07:51:09Z – unknown – lane=doing – Automated: start implementation
