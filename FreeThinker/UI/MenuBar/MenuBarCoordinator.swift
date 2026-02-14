@@ -6,7 +6,6 @@ import Foundation
 public final class MenuBarCoordinator: NSObject {
     public var onOpenSettings: (() -> Void)?
     public var onOpenOnboardingGuide: (() -> Void)?
-    public var onCheckForUpdates: (() -> Void)?
     public var onQuit: (() -> Void)?
 
     public private(set) var statusItem: NSStatusItem?
@@ -60,6 +59,21 @@ public final class MenuBarCoordinator: NSObject {
                 _ = await orchestrator.trigger(source: .menu, regenerateFromResponseID: nil)
             }
 
+        case .setStylePresetContrarian:
+            Task {
+                await appState.setProvocationStylePreset(.contrarian)
+            }
+
+        case .setStylePresetSocratic:
+            Task {
+                await appState.setProvocationStylePreset(.socratic)
+            }
+
+        case .setStylePresetSystemsThinking:
+            Task {
+                await appState.setProvocationStylePreset(.systemsThinking)
+            }
+
         case .openSettings:
             onOpenSettings?()
 
@@ -68,9 +82,6 @@ public final class MenuBarCoordinator: NSObject {
 
         case .toggleLaunchAtLogin:
             toggleLaunchAtLogin()
-
-        case .checkForUpdates:
-            onCheckForUpdates?()
 
         case .quit:
             if let onQuit {
@@ -112,6 +123,7 @@ private extension MenuBarCoordinator {
     func menuState() -> MenuBarMenuState {
         MenuBarMenuState(
             isGenerating: appState.isGenerating,
+            selectedStylePreset: appState.settings.provocationStylePreset,
             launchAtLoginEnabled: appState.settings.launchAtLogin
         )
     }

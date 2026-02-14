@@ -14,19 +14,16 @@ final class SettingsUITests: XCTestCase {
         await appState.setDismissOnCopy(false)
         await appState.setAutoDismissSeconds(9)
         await appState.setFallbackCaptureEnabled(false)
-        await appState.setAutomaticallyCheckForUpdates(false)
         await Task.yield()
 
         XCTAssertFalse(appState.settings.dismissOnCopy)
         XCTAssertEqual(appState.settings.autoDismissSeconds, 9)
         XCTAssertFalse(appState.settings.fallbackCaptureEnabled)
-        XCTAssertFalse(appState.settings.automaticallyCheckForUpdates)
 
         let persisted = await recorder.lastSaved
         XCTAssertEqual(persisted?.dismissOnCopy, false)
         XCTAssertEqual(persisted?.autoDismissSeconds, 9)
         XCTAssertEqual(persisted?.fallbackCaptureEnabled, false)
-        XCTAssertEqual(persisted?.automaticallyCheckForUpdates, false)
     }
 
     func testPersistenceKeepsLatestSettingsWhenEarlierSaveFinishesLast() async throws {
@@ -62,7 +59,7 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(secondLaunch.panelViewModel.isPinned)
     }
 
-    func testSettingsPersistAcrossRelaunchSimulation() async throws {
+    func testFR010_SettingsPersistAcrossRelaunchSimulation_SC01() async throws {
         let storage = InMemorySettingsService()
 
         let firstLaunch = makeAppState(settings: storage.loadSettings())
@@ -70,15 +67,59 @@ final class SettingsUITests: XCTestCase {
             try storage.saveSettings(settings)
         }
 
+        await firstLaunch.mutateSettings {
+            $0.hotkeyModifiers = 1_048_576
+            $0.hotkeyKeyCode = 11
+        }
         await firstLaunch.setProvocationStylePreset(.systemsThinking)
         await firstLaunch.setCustomStyleInstructions("Challenge hidden second-order effects.")
-        await firstLaunch.setAppUpdateChannel(.beta)
         await Task.yield()
 
         let secondLaunch = makeAppState(settings: storage.loadSettings())
+        XCTAssertEqual(secondLaunch.settings.hotkeyModifiers, 1_048_576)
+        XCTAssertEqual(secondLaunch.settings.hotkeyKeyCode, 11)
         XCTAssertEqual(secondLaunch.settings.provocationStylePreset, .systemsThinking)
         XCTAssertEqual(secondLaunch.settings.customStyleInstructions, "Challenge hidden second-order effects.")
-        XCTAssertEqual(secondLaunch.settings.appUpdateChannel, .beta)
+    }
+
+    func testFR010_RejectedHotkeyProposalFallsBackAndDoesNotPersist_SC02() async throws {
+        let storage = InMemorySettingsService()
+
+        let firstLaunch = makeAppState(settings: storage.loadSettings())
+        firstLaunch.onSettingsPersistRequested = { settings in
+            try storage.saveSettings(settings)
+        }
+
+        await firstLaunch.mutateSettings {
+            $0.hotkeyKeyCode = 999
+        }
+        await Task.yield()
+
+        XCTAssertEqual(firstLaunch.settings.hotkeyKeyCode, 35)
+
+        let secondLaunch = makeAppState(settings: storage.loadSettings())
+        XCTAssertEqual(secondLaunch.settings.hotkeyKeyCode, 35)
+    }
+
+    func testFR011_ResetStyleCustomizationPersistsDefaultValues_SC01() async throws {
+        let storage = InMemorySettingsService()
+
+        let firstLaunch = makeAppState(settings: storage.loadSettings())
+        firstLaunch.onSettingsPersistRequested = { settings in
+            try storage.saveSettings(settings)
+        }
+
+        await firstLaunch.setProvocationStylePreset(.contrarian)
+        await firstLaunch.setCustomStyleInstructions("Aggressively challenge unstated incentives.")
+        await firstLaunch.resetProvocationStyleCustomization()
+        await Task.yield()
+
+        XCTAssertEqual(firstLaunch.settings.provocationStylePreset, .socratic)
+        XCTAssertTrue(firstLaunch.settings.customStyleInstructions.isEmpty)
+
+        let secondLaunch = makeAppState(settings: storage.loadSettings())
+        XCTAssertEqual(secondLaunch.settings.provocationStylePreset, .socratic)
+        XCTAssertTrue(secondLaunch.settings.customStyleInstructions.isEmpty)
     }
 
     func testCustomInstructionValidationBoundaries() async throws {
@@ -154,6 +195,47 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(prompt.contains("Prioritize assumptions about incentives."))
     }
 
+    func testFR008_MenuStyleQuickSwitchCommandsSynchronizeWithSettings_SC01() async throws {
+        let appState = makeAppState()
+        let coordinator = MenuBarCoordinator(
+            appState: appState,
+            orchestrator: MockProvocationOrchestrator()
+        )
+
+        XCTAssertEqual(appState.settings.provocationStylePreset, .socratic)
+        XCTAssertStyleSelection(
+            in: coordinator.currentMenuDescriptors(),
+            expectedCommand: .setStylePresetSocratic
+        )
+
+        coordinator.perform(.setStylePresetSystemsThinking)
+        await Task.yield()
+
+        XCTAssertEqual(appState.settings.provocationStylePreset, .systemsThinking)
+        XCTAssertStyleSelection(
+            in: coordinator.currentMenuDescriptors(),
+            expectedCommand: .setStylePresetSystemsThinking
+        )
+    }
+
+    func testFR007_RemovedUpdatesControlsStayHiddenInSettingsAndMenu_SC02() {
+        XCTAssertEqual(
+            SettingsSection.allCases,
+            [.general, .provocation, .accessibilityHelp]
+        )
+
+        let appState = makeAppState()
+        let coordinator = MenuBarCoordinator(
+            appState: appState,
+            orchestrator: MockProvocationOrchestrator()
+        )
+        XCTAssertFalse(
+            coordinator.currentMenuDescriptors().contains { descriptor in
+                descriptor.title == "Check for Updates"
+            }
+        )
+    }
+
     func testSettingsAccessibilityIdentifiersRemainStable() {
         XCTAssertEqual(SettingsAccessibility.Identifier.root, "settings.root")
         XCTAssertEqual(SettingsAccessibility.Identifier.sectionGeneral, "settings.section.general")
@@ -175,6 +257,32 @@ private extension SettingsUITests {
             timing: ImmediateTiming(),
             pasteboardWriter: { _ in }
         )
+    }
+
+    func XCTAssertStyleSelection(
+        in descriptors: [MenuBarMenuItemDescriptor],
+        expectedCommand: MenuBarCommand,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let styleDescriptors = descriptors.filter { descriptor in
+            guard let command = descriptor.command else { return false }
+            switch command {
+            case .setStylePresetContrarian, .setStylePresetSocratic, .setStylePresetSystemsThinking:
+                return true
+            default:
+                return false
+            }
+        }
+
+        XCTAssertEqual(styleDescriptors.count, 3, file: file, line: line)
+
+        for descriptor in styleDescriptors {
+            guard let command = descriptor.command else {
+                continue
+            }
+            XCTAssertEqual(descriptor.isOn, command == expectedCommand, file: file, line: line)
+        }
     }
 }
 
@@ -241,6 +349,21 @@ private final class InMemorySettingsService: SettingsServiceProtocol, @unchecked
 
 private struct ImmediateTiming: FloatingPanelTiming {
     func sleep(nanoseconds: UInt64) async throws {}
+}
+
+private actor MockProvocationOrchestrator: ProvocationOrchestrating {
+    func trigger(
+        source: ProvocationTriggerSource,
+        regenerateFromResponseID: UUID?
+    ) async -> ProvocationTriggerDecision {
+        .started
+    }
+
+    func cancelCurrentGeneration(reason: ProvocationCancellationReason) async {}
+
+    func currentMetrics() -> ProvocationOrchestratorMetrics {
+        ProvocationOrchestratorMetrics()
+    }
 }
 
 private final class InMemoryPinningStore: PanelPinningStore, @unchecked Sendable {

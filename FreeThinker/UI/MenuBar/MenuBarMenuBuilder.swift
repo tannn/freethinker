@@ -3,28 +3,38 @@ import Foundation
 
 public enum MenuBarCommand: String, Sendable {
     case generate
+    case setStylePresetContrarian
+    case setStylePresetSocratic
+    case setStylePresetSystemsThinking
     case openSettings
     case openOnboardingGuide
     case toggleLaunchAtLogin
-    case checkForUpdates
     case quit
 }
 
 public enum MenuBarMenuLabel {
     public static let generate = "Generate Provocation"
+    public static let styleContrarian = "Style: Contrarian"
+    public static let styleSocratic = "Style: Socratic"
+    public static let styleSystemsThinking = "Style: Systems Thinking"
     public static let settings = "Settings..."
     public static let onboardingGuide = "Onboarding Guide..."
     public static let launchAtLogin = "Launch at Login"
-    public static let checkForUpdates = "Check for Updates"
     public static let quit = "Quit FreeThinker"
 }
 
 public struct MenuBarMenuState: Equatable, Sendable {
     public var isGenerating: Bool
+    public var selectedStylePreset: ProvocationStylePreset
     public var launchAtLoginEnabled: Bool
 
-    public init(isGenerating: Bool, launchAtLoginEnabled: Bool) {
+    public init(
+        isGenerating: Bool,
+        selectedStylePreset: ProvocationStylePreset,
+        launchAtLoginEnabled: Bool
+    ) {
         self.isGenerating = isGenerating
+        self.selectedStylePreset = selectedStylePreset
         self.launchAtLoginEnabled = launchAtLoginEnabled
     }
 }
@@ -66,6 +76,22 @@ public struct MenuBarMenuBuilder: MenuBarMenuBuilding {
                 isEnabled: !state.isGenerating
             ),
             MenuBarMenuItemDescriptor(title: "", command: nil, isSeparator: true),
+            MenuBarMenuItemDescriptor(
+                title: MenuBarMenuLabel.styleContrarian,
+                command: .setStylePresetContrarian,
+                isOn: state.selectedStylePreset == .contrarian
+            ),
+            MenuBarMenuItemDescriptor(
+                title: MenuBarMenuLabel.styleSocratic,
+                command: .setStylePresetSocratic,
+                isOn: state.selectedStylePreset == .socratic
+            ),
+            MenuBarMenuItemDescriptor(
+                title: MenuBarMenuLabel.styleSystemsThinking,
+                command: .setStylePresetSystemsThinking,
+                isOn: state.selectedStylePreset == .systemsThinking
+            ),
+            MenuBarMenuItemDescriptor(title: "", command: nil, isSeparator: true),
             MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.settings, command: .openSettings),
             MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.onboardingGuide, command: .openOnboardingGuide),
             MenuBarMenuItemDescriptor(
@@ -73,7 +99,6 @@ public struct MenuBarMenuBuilder: MenuBarMenuBuilding {
                 command: .toggleLaunchAtLogin,
                 isOn: state.launchAtLoginEnabled
             ),
-            MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.checkForUpdates, command: .checkForUpdates),
             MenuBarMenuItemDescriptor(title: "", command: nil, isSeparator: true),
             MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.quit, command: .quit)
         ]
