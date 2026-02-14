@@ -1,7 +1,7 @@
 ---
 work_package_id: WP01
 title: Hotkey Validation Foundation
-lane: "doing"
+lane: "done"
 dependencies: []
 base_branch: main
 base_commit: a110118b26a2988343afe00c72b4f33483fd1eb6
@@ -15,8 +15,8 @@ phase: Phase 1 - Foundation
 assignee: ''
 agent: ''
 shell_pid: ''
-review_status: ''
-reviewed_by: ''
+review_status: "approved"
+reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-14T07:24:26Z'
   lane: planned
@@ -159,3 +159,4 @@ xcodebuild test \
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
 - 2026-02-14T07:31:24Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-14T07:43:37Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-14T17:40:58Z – unknown – lane=done – Review passed: validation pathway, rollback semantics, and reset-to-default APIs verified; swift tests green.
