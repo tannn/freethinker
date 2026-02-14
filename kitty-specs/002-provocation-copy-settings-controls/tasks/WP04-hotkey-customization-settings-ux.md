@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP04"
-subtasks:
-  - "T014"
-  - "T015"
-  - "T016"
-  - "T017"
-  - "T018"
-title: "Hotkey Customization Settings UX"
-phase: "Phase 2 - User Story Delivery"
+work_package_id: WP04
+title: Hotkey Customization Settings UX
 lane: "doing"
 dependencies:
-  - "WP01"
-  - "WP03"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP01
+- WP03
+base_branch: 002-provocation-copy-settings-controls-WP03
+base_commit: a110118b26a2988343afe00c72b4f33483fd1eb6
+created_at: '2026-02-14T07:56:48.417183+00:00'
+subtasks:
+- T014
+- T015
+- T016
+- T017
+- T018
+phase: Phase 2 - User Story Delivery
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-14T07:24:26Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-14T07:24:26Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP04 - Hotkey Customization Settings UX
@@ -170,3 +173,4 @@ xcodebuild test \
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
 - 2026-02-14T07:56:47Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-14T08:07:48Z – unknown – lane=doing – Automated: start implementation
