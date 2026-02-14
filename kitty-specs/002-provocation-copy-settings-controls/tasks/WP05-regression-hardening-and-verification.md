@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Regression Hardening and Verification
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP02
 - WP03
@@ -18,7 +18,7 @@ phase: Phase 3 - Polish & Verification
 assignee: ''
 agent: "Code"
 shell_pid: "53429"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-14T07:24:26Z'
@@ -67,6 +67,8 @@ history:
 2. Resolve merge conflicts (accept WP04 changes for source files, keep your test additions)
 3. Commit the WP05 work: `git add -A && git commit -m "feat(WP05): regression hardening and verification"`
 4. Mark subtasks done: `spec-kitty agent tasks mark-status T019 T020 T021 T022 --status done`
+
+- [x] DONE: Feedback addressed by Code. <!-- done: addressed by Code at 2026-02-14T18:22:50Z -->
 
 ## Objectives & Success Criteria
 
@@ -187,3 +189,4 @@ xcodebuild test \
 - 2026-02-14T08:16:33Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-14T18:15:21Z – unknown – lane=planned – Moved to planned
 - 2026-02-14T18:16:27Z – Code – shell_pid=53429 – lane=doing – Started implementation via workflow command
+- 2026-02-14T18:22:50Z – Code – shell_pid=53429 – lane=for_review – Ready for review: regression hardening/tests/docs restored after WP04 rebase
