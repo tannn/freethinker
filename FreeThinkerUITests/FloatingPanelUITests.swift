@@ -58,7 +58,7 @@ final class FloatingPanelUITests: XCTestCase {
         XCTAssertEqual(response.id, expectedResponse.id)
     }
 
-    func testCopyAndCloseActions() throws {
+    func testCopyFromContentAndCloseActions() throws {
         var copiedText: String?
         var closeCount = 0
 
@@ -74,11 +74,32 @@ final class FloatingPanelUITests: XCTestCase {
         }
 
         viewModel.setSuccess(try makeSuccessResponse())
-        viewModel.copyCurrentResult()
+        viewModel.copyFromResponseContent()
 
         XCTAssertNotNil(copiedText)
         XCTAssertTrue(copiedText?.contains("Question the certainty") ?? false)
         XCTAssertEqual(closeCount, 1)
+    }
+
+    func testCopyFromContentDoesNotStartRegeneration() throws {
+        var copiedText: String?
+
+        let viewModel = FloatingPanelViewModel(
+            isPinned: false,
+            dismissOnCopy: false,
+            timing: ImmediateTiming(),
+            pasteboardWriter: { copiedText = $0 }
+        )
+        viewModel.setSuccess(try makeSuccessResponse())
+
+        XCTAssertFalse(viewModel.isRegenerating)
+        let originalResponseID = viewModel.currentResponse?.id
+
+        viewModel.copyFromResponseContent()
+
+        XCTAssertFalse(viewModel.isRegenerating)
+        XCTAssertNotNil(copiedText)
+        XCTAssertEqual(viewModel.currentResponse?.id, originalResponseID)
     }
 
     func testPinnedPanelPersistsAcrossTriggerCycles() {
@@ -106,7 +127,8 @@ final class FloatingPanelUITests: XCTestCase {
 
     func testAccessibilityIdentifiersRemainStable() {
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.panel, "floating_panel.root")
-        XCTAssertEqual(FloatingPanelAccessibility.Identifier.copyButton, "floating_panel.action.copy")
+        XCTAssertEqual(FloatingPanelAccessibility.Identifier.copyTarget, "floating_panel.action.copy_target")
+        XCTAssertNotEqual(FloatingPanelAccessibility.Identifier.copyTarget, "floating_panel.action.copy")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.regenerateButton, "floating_panel.action.regenerate")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.closeButton, "floating_panel.action.close")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.pinButton, "floating_panel.action.pin")

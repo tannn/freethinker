@@ -82,7 +82,13 @@ public struct FloatingPanelView: View {
 
         case let .success(response):
             if let content = response.content {
-                FloatingPanelResponseCard(content: content)
+                FloatingPanelResponseCard(
+                    content: content,
+                    canCopy: viewModel.canCopy,
+                    onCopyRequested: {
+                        viewModel.copyFromResponseContent()
+                    }
+                )
             } else {
                 FloatingPanelErrorCallout(
                     message: FreeThinkerError.invalidResponse.userMessage,
@@ -100,16 +106,6 @@ public struct FloatingPanelView: View {
 
     private var footer: some View {
         HStack(spacing: FloatingPanelDesignTokens.regularSpacing) {
-            Button("Copy") {
-                viewModel.copyCurrentResult()
-            }
-            .keyboardShortcut("c", modifiers: [.command])
-            .buttonStyle(.borderedProminent)
-            .disabled(!viewModel.canCopy)
-            .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.copyButton)
-            .accessibilityLabel(FloatingPanelAccessibility.Label.copy)
-            .accessibilityHint(FloatingPanelAccessibility.Hint.copy)
-
             Button("Regenerate") {
                 viewModel.requestRegenerate()
             }
