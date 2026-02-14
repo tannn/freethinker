@@ -1,26 +1,29 @@
 ---
-work_package_id: "WP02"
-subtasks:
-  - "T005"
-  - "T006"
-  - "T007"
-  - "T008"
-title: "Copy-on-Click Floating Panel UX"
-phase: "Phase 2 - User Story Delivery"
-lane: "doing"
+work_package_id: WP02
+title: Copy-on-Click Floating Panel UX
+lane: doing
 dependencies:
-  - "WP01"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP01
+base_branch: 002-provocation-copy-settings-controls-WP01
+base_commit: a110118b26a2988343afe00c72b4f33483fd1eb6
+created_at: '2026-02-14T07:51:10.322289+00:00'
+subtasks:
+- T005
+- T006
+- T007
+- T008
+phase: Phase 2 - User Story Delivery
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-14T07:24:26Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-14T07:24:26Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP02 - Copy-on-Click Floating Panel UX

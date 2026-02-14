@@ -1,28 +1,31 @@
 ---
-work_package_id: "WP05"
-subtasks:
-  - "T019"
-  - "T020"
-  - "T021"
-  - "T022"
-title: "Regression Hardening and Verification"
-phase: "Phase 3 - Polish & Verification"
-lane: "doing"
+work_package_id: WP05
+title: Regression Hardening and Verification
+lane: doing
 dependencies:
-  - "WP02"
-  - "WP03"
-  - "WP04"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP02
+- WP03
+- WP04
+base_branch: 002-provocation-copy-settings-controls-WP04
+base_commit: a110118b26a2988343afe00c72b4f33483fd1eb6
+created_at: '2026-02-14T08:16:33.928887+00:00'
+subtasks:
+- T019
+- T020
+- T021
+- T022
+phase: Phase 3 - Polish & Verification
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-14T07:24:26Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-14T07:24:26Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP05 - Regression Hardening and Verification
