@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Hotkey Customization Settings UX
-lane: "doing"
+lane: "for_review"
 dependencies:
 - WP01
 - WP03
@@ -18,7 +18,7 @@ phase: Phase 2 - User Story Delivery
 assignee: ''
 agent: "Code"
 shell_pid: "53429"
-review_status: "has_feedback"
+review_status: "acknowledged"
 reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-14T07:24:26Z'
@@ -59,6 +59,8 @@ history:
 
 **Dependent Rebase Warning**: WP05 depends on WP04 and must rebase after WP04 is fixed.  
 Command: `cd /Users/tanner/Documents/experimental/ideas/freethinker/.worktrees/002-provocation-copy-settings-controls-WP05 && git rebase 002-provocation-copy-settings-controls-WP04`
+
+- [x] DONE: Feedback addressed by Code. <!-- done: addressed by Code at 2026-02-14T18:07:48Z -->
 
 ## Objectives & Success Criteria
 
@@ -191,3 +193,4 @@ xcodebuild test \
 - 2026-02-14T08:07:48Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-14T17:51:47Z – unknown – lane=planned – Moved to planned
 - 2026-02-14T17:57:04Z – Code – shell_pid=53429 – lane=doing – Started implementation via workflow command
+- 2026-02-14T18:07:48Z – Code – shell_pid=53429 – lane=for_review – Ready for review: switched to canonical hotkey validation/apply types, made hotkey apply atomic with registration-before-persist rollback semantics, and added hotkey UX + regression tests.
