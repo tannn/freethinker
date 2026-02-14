@@ -97,7 +97,7 @@ Dependencies: WP01
 - [x] T010 Remove `Check for Updates` command, labels, and menu action wiring from menu/app coordinators.
 - [x] T011 Extend menu state/descriptor generation to include style preset quick-switch items with checked state.
 - [x] T012 Implement style preset menu command handling via `AppState` so changes persist and remain synchronized with settings.
-- [ ] T013 Add automated menu/state tests validating update-item absence and style preset synchronization.
+- [x] T013 Add automated menu/state tests validating update-item absence and style preset synchronization.
 
 ### Implementation Notes
 - Do not delete update-related persisted fields; only hide/disable visible controls and actions.
