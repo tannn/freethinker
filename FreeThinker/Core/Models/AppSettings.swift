@@ -14,6 +14,17 @@ public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable,
 
     public var id: String { rawValue }
 
+    public var displayName: String {
+        switch self {
+        case .contrarian:
+            return "Contrarian"
+        case .socratic:
+            return "Socratic"
+        case .systemsThinking:
+            return "Systems Thinking"
+        }
+    }
+
     public var instruction: String {
         switch self {
         case .contrarian:

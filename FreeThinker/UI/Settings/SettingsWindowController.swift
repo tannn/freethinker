@@ -3,8 +3,6 @@ import SwiftUI
 
 @MainActor
 public final class SettingsWindowController: NSObject, NSWindowDelegate {
-    public var onCheckForUpdates: (() -> Void)?
-
     public private(set) var window: NSWindow?
 
     private let appState: AppState
@@ -54,10 +52,7 @@ private extension SettingsWindowController {
     func makeWindow() -> NSWindow {
         let root = SettingsRootView(
             appState: appState,
-            navigationState: navigationState,
-            onCheckForUpdates: { [weak self] in
-                self?.onCheckForUpdates?()
-            }
+            navigationState: navigationState
         )
         let hostingController = NSHostingController(rootView: root)
 

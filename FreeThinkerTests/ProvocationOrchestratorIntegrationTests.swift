@@ -184,6 +184,91 @@ final class ProvocationOrchestratorIntegrationTests: XCTestCase {
     }
 }
 
+final class MenuBarMenuBuilderTests: XCTestCase {
+    func testMenuDescriptorsExcludeUpdatesAndIncludeStyleQuickSwitches() {
+        let builder = MenuBarMenuBuilder()
+        let descriptors = builder.makeDescriptors(
+            state: MenuBarMenuState(
+                isGenerating: false,
+                launchAtLoginEnabled: true,
+                selectedStylePreset: .socratic
+            )
+        )
+
+        XCTAssertFalse(descriptors.contains { $0.title == "Check for Updates" })
+
+        let styleDescriptors = descriptors.filter(isStylePresetCommand)
+        XCTAssertEqual(styleDescriptors.count, ProvocationStylePreset.allCases.count)
+        XCTAssertEqual(
+            styleDescriptors.compactMap(stylePreset),
+            ProvocationStylePreset.allCases
+        )
+        XCTAssertEqual(
+            styleDescriptors.filter(\.isOn).compactMap(stylePreset),
+            [.socratic]
+        )
+    }
+
+    func testMenuDescriptorsReflectSelectionForDifferentPreset() {
+        let builder = MenuBarMenuBuilder()
+        let descriptors = builder.makeDescriptors(
+            state: MenuBarMenuState(
+                isGenerating: false,
+                launchAtLoginEnabled: false,
+                selectedStylePreset: .systemsThinking
+            )
+        )
+
+        let selected = descriptors.filter(\.isOn).compactMap(stylePreset)
+        XCTAssertEqual(selected, [.systemsThinking])
+    }
+}
+
+@MainActor
+final class MenuBarCoordinatorStyleSelectionTests: XCTestCase {
+    func testPerformSelectStylePresetUpdatesAppStateAndMenuCheckmark() async throws {
+        let appState = AppState(
+            settings: AppSettings(),
+            pinningStore: InMemoryPinningStoreForMenuTests(),
+            timing: NoOpFloatingPanelTiming(),
+            pasteboardWriter: { _ in }
+        )
+        let orchestrator = NoOpProvocationOrchestrator()
+        let coordinator = MenuBarCoordinator(
+            appState: appState,
+            orchestrator: orchestrator
+        )
+
+        coordinator.perform(.selectStylePreset(.systemsThinking))
+        try await waitUntil("systems preset applied") {
+            appState.settings.provocationStylePreset == .systemsThinking
+        }
+
+        XCTAssertTrue(
+            coordinator.currentMenuDescriptors().contains {
+                if case .selectStylePreset(.systemsThinking)? = $0.command {
+                    return $0.isOn
+                }
+                return false
+            }
+        )
+
+        coordinator.perform(.selectStylePreset(.contrarian))
+        try await waitUntil("contrarian preset applied") {
+            appState.settings.provocationStylePreset == .contrarian
+        }
+
+        XCTAssertTrue(
+            coordinator.currentMenuDescriptors().contains {
+                if case .selectStylePreset(.contrarian)? = $0.command {
+                    return $0.isOn
+                }
+                return false
+            }
+        )
+    }
+}
+
 private extension ProvocationOrchestratorIntegrationTests {
     func makeOrchestrator(
         textCaptureService: MockTextCaptureService,
@@ -234,6 +319,67 @@ private extension ProvocationOrchestratorIntegrationTests {
         }
         XCTFail("Timed out waiting for \(label)")
     }
+}
+
+private func isStylePresetCommand(_ descriptor: MenuBarMenuItemDescriptor) -> Bool {
+    if case .selectStylePreset(_)? = descriptor.command {
+        return true
+    }
+    return false
+}
+
+private func stylePreset(_ descriptor: MenuBarMenuItemDescriptor) -> ProvocationStylePreset? {
+    if case .selectStylePreset(let preset)? = descriptor.command {
+        return preset
+    }
+    return nil
+}
+
+private actor NoOpProvocationOrchestrator: ProvocationOrchestrating {
+    func trigger(
+        source: ProvocationTriggerSource,
+        regenerateFromResponseID: UUID?
+    ) async -> ProvocationTriggerDecision {
+        .started
+    }
+
+    func cancelCurrentGeneration(reason: ProvocationCancellationReason) async {}
+
+    func currentMetrics() -> ProvocationOrchestratorMetrics {
+        ProvocationOrchestratorMetrics()
+    }
+}
+
+private struct NoOpFloatingPanelTiming: FloatingPanelTiming {
+    func sleep(nanoseconds: UInt64) async throws {}
+}
+
+private final class InMemoryPinningStoreForMenuTests: PanelPinningStore, @unchecked Sendable {
+    private var value = false
+
+    func loadPinnedState() -> Bool {
+        value
+    }
+
+    func savePinnedState(_ isPinned: Bool) {
+        value = isPinned
+    }
+}
+
+private func waitUntil(
+    _ label: String,
+    timeoutNanoseconds: UInt64 = 1_000_000_000,
+    pollNanoseconds: UInt64 = 20_000_000,
+    condition: @escaping () async -> Bool
+) async throws {
+    let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
+    while DispatchTime.now().uptimeNanoseconds < deadline {
+        if await condition() {
+            return
+        }
+        try await Task.sleep(nanoseconds: pollNanoseconds)
+    }
+    XCTFail("Timed out waiting for \(label)")
 }
 
 private actor MockTextCaptureService: TextCaptureServiceProtocol {

@@ -19,9 +19,6 @@ public enum SettingsAccessibility {
         public static let generalFallbackCaptureToggle = "settings.general.fallback_capture"
         public static let generalPinPanelToggle = "settings.general.pin_panel"
         public static let generalLaunchAtLoginToggle = "settings.general.launch_at_login"
-        public static let generalAutoUpdateToggle = "settings.general.auto_update"
-        public static let generalUpdateChannelPicker = "settings.general.update_channel"
-        public static let generalCheckForUpdatesButton = "settings.general.check_for_updates"
 
         public static let provocationPresetPicker = "settings.provocation.style_preset"
         public static let provocationCustomInstructionEditor = "settings.provocation.custom_instruction"

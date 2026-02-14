@@ -4,17 +4,11 @@ public struct GeneralSettingsView: View {
     @ObservedObject private var appState: AppState
     @ObservedObject private var panelViewModel: FloatingPanelViewModel
 
-    private let onCheckForUpdates: (() -> Void)?
-
     @State private var exportStatus: String?
 
-    public init(
-        appState: AppState,
-        onCheckForUpdates: (() -> Void)? = nil
-    ) {
+    public init(appState: AppState) {
         self.appState = appState
         _panelViewModel = ObservedObject(wrappedValue: appState.panelViewModel)
-        self.onCheckForUpdates = onCheckForUpdates
     }
 
     public var body: some View {
@@ -27,7 +21,6 @@ public struct GeneralSettingsView: View {
 
                 behaviorSection
                 launchSection
-                updatesSection
                 diagnosticsSection
                 onboardingSection
             }
@@ -114,34 +107,6 @@ private extension GeneralSettingsView {
                     .accessibilityIdentifier(SettingsAccessibility.Identifier.generalLaunchAtLoginToggle)
 
                 Text("Launch at Login controls whether FreeThinker starts automatically when you sign in.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-
-    var updatesSection: some View {
-        GroupBox("Updates") {
-            VStack(alignment: .leading, spacing: 12) {
-                Toggle("Automatically check for updates", isOn: automaticallyCheckForUpdatesBinding)
-                    .accessibilityIdentifier(SettingsAccessibility.Identifier.generalAutoUpdateToggle)
-
-                Picker("Update channel", selection: appUpdateChannelBinding) {
-                    ForEach(AppUpdateChannel.allCases) { channel in
-                        Text(channel.displayName)
-                            .tag(channel)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .accessibilityIdentifier(SettingsAccessibility.Identifier.generalUpdateChannelPicker)
-
-                Button("Check for Updates Now") {
-                    onCheckForUpdates?()
-                }
-                .accessibilityIdentifier(SettingsAccessibility.Identifier.generalCheckForUpdatesButton)
-
-                Text("Updates are delivered via direct download in this build.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -253,24 +218,6 @@ private extension GeneralSettingsView {
             get: { appState.settings.launchAtLogin },
             set: { isEnabled in
                 Task { await appState.setLaunchAtLoginEnabled(isEnabled) }
-            }
-        )
-    }
-
-    var automaticallyCheckForUpdatesBinding: Binding<Bool> {
-        Binding(
-            get: { appState.settings.automaticallyCheckForUpdates },
-            set: { isEnabled in
-                Task { await appState.setAutomaticallyCheckForUpdates(isEnabled) }
-            }
-        )
-    }
-
-    var appUpdateChannelBinding: Binding<AppUpdateChannel> {
-        Binding(
-            get: { appState.settings.appUpdateChannel },
-            set: { channel in
-                Task { await appState.setAppUpdateChannel(channel) }
             }
         )
     }
