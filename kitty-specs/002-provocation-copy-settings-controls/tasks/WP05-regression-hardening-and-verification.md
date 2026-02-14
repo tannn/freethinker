@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Regression Hardening and Verification
-lane: "doing"
+lane: "done"
 dependencies:
 - WP02
 - WP03
@@ -191,3 +191,4 @@ xcodebuild test \
 - 2026-02-14T18:16:27Z – Code – shell_pid=53429 – lane=doing – Started implementation via workflow command
 - 2026-02-14T18:22:50Z – Code – shell_pid=53429 – lane=for_review – Ready for review: regression hardening/tests/docs restored after WP04 rebase
 - 2026-02-14T18:29:06Z – opencode – shell_pid=63335 – lane=doing – Started review via workflow command
+- 2026-02-14T18:29:53Z – opencode – shell_pid=63335 – lane=done – Review passed: WP05 regression hardening complete. T019: UI tests for FR002 copy behavior, FR007 removed updates controls, FR008 style quick-switch. T020: Persistence tests for FR010/FR011 hotkey/style relaunch semantics. T021/T022: Canonical test matrix documented in activity log with focused/full suite commands. Build succeeds. Previous rebase feedback resolved.
