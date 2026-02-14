@@ -65,7 +65,7 @@ Dependencies: None
 ### Included Subtasks
 - [x] T005 Refactor floating panel response rendering to support explicit text-click copy affordance.
 - [x] T006 Remove footer Copy button and wire copy-only behavior through response content interaction.
-- [ ] T007 Update floating panel accessibility identifiers/labels for copy target semantics and remove stale copy-button references.
+- [x] T007 Update floating panel accessibility identifiers/labels for copy target semantics and remove stale copy-button references.
 - [ ] T008 Add/adjust automated tests for click-to-copy success and no-secondary-action regression coverage.
 
 ### Implementation Notes
