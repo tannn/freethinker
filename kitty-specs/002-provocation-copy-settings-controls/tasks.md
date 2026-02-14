@@ -157,10 +157,10 @@ Dependencies: WP01, WP03
 **Estimated Prompt Size**: ~300 lines
 
 ### Included Subtasks
-- [ ] T019 Expand `FloatingPanelUITests` and `SettingsUITests` with end-to-end assertions mapped to FR-001 through FR-013.
-- [ ] T020 Add/adjust persistence tests to prove hotkey + style choices survive relaunch and rejected hotkeys do not persist.
-- [ ] T021 Update quickstart/manual validation notes for removed update UI and new copy/hotkey/menu style flows.
-- [ ] T022 Define and execute canonical test command matrix (focused + full suite) with `-skipMacroValidation` and record expected pass criteria.
+- [x] T019 Expand `FloatingPanelUITests` and `SettingsUITests` with end-to-end assertions mapped to FR-001 through FR-013.
+- [x] T020 Add/adjust persistence tests to prove hotkey + style choices survive relaunch and rejected hotkeys do not persist.
+- [x] T021 Update quickstart/manual validation notes for removed update UI and new copy/hotkey/menu style flows.
+- [x] T022 Define and execute canonical test command matrix (focused + full suite) with `-skipMacroValidation` and record expected pass criteria.
 
 ### Implementation Notes
 - Keep test scenarios crisp and directly traceable to functional requirements.
