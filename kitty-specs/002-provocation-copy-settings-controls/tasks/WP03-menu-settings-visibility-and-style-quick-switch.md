@@ -1,27 +1,30 @@
 ---
-work_package_id: "WP03"
-subtasks:
-  - "T009"
-  - "T010"
-  - "T011"
-  - "T012"
-  - "T013"
-title: "Menu/Settings Visibility and Style Quick Switch"
-phase: "Phase 2 - User Story Delivery"
-lane: "doing"
+work_package_id: WP03
+title: Menu/Settings Visibility and Style Quick Switch
+lane: doing
 dependencies:
-  - "WP01"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+- WP01
+base_branch: 002-provocation-copy-settings-controls-WP01
+base_commit: a110118b26a2988343afe00c72b4f33483fd1eb6
+created_at: '2026-02-14T07:51:10.322324+00:00'
+subtasks:
+- T009
+- T010
+- T011
+- T012
+- T013
+phase: Phase 2 - User Story Delivery
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-14T07:24:26Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-14T07:24:26Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP03 - Menu/Settings Visibility and Style Quick Switch
