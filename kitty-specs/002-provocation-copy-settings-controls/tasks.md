@@ -124,11 +124,11 @@ Dependencies: WP01
 **Estimated Prompt Size**: ~420 lines
 
 ### Included Subtasks
-- [ ] T014 Add hotkey customization UI controls in settings (capture key combo + display current shortcut).
-- [ ] T015 Connect UI actions to WP01 hotkey propose/apply/reset APIs with explicit success/error feedback states.
-- [ ] T016 Ensure apply flow re-registers active hotkey and persists only validated values.
-- [ ] T017 Add accessibility identifiers for hotkey editing feedback/reset controls and keep existing identifiers stable.
-- [ ] T018 Add automated tests for valid change, invalid/reserved/conflict rejection, previous-shortcut retention, and reset-to-default.
+- [x] T014 Add hotkey customization UI controls in settings (capture key combo + display current shortcut).
+- [x] T015 Connect UI actions to WP01 hotkey propose/apply/reset APIs with explicit success/error feedback states.
+- [x] T016 Ensure apply flow re-registers active hotkey and persists only validated values.
+- [x] T017 Add accessibility identifiers for hotkey editing feedback/reset controls and keep existing identifiers stable.
+- [x] T018 Add automated tests for valid change, invalid/reserved/conflict rejection, previous-shortcut retention, and reset-to-default.
 
 ### Implementation Notes
 - Maintain existing reachability guardrail (hotkey/menu bar icon cannot both be disabled).
