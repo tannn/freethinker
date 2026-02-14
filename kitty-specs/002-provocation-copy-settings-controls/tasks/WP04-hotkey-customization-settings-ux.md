@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Hotkey Customization Settings UX
-lane: "doing"
+lane: "done"
 dependencies:
 - WP01
 - WP03
@@ -195,3 +195,4 @@ xcodebuild test \
 - 2026-02-14T17:57:04Z – Code – shell_pid=53429 – lane=doing – Started implementation via workflow command
 - 2026-02-14T18:07:48Z – Code – shell_pid=53429 – lane=for_review – Ready for review: switched to canonical hotkey validation/apply types, made hotkey apply atomic with registration-before-persist rollback semantics, and added hotkey UX + regression tests.
 - 2026-02-14T18:09:03Z – opencode – shell_pid=63335 – lane=doing – Started review via workflow command
+- 2026-02-14T18:12:07Z – opencode – shell_pid=63335 – lane=done – Review passed: Hotkey customization UI fully implemented with canonical WP01 API integration, atomic registration-before-persistence flow, comprehensive tests, and all accessibility identifiers. Previous feedback issues resolved.
