@@ -14,8 +14,8 @@ subtasks:
 - T008
 phase: Phase 2 - User Story Delivery
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "opencode"
+shell_pid: "63335"
 review_status: "approved"
 reviewed_by: "Tanner"
 history:

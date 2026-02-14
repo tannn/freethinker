@@ -96,5 +96,4 @@
 ## Research Outcome
 
 - All technical clarifications needed for planning are resolved.
-- No `[NEEDS CLARIFICATION]` markers remain.
 - Design can proceed to Phase 1 artifacts without open gate blockers.
