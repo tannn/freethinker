@@ -33,7 +33,7 @@
 ### Included Subtasks
 - [x] T001 Define hotkey value and validation result models used by settings + registration flows.
 - [x] T002 Implement shortcut validation rules (invalid/reserved/conflict) against `GlobalHotkeyService` and known constraints.
-- [ ] T003 Add `AppState` APIs for propose/apply/reset hotkey that preserve previous shortcut on failure and expose user feedback.
+- [x] T003 Add `AppState` APIs for propose/apply/reset hotkey that preserve previous shortcut on failure and expose user feedback.
 - [ ] T004 Add/expand unit tests for validation outcomes, fallback retention, and default reset behavior.
 
 ### Implementation Notes
