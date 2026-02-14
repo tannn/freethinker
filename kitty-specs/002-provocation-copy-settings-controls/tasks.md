@@ -93,7 +93,7 @@ Dependencies: WP01
 **Estimated Prompt Size**: ~360 lines
 
 ### Included Subtasks
-- [ ] T009 Remove/hide updates section from settings UI and detach update callbacks from settings window plumbing.
+- [x] T009 Remove/hide updates section from settings UI and detach update callbacks from settings window plumbing.
 - [ ] T010 Remove `Check for Updates` command, labels, and menu action wiring from menu/app coordinators.
 - [ ] T011 Extend menu state/descriptor generation to include style preset quick-switch items with checked state.
 - [ ] T012 Implement style preset menu command handling via `AppState` so changes persist and remain synchronized with settings.
