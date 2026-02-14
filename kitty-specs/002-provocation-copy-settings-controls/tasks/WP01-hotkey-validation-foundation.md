@@ -1,25 +1,28 @@
 ---
-work_package_id: "WP01"
-subtasks:
-  - "T001"
-  - "T002"
-  - "T003"
-  - "T004"
-title: "Hotkey Validation Foundation"
-phase: "Phase 1 - Foundation"
+work_package_id: WP01
+title: Hotkey Validation Foundation
 lane: "doing"
 dependencies: []
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+base_branch: main
+base_commit: a110118b26a2988343afe00c72b4f33483fd1eb6
+created_at: '2026-02-14T07:31:25.614349+00:00'
+subtasks:
+- T001
+- T002
+- T003
+- T004
+phase: Phase 1 - Foundation
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
 history:
-  - timestamp: "2026-02-14T07:24:26Z"
-    lane: "planned"
-    agent: "system"
-    shell_pid: ""
-    action: "Prompt generated via /spec-kitty.tasks"
+- timestamp: '2026-02-14T07:24:26Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
 ---
 
 # Work Package Prompt: WP01 - Hotkey Validation Foundation
@@ -155,3 +158,4 @@ xcodebuild test \
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
 - 2026-02-14T07:31:24Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-14T07:43:37Z – unknown – lane=doing – Automated: start implementation
