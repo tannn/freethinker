@@ -59,6 +59,7 @@ public final class AppState: ObservableObject {
     @Published public private(set) var settingsSaveErrorMessage: String?
     @Published public private(set) var settingsValidationMessage: String?
     @Published public private(set) var isPersistingSettings: Bool = false
+    @Published public private(set) var hotkeyCustomizationResult: HotkeyValidationResult?
 
     @Published public private(set) var isOnboardingPresented: Bool
     @Published public private(set) var onboardingReadiness: OnboardingReadiness
@@ -69,6 +70,8 @@ public final class AppState: ObservableObject {
     public var onCloseRequested: (() -> Void)?
     public var onSettingsUpdated: ((AppSettings) -> Void)?
     public var onSettingsPersistRequested: ((AppSettings) async throws -> Void)?
+    public var onHotkeyValidationRequested: ((HotkeyShortcut, HotkeyShortcut) -> HotkeyValidationResult)?
+    public var onHotkeyApplyRequested: ((AppSettings) throws -> Void)?
     public var onLaunchAtLoginChangeRequested: ((Bool) async throws -> Void)?
     public var onOpenSettingsRequested: ((SettingsSection) -> Void)?
     public var onOnboardingPresentationChanged: ((Bool) -> Void)?
@@ -268,6 +271,85 @@ public final class AppState: ObservableObject {
         await mutateSettings { $0.hotkeyEnabled = isEnabled }
     }
 
+    public func proposeHotkeyShortcut(_ shortcut: HotkeyShortcut) -> HotkeyValidationResult {
+        let effectiveShortcut = settings.hotkeyShortcut
+        guard let onHotkeyValidationRequested else {
+            return .valid(
+                proposedShortcut: shortcut,
+                effectiveShortcut: shortcut
+            )
+        }
+
+        return onHotkeyValidationRequested(shortcut, effectiveShortcut)
+    }
+
+    @discardableResult
+    public func applyHotkeyShortcut(_ shortcut: HotkeyShortcut) -> HotkeyValidationResult {
+        let previousShortcut = settings.hotkeyShortcut
+        let proposedResult = proposeHotkeyShortcut(shortcut)
+
+        guard proposedResult.isAccepted else {
+            settingsValidationMessage = proposedResult.message
+            hotkeyCustomizationResult = proposedResult
+            return proposedResult
+        }
+
+        var updated = settings
+        updated.hotkeyShortcut = proposedResult.effectiveShortcut
+
+        do {
+            try onHotkeyApplyRequested?(updated)
+        } catch let error as GlobalHotkeyServiceError {
+            let rejected = validationResult(
+                for: error,
+                proposedShortcut: proposedResult.proposedShortcut,
+                effectiveShortcut: previousShortcut
+            )
+            settingsValidationMessage = rejected.message
+            hotkeyCustomizationResult = rejected
+            return rejected
+        } catch {
+            let rejected = HotkeyValidationResult.invalid(
+                proposedShortcut: proposedResult.proposedShortcut,
+                effectiveShortcut: previousShortcut,
+                message: "This shortcut could not be applied. Try a different key combination."
+            )
+            settingsValidationMessage = rejected.message
+            hotkeyCustomizationResult = rejected
+            return rejected
+        }
+
+        updateSettings(updated)
+
+        let message = previousShortcut == proposedResult.effectiveShortcut
+            ? "Global hotkey unchanged."
+            : "Global hotkey updated."
+        let accepted = HotkeyValidationResult.valid(
+            proposedShortcut: proposedResult.proposedShortcut,
+            effectiveShortcut: proposedResult.effectiveShortcut,
+            message: message
+        )
+        settingsValidationMessage = nil
+        hotkeyCustomizationResult = accepted
+        return accepted
+    }
+
+    @discardableResult
+    public func resetHotkeyShortcutToDefault() -> HotkeyValidationResult {
+        let result = applyHotkeyShortcut(.defaultShortcut)
+        guard result.isAccepted else {
+            return result
+        }
+
+        let resetResult = HotkeyValidationResult.valid(
+            proposedShortcut: result.proposedShortcut,
+            effectiveShortcut: result.effectiveShortcut,
+            message: "Global hotkey reset to Cmd+Shift+P."
+        )
+        hotkeyCustomizationResult = resetResult
+        return resetResult
+    }
+
     public func setShowMenuBarIcon(_ isEnabled: Bool) async {
         await mutateSettings { $0.showMenuBarIcon = isEnabled }
     }
@@ -327,6 +409,7 @@ public final class AppState: ObservableObject {
     public func clearSettingsFeedback() {
         settingsSaveErrorMessage = nil
         settingsValidationMessage = nil
+        hotkeyCustomizationResult = nil
     }
 }
 
@@ -395,6 +478,39 @@ private extension AppState {
         }
 
         return error.localizedDescription
+    }
+
+    func validationResult(
+        for error: GlobalHotkeyServiceError,
+        proposedShortcut: HotkeyShortcut,
+        effectiveShortcut: HotkeyShortcut
+    ) -> HotkeyValidationResult {
+        switch error {
+        case .conflict:
+            return .conflict(
+                proposedShortcut: proposedShortcut,
+                effectiveShortcut: effectiveShortcut,
+                message: "That shortcut is already used by another app."
+            )
+        case .invalidShortcut(let message):
+            return .invalid(
+                proposedShortcut: proposedShortcut,
+                effectiveShortcut: effectiveShortcut,
+                message: message
+            )
+        case .reservedShortcut(let message):
+            return .reserved(
+                proposedShortcut: proposedShortcut,
+                effectiveShortcut: effectiveShortcut,
+                message: message
+            )
+        case .disabled, .registrationFailed, .handlerInstallFailed:
+            return .invalid(
+                proposedShortcut: proposedShortcut,
+                effectiveShortcut: effectiveShortcut,
+                message: "This shortcut could not be applied. Try a different key combination."
+            )
+        }
     }
 
     func notifyOnboardingVisibilityChanged() {

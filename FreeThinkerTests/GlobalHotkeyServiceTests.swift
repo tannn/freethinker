@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import FreeThinker
 
@@ -36,6 +37,126 @@ final class GlobalHotkeyServiceTests: XCTestCase {
         XCTAssertFalse(service.isRegistered)
     }
 
+    func testValidateShortcutProposalRejectsMissingModifiersWithoutProbe() {
+        let registrar = MockGlobalHotkeyRegistrar()
+        let service = GlobalHotkeyService(registrar: registrar)
+        let current = AppSettings().hotkeyShortcut
+        let proposed = HotkeyShortcut(modifiers: 0, keyCode: 35)
+
+        let result = service.validateShortcutProposal(proposed, effectiveShortcut: current)
+
+        XCTAssertEqual(result.status, .invalid)
+        XCTAssertEqual(result.effectiveShortcut, current)
+        XCTAssertEqual(registrar.registerCalls, 0)
+    }
+
+    func testValidateShortcutProposalRejectsReservedShortcutWithoutProbe() {
+        let registrar = MockGlobalHotkeyRegistrar()
+        let service = GlobalHotkeyService(registrar: registrar)
+        let current = AppSettings().hotkeyShortcut
+        let reserved = HotkeyShortcut(
+            modifiers: Int(NSEvent.ModifierFlags.command.rawValue),
+            keyCode: 12 // Q
+        )
+
+        let result = service.validateShortcutProposal(reserved, effectiveShortcut: current)
+
+        XCTAssertEqual(result.status, .reserved)
+        XCTAssertEqual(result.effectiveShortcut, current)
+        XCTAssertEqual(registrar.registerCalls, 0)
+    }
+
+    func testValidateShortcutProposalClassifiesConflictAndKeepsEffectiveShortcut() {
+        let registrar = MockGlobalHotkeyRegistrar()
+        registrar.registerError = .conflict
+        let service = GlobalHotkeyService(registrar: registrar)
+        let current = AppSettings().hotkeyShortcut
+        let proposed = HotkeyShortcut(
+            modifiers: AppSettings.defaultHotkeyModifiers,
+            keyCode: 40 // K
+        )
+
+        let result = service.validateShortcutProposal(proposed, effectiveShortcut: current)
+
+        XCTAssertEqual(result.status, .conflict)
+        XCTAssertEqual(result.effectiveShortcut, current)
+        XCTAssertEqual(registrar.registerCalls, 1)
+    }
+
+    func testValidateShortcutProposalReturnsValidAndUsesProposedEffectiveShortcut() {
+        let registrar = MockGlobalHotkeyRegistrar()
+        let service = GlobalHotkeyService(registrar: registrar)
+        let current = AppSettings().hotkeyShortcut
+        let proposed = HotkeyShortcut(
+            modifiers: AppSettings.defaultHotkeyModifiers,
+            keyCode: 40 // K
+        )
+
+        let result = service.validateShortcutProposal(proposed, effectiveShortcut: current)
+
+        XCTAssertEqual(result.status, .valid)
+        XCTAssertEqual(result.effectiveShortcut, proposed)
+        XCTAssertEqual(registrar.registerCalls, 1)
+        XCTAssertEqual(registrar.unregisterCalls, 1)
+    }
+
+    func testRegisterConflictAfterExistingRegistrationKeepsCurrentRegistration() throws {
+        let registrar = MockGlobalHotkeyRegistrar()
+        let service = GlobalHotkeyService(registrar: registrar)
+
+        try service.register(using: AppSettings(hotkeyEnabled: true))
+        registrar.registerError = .conflict
+
+        XCTAssertThrowsError(
+            try service.register(
+                using: AppSettings(
+                    hotkeyEnabled: true,
+                    hotkeyModifiers: AppSettings.defaultHotkeyModifiers,
+                    hotkeyKeyCode: 40 // K
+                )
+            )
+        ) { error in
+            XCTAssertEqual(error as? GlobalHotkeyServiceError, .conflict)
+        }
+
+        XCTAssertTrue(service.isRegistered)
+        XCTAssertEqual(registrar.unregisterCalls, 1)
+    }
+
+    func testRegisterFailureAfterValidationRestoresPreviousShortcut() throws {
+        let registrar = MockGlobalHotkeyRegistrar()
+        let service = GlobalHotkeyService(registrar: registrar)
+        var triggerCount = 0
+        service.onTrigger = { triggerCount += 1 }
+
+        try service.register(using: AppSettings(hotkeyEnabled: true))
+
+        let originalRegisterCallCount = registrar.registerCalls
+        registrar.registerErrorProvider = { id, callIndex in
+            // Fail only the first non-probe register attempt for the updated shortcut.
+            if id == 1, callIndex == originalRegisterCallCount + 2 {
+                return .conflict
+            }
+            return nil
+        }
+
+        XCTAssertThrowsError(
+            try service.register(
+                using: AppSettings(
+                    hotkeyEnabled: true,
+                    hotkeyModifiers: AppSettings.defaultHotkeyModifiers,
+                    hotkeyKeyCode: 40
+                )
+            )
+        ) { error in
+            XCTAssertEqual(error as? GlobalHotkeyServiceError, .conflict)
+        }
+
+        XCTAssertTrue(service.isRegistered)
+        registrar.simulateHotkeyPress(id: 1)
+        XCTAssertEqual(triggerCount, 1)
+    }
+
     func testRefreshRegistrationWithDisabledHotkeyUnregisters() {
         let registrar = MockGlobalHotkeyRegistrar()
         let service = GlobalHotkeyService(registrar: registrar)
@@ -68,6 +189,7 @@ private final class MockGlobalHotkeyRegistrar: GlobalHotkeyRegistering {
     private(set) var unregisterCalls = 0
 
     var registerError: GlobalHotkeyServiceError?
+    var registerErrorProvider: ((UInt32, Int) -> GlobalHotkeyServiceError?)?
     private var handler: ((UInt32) -> Void)?
 
     func installHandler(_ handler: @escaping (UInt32) -> Void) throws {
@@ -82,6 +204,9 @@ private final class MockGlobalHotkeyRegistrar: GlobalHotkeyRegistering {
 
     func register(id: UInt32, keyCode: UInt32, modifiers: UInt32) throws {
         registerCalls += 1
+        if let registerError = registerErrorProvider?(id, registerCalls) {
+            throw registerError
+        }
         if let registerError {
             throw registerError
         }

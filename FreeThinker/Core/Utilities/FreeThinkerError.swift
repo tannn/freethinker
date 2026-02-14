@@ -3,6 +3,8 @@ import Foundation
 public enum FreeThinkerError: Error, Sendable, Equatable {
     case accessibilityPermissionDenied
     case noSelection
+    case hotkeyShortcutInvalid
+    case hotkeyShortcutReserved
     case hotkeyRegistrationConflict
     case hotkeyRegistrationFailed
     case timeout
@@ -32,6 +34,10 @@ public extension FreeThinkerError {
             return "Accessibility permission is required to read selected text."
         case .noSelection:
             return "No text selected. Select text and try again."
+        case .hotkeyShortcutInvalid:
+            return "That shortcut is not supported."
+        case .hotkeyShortcutReserved:
+            return "That shortcut is reserved by macOS."
         case .hotkeyRegistrationConflict:
             return "The global hotkey is already used by another app."
         case .hotkeyRegistrationFailed:

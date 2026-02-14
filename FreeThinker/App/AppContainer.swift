@@ -212,6 +212,28 @@ private extension AppContainer {
             )
         }
 
+        appState.onHotkeyValidationRequested = { [weak self] proposedShortcut, effectiveShortcut in
+            guard let self else {
+                return .invalid(
+                    proposedShortcut: proposedShortcut,
+                    effectiveShortcut: effectiveShortcut,
+                    message: "Hotkey validation is temporarily unavailable."
+                )
+            }
+
+            return self.hotkeyService.validateShortcutProposal(
+                proposedShortcut,
+                effectiveShortcut: effectiveShortcut
+            )
+        }
+
+        appState.onHotkeyApplyRequested = { [weak self] settings in
+            guard let self else {
+                throw GlobalHotkeyServiceError.registrationFailed(status: -50)
+            }
+            try self.hotkeyService.register(using: settings)
+        }
+
         appState.onSettingsPersistRequested = { [weak self] settings in
             guard let self else { return }
             do {

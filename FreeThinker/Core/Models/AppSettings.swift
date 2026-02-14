@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 public enum ModelOption: String, Codable, CaseIterable, Identifiable, Sendable {
@@ -72,8 +73,175 @@ public enum SettingsSection: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+public struct HotkeyShortcut: Codable, Equatable, Hashable, Sendable {
+    public static let defaultShortcut = HotkeyShortcut(
+        modifiers: AppSettings.defaultHotkeyModifiers,
+        keyCode: AppSettings.defaultHotkeyKeyCode
+    )
+
+    public let modifiers: Int
+    public let keyCode: Int
+
+    public init(modifiers: Int, keyCode: Int) {
+        self.modifiers = modifiers
+        self.keyCode = keyCode
+    }
+
+    public var displayString: String {
+        HotkeyDisplayFormatter.displayString(for: self)
+    }
+}
+
+public enum HotkeyValidationStatus: String, Equatable, Sendable {
+    case valid
+    case invalid
+    case reserved
+    case conflict
+}
+
+public struct HotkeyValidationResult: Equatable, Sendable {
+    public let status: HotkeyValidationStatus
+    public let message: String?
+    public let proposedShortcut: HotkeyShortcut
+    public let effectiveShortcut: HotkeyShortcut
+
+    public init(
+        status: HotkeyValidationStatus,
+        message: String?,
+        proposedShortcut: HotkeyShortcut,
+        effectiveShortcut: HotkeyShortcut
+    ) {
+        self.status = status
+        self.message = message
+        self.proposedShortcut = proposedShortcut
+        self.effectiveShortcut = effectiveShortcut
+    }
+
+    public var isAccepted: Bool {
+        status == .valid
+    }
+
+    public static func valid(
+        proposedShortcut: HotkeyShortcut,
+        effectiveShortcut: HotkeyShortcut,
+        message: String? = nil
+    ) -> HotkeyValidationResult {
+        HotkeyValidationResult(
+            status: .valid,
+            message: message,
+            proposedShortcut: proposedShortcut,
+            effectiveShortcut: effectiveShortcut
+        )
+    }
+
+    public static func invalid(
+        proposedShortcut: HotkeyShortcut,
+        effectiveShortcut: HotkeyShortcut,
+        message: String
+    ) -> HotkeyValidationResult {
+        HotkeyValidationResult(
+            status: .invalid,
+            message: message,
+            proposedShortcut: proposedShortcut,
+            effectiveShortcut: effectiveShortcut
+        )
+    }
+
+    public static func reserved(
+        proposedShortcut: HotkeyShortcut,
+        effectiveShortcut: HotkeyShortcut,
+        message: String
+    ) -> HotkeyValidationResult {
+        HotkeyValidationResult(
+            status: .reserved,
+            message: message,
+            proposedShortcut: proposedShortcut,
+            effectiveShortcut: effectiveShortcut
+        )
+    }
+
+    public static func conflict(
+        proposedShortcut: HotkeyShortcut,
+        effectiveShortcut: HotkeyShortcut,
+        message: String
+    ) -> HotkeyValidationResult {
+        HotkeyValidationResult(
+            status: .conflict,
+            message: message,
+            proposedShortcut: proposedShortcut,
+            effectiveShortcut: effectiveShortcut
+        )
+    }
+}
+
+public enum HotkeyDisplayFormatter {
+    public static func displayString(for shortcut: HotkeyShortcut) -> String {
+        let modifierPart = modifierDisplayNames(rawModifiers: shortcut.modifiers)
+        let keyPart = keyDisplayName(keyCode: shortcut.keyCode)
+
+        guard modifierPart.isEmpty == false else {
+            return keyPart
+        }
+
+        return (modifierPart + [keyPart]).joined(separator: "+")
+    }
+}
+
+private extension HotkeyDisplayFormatter {
+    static let keyDisplayNames: [Int: String] = [
+        0: "A", 1: "S", 2: "D", 3: "F", 4: "H", 5: "G", 6: "Z", 7: "X", 8: "C", 9: "V",
+        11: "B", 12: "Q", 13: "W", 14: "E", 15: "R", 16: "Y", 17: "T", 18: "1", 19: "2", 20: "3",
+        21: "4", 22: "6", 23: "5", 24: "=", 25: "9", 26: "7", 27: "-", 28: "8", 29: "0", 30: "]",
+        31: "O", 32: "U", 33: "[", 34: "I", 35: "P", 36: "Return", 37: "L", 38: "J", 39: "'", 40: "K",
+        41: ";", 42: "\\", 43: ",", 44: "/", 45: "N", 46: "M", 47: ".", 48: "Tab", 49: "Space", 50: "`",
+        51: "Delete", 53: "Esc",
+        122: "F1", 120: "F2", 99: "F3", 118: "F4", 96: "F5", 97: "F6", 98: "F7", 100: "F8", 101: "F9", 109: "F10",
+        103: "F11", 111: "F12", 105: "F13", 107: "F14", 113: "F15", 106: "F16", 64: "F17", 79: "F18", 80: "F19", 90: "F20",
+        123: "Left", 124: "Right", 125: "Down", 126: "Up"
+    ]
+
+    static let supportedModifiers: NSEvent.ModifierFlags = [.command, .shift, .option, .control]
+
+    static func modifierDisplayNames(rawModifiers: Int) -> [String] {
+        guard rawModifiers >= 0 else {
+            return []
+        }
+
+        let flags = NSEvent.ModifierFlags(rawValue: UInt(rawModifiers))
+            .intersection(.deviceIndependentFlagsMask)
+            .intersection(supportedModifiers)
+
+        var names: [String] = []
+
+        if flags.contains(.command) {
+            names.append("Cmd")
+        }
+        if flags.contains(.shift) {
+            names.append("Shift")
+        }
+        if flags.contains(.option) {
+            names.append("Option")
+        }
+        if flags.contains(.control) {
+            names.append("Control")
+        }
+
+        return names
+    }
+
+    static func keyDisplayName(keyCode: Int) -> String {
+        if let display = keyDisplayNames[keyCode] {
+            return display
+        }
+
+        return "Key\(keyCode)"
+    }
+}
+
 public struct AppSettings: Codable, Equatable, Sendable {
     public static let currentSchemaVersion = 2
+    public static let defaultHotkeyModifiers = 1_179_648
+    public static let defaultHotkeyKeyCode = 35
     public static let defaultPrompt1 = "Identify hidden assumptions, unstated premises, or implicit biases in the following text."
     public static let defaultPrompt2 = "Provide a strong, well-reasoned counterargument or alternative perspective to the following claim."
     public static let maxPromptLength = 1_000
@@ -106,8 +274,8 @@ public struct AppSettings: Codable, Equatable, Sendable {
     public init(
         schemaVersion: Int = AppSettings.currentSchemaVersion,
         hotkeyEnabled: Bool = true,
-        hotkeyModifiers: Int = 1_179_648,
-        hotkeyKeyCode: Int = 35,
+        hotkeyModifiers: Int = AppSettings.defaultHotkeyModifiers,
+        hotkeyKeyCode: Int = AppSettings.defaultHotkeyKeyCode,
         prompt1: String = AppSettings.defaultPrompt1,
         prompt2: String = AppSettings.defaultPrompt2,
         launchAtLogin: Bool = false,
@@ -147,6 +315,16 @@ public struct AppSettings: Codable, Equatable, Sendable {
         self.automaticallyCheckForUpdates = automaticallyCheckForUpdates
         self.appUpdateChannel = appUpdateChannel
         self.aiTimeoutSeconds = aiTimeoutSeconds
+    }
+
+    public var hotkeyShortcut: HotkeyShortcut {
+        get {
+            HotkeyShortcut(modifiers: hotkeyModifiers, keyCode: hotkeyKeyCode)
+        }
+        set {
+            hotkeyModifiers = newValue.modifiers
+            hotkeyKeyCode = newValue.keyCode
+        }
     }
 }
 
@@ -214,7 +392,11 @@ public extension AppSettings {
         }
 
         if result.hotkeyKeyCode < 0 || result.hotkeyKeyCode > 127 {
-            result.hotkeyKeyCode = 35
+            result.hotkeyKeyCode = Self.defaultHotkeyKeyCode
+        }
+
+        if result.hotkeyModifiers < 0 {
+            result.hotkeyModifiers = Self.defaultHotkeyModifiers
         }
 
         result.prompt1 = String(result.prompt1.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxPromptLength))
