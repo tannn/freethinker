@@ -8,7 +8,7 @@ subtasks:
   - "T018"
 title: "Hotkey Customization Settings UX"
 phase: "Phase 2 - User Story Delivery"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP01"
   - "WP03"
@@ -169,3 +169,4 @@ xcodebuild test \
 ## Activity Log
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
+- 2026-02-14T07:56:47Z – unknown – lane=doing – Automated: start implementation
