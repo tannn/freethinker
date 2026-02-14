@@ -80,3 +80,4 @@ fastlane/test_output
 .kittify/logs/
 .kittify/orchestration-state*
 .kittify/workspaces/
+.agent-cache.json
