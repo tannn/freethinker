@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Regression Hardening and Verification
-lane: doing
+lane: "planned"
 dependencies:
 - WP02
 - WP03
@@ -18,8 +18,8 @@ phase: Phase 3 - Polish & Verification
 assignee: ''
 agent: ''
 shell_pid: ''
-review_status: ''
-reviewed_by: ''
+review_status: "has_feedback"
+reviewed_by: "Tanner"
 history:
 - timestamp: '2026-02-14T07:24:26Z'
   lane: planned
@@ -44,6 +44,29 @@ history:
 *[This section is empty initially.]*
 
 ---
+
+---
+
+**Reviewed by**: Tanner
+**Status**: ❌ Changes Requested
+**Date**: 2026-02-14
+
+**Issue 1 (rebase incomplete)**: WP05 work exists only as uncommitted changes that conflict with WP04. After rebasing WP05 onto WP04 (which is now done), the WP05-specific implementation (regression tests for T019-T020 and quickstart updates for T021-T022) needs to be re-applied and committed.
+
+**Issue 2 (missing committed changes)**: The following WP05 deliverables were observed in the working directory but not committed:
+- FreeThinkerUITests/FloatingPanelUITests.swift - FR002 copy behavior tests
+- FreeThinkerUITests/SettingsUITests.swift - FR007/FR008/FR010/FR011 tests  
+- FreeThinkerTests/DefaultSettingsServiceTests.swift - FR010/FR011 persistence tests
+- FreeThinkerTests/GlobalHotkeyServiceTests.swift - Additional hotkey regression tests
+- FreeThinkerTests/MenuBarMenuBuilderTests.swift - New test file for menu builder
+- kitty-specs/002-provocation-copy-settings-controls/quickstart.md - Updated with test matrix
+- kitty-specs/002-provocation-copy-settings-controls/wp05-activity-log.md - Activity log
+
+**How to fix**: 
+1. Restore your WP05 changes: `cd /Users/tanner/Documents/experimental/ideas/freethinker/.worktrees/002-provocation-copy-settings-controls-WP05 && git stash pop`
+2. Resolve merge conflicts (accept WP04 changes for source files, keep your test additions)
+3. Commit the WP05 work: `git add -A && git commit -m "feat(WP05): regression hardening and verification"`
+4. Mark subtasks done: `spec-kitty agent tasks mark-status T019 T020 T021 T022 --status done`
 
 ## Objectives & Success Criteria
 
@@ -162,3 +185,4 @@ xcodebuild test \
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
 - 2026-02-14T08:16:33Z – unknown – lane=doing – Automated: start implementation
+- 2026-02-14T18:15:21Z – unknown – lane=planned – Moved to planned
