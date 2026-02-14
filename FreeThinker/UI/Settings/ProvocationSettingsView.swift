@@ -21,7 +21,7 @@ public struct ProvocationSettingsView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Picker("Style preset", selection: stylePresetBinding) {
                             ForEach(ProvocationStylePreset.allCases) { preset in
-                                Text(presetTitle(for: preset))
+                                Text(preset.displayName)
                                     .tag(preset)
                             }
                         }
@@ -127,17 +127,6 @@ private extension ProvocationSettingsView {
 
     var containsNullCharacter: Bool {
         draftCustomInstructions.contains("\0")
-    }
-
-    func presetTitle(for preset: ProvocationStylePreset) -> String {
-        switch preset {
-        case .contrarian:
-            return "Contrarian"
-        case .socratic:
-            return "Socratic"
-        case .systemsThinking:
-            return "Systems Thinking"
-        }
     }
 
     func scheduleCustomInstructionPersistence(_ value: String) {

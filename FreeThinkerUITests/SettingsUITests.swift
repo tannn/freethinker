@@ -122,6 +122,35 @@ final class SettingsUITests: XCTestCase {
         XCTAssertTrue(secondLaunch.settings.customStyleInstructions.isEmpty)
     }
 
+    func testMenuDrivenStylePresetSelectionUpdatesAndPersistsSettings() async throws {
+        let recorder = PersistenceRecorder()
+        let appState = makeAppState()
+        appState.onSettingsPersistRequested = { settings in
+            await recorder.record(settings)
+        }
+
+        let coordinator = MenuBarCoordinator(
+            appState: appState,
+            orchestrator: NoOpProvocationOrchestratorForSettingsUITests()
+        )
+
+        coordinator.perform(.selectStylePreset(.systemsThinking))
+        try await waitUntil("systems thinking style set") {
+            appState.settings.provocationStylePreset == .systemsThinking
+        }
+        try await waitUntil("systems thinking style persisted") {
+            await recorder.lastSaved?.provocationStylePreset == .systemsThinking
+        }
+
+        coordinator.perform(.selectStylePreset(.contrarian))
+        try await waitUntil("contrarian style set") {
+            appState.settings.provocationStylePreset == .contrarian
+        }
+        try await waitUntil("contrarian style persisted") {
+            await recorder.lastSaved?.provocationStylePreset == .contrarian
+        }
+    }
+
     func testCustomInstructionValidationBoundaries() async throws {
         let appState = makeAppState()
 
@@ -381,4 +410,35 @@ private final class InMemoryPinningStore: PanelPinningStore, @unchecked Sendable
         value = isPinned
         lock.unlock()
     }
+}
+
+private actor NoOpProvocationOrchestratorForSettingsUITests: ProvocationOrchestrating {
+    func trigger(
+        source: ProvocationTriggerSource,
+        regenerateFromResponseID: UUID?
+    ) async -> ProvocationTriggerDecision {
+        .started
+    }
+
+    func cancelCurrentGeneration(reason: ProvocationCancellationReason) async {}
+
+    func currentMetrics() -> ProvocationOrchestratorMetrics {
+        ProvocationOrchestratorMetrics()
+    }
+}
+
+private func waitUntil(
+    _ label: String,
+    timeoutNanoseconds: UInt64 = 1_000_000_000,
+    pollNanoseconds: UInt64 = 20_000_000,
+    condition: @escaping () async -> Bool
+) async throws {
+    let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
+    while DispatchTime.now().uptimeNanoseconds < deadline {
+        if await condition() {
+            return
+        }
+        try await Task.sleep(nanoseconds: pollNanoseconds)
+    }
+    XCTFail("Timed out waiting for \(label)")
 }
