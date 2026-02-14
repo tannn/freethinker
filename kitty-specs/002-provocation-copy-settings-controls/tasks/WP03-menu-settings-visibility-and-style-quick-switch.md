@@ -8,7 +8,7 @@ subtasks:
   - "T013"
 title: "Menu/Settings Visibility and Style Quick Switch"
 phase: "Phase 2 - User Story Delivery"
-lane: "planned"
+lane: "doing"
 dependencies:
   - "WP01"
 assignee: ""
@@ -168,3 +168,4 @@ xcodebuild test \
 ## Activity Log
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
+- 2026-02-14T07:51:09Z – unknown – lane=doing – Automated: start implementation
