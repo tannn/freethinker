@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Hotkey Validation Foundation"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 dependencies: []
 assignee: ""
 agent: ""
@@ -154,3 +154,4 @@ xcodebuild test \
 ## Activity Log
 
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
+- 2026-02-14T07:31:24Z – unknown – lane=doing – Automated: start implementation
