@@ -1,0 +1,113 @@
+openapi: 3.1.0
+info:
+  title: FreeThinker Internal Interaction Contract
+  version: 1.0.0
+  description: >-
+    Contract-style API model used to define expected behavior for local feature
+    interactions in Feature 002.
+servers:
+  - url: app://freethinker
+paths:
+  /panel/provocations/{responseId}/copy:
+    post:
+      summary: Copy displayed provocation text
+      operationId: copyProvocationText
+      parameters:
+        - name: responseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+      responses:
+        '204':
+          description: Text copied to clipboard.
+        '409':
+          description: Copy failed; panel state remains unchanged.
+  /settings/hotkey:
+    put:
+      summary: Propose and save a new global hotkey
+      operationId: updateHotkey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotkeyShortcut'
+      responses:
+        '200':
+          description: Hotkey accepted and applied.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotkeyValidationResult'
+        '422':
+          description: Invalid or reserved shortcut.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotkeyValidationResult'
+        '409':
+          description: Shortcut conflicts with registration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotkeyValidationResult'
+  /settings/hotkey/reset:
+    post:
+      summary: Reset global hotkey to default
+      operationId: resetHotkey
+      responses:
+        '200':
+          description: Hotkey reset to Cmd+Shift+P.
+  /settings/provocation-style:
+    put:
+      summary: Change active style preset from menu or settings
+      operationId: updateStylePreset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [preset]
+              properties:
+                preset:
+                  type: string
+                  enum: [contrarian, socratic, systemsThinking]
+      responses:
+        '200':
+          description: Preset updated and synchronized across UI surfaces.
+components:
+  schemas:
+    HotkeyShortcut:
+      type: object
+      required: [modifiersRawValue, keyCode]
+      properties:
+        modifiersRawValue:
+          type: integer
+        keyCode:
+          type: integer
+          minimum: 0
+          maximum: 127
+    HotkeyValidationResult:
+      type: object
+      required: [status, message, effectiveShortcut]
+      properties:
+        status:
+          type: string
+          enum: [valid, invalid, reserved, conflict]
+        message:
+          type: string
+        effectiveShortcut:
+          $ref: '#/components/schemas/HotkeyShortcut'
