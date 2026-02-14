@@ -15,8 +15,8 @@ final class DefaultSettingsServiceTests: XCTestCase {
         let service = DefaultSettingsService(userDefaults: defaults)
 
         var settings = AppSettings()
-        settings.hotkeyModifiers = 1_048_576
-        settings.hotkeyKeyCode = 11
+        settings.hotkeyModifiers = Int(NSEvent.ModifierFlags.command.union(.option).rawValue)
+        settings.hotkeyKeyCode = 46
         settings.diagnosticsEnabled = true
         settings.hasSeenOnboarding = true
         settings.onboardingCompleted = true
@@ -24,17 +24,15 @@ final class DefaultSettingsServiceTests: XCTestCase {
         settings.launchAtLogin = true
         settings.autoDismissSeconds = 10
         settings.fallbackCaptureEnabled = false
+        settings.appUpdateChannel = .beta
         settings.provocationStylePreset = .systemsThinking
         settings.customStyleInstructions = "Challenge second-order effects."
-        settings.appUpdateChannel = .beta
-        settings.hotkeyModifiers = Int(NSEvent.ModifierFlags.command.union(.option).rawValue)
-        settings.hotkeyKeyCode = 46
 
         try service.saveSettings(settings)
         let loaded = service.loadSettings()
 
-        XCTAssertEqual(loaded.hotkeyModifiers, 1_048_576)
-        XCTAssertEqual(loaded.hotkeyKeyCode, 11)
+        XCTAssertEqual(loaded.hotkeyModifiers, Int(NSEvent.ModifierFlags.command.union(.option).rawValue))
+        XCTAssertEqual(loaded.hotkeyKeyCode, 46)
         XCTAssertEqual(loaded.diagnosticsEnabled, true)
         XCTAssertEqual(loaded.hasSeenOnboarding, true)
         XCTAssertEqual(loaded.onboardingCompleted, true)
@@ -42,9 +40,9 @@ final class DefaultSettingsServiceTests: XCTestCase {
         XCTAssertEqual(loaded.launchAtLogin, true)
         XCTAssertEqual(loaded.autoDismissSeconds, 10)
         XCTAssertEqual(loaded.fallbackCaptureEnabled, false)
+        XCTAssertEqual(loaded.appUpdateChannel, .beta)
         XCTAssertEqual(loaded.provocationStylePreset, .systemsThinking)
         XCTAssertEqual(loaded.customStyleInstructions, "Challenge second-order effects.")
-        XCTAssertEqual(loaded.appUpdateChannel, .beta)
     }
 
     func testLoadSupportsLegacyPayloadWithoutNewFields() throws {

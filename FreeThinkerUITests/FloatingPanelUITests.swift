@@ -74,7 +74,7 @@ final class FloatingPanelUITests: XCTestCase {
         }
 
         viewModel.setSuccess(try makeSuccessResponse())
-        viewModel.copyFromResponseContent()
+        viewModel.copyCurrentResult()
 
         XCTAssertNotNil(copiedText)
         XCTAssertTrue(copiedText?.contains("Question the certainty") ?? false)
@@ -128,27 +128,6 @@ final class FloatingPanelUITests: XCTestCase {
         XCTAssertEqual(closeCount, 0)
     }
 
-    func testCopyFromContentDoesNotStartRegeneration() throws {
-        var copiedText: String?
-
-        let viewModel = FloatingPanelViewModel(
-            isPinned: false,
-            dismissOnCopy: false,
-            timing: ImmediateTiming(),
-            pasteboardWriter: { copiedText = $0 }
-        )
-        viewModel.setSuccess(try makeSuccessResponse())
-
-        XCTAssertFalse(viewModel.isRegenerating)
-        let originalResponseID = viewModel.currentResponse?.id
-
-        viewModel.copyFromResponseContent()
-
-        XCTAssertFalse(viewModel.isRegenerating)
-        XCTAssertNotNil(copiedText)
-        XCTAssertEqual(viewModel.currentResponse?.id, originalResponseID)
-    }
-
     func testPinnedPanelPersistsAcrossTriggerCycles() {
         let pinningStore = InMemoryPinningStore()
 
@@ -174,8 +153,7 @@ final class FloatingPanelUITests: XCTestCase {
 
     func testAccessibilityIdentifiersRemainStable() {
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.panel, "floating_panel.root")
-        XCTAssertEqual(FloatingPanelAccessibility.Identifier.copyTarget, "floating_panel.action.copy_target")
-        XCTAssertNotEqual(FloatingPanelAccessibility.Identifier.copyTarget, "floating_panel.action.copy")
+        XCTAssertEqual(FloatingPanelAccessibility.Identifier.copyButton, "floating_panel.action.copy")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.regenerateButton, "floating_panel.action.regenerate")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.closeButton, "floating_panel.action.close")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.pinButton, "floating_panel.action.pin")

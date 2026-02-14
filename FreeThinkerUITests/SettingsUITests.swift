@@ -339,16 +339,16 @@ final class SettingsUITests: XCTestCase {
         XCTAssertEqual(appState.settings.provocationStylePreset, .socratic)
         XCTAssertStyleSelection(
             in: coordinator.currentMenuDescriptors(),
-            expectedCommand: .setStylePresetSocratic
+            expectedCommand: .selectStylePreset(.socratic)
         )
 
-        coordinator.perform(.setStylePresetSystemsThinking)
+        coordinator.perform(.selectStylePreset(.systemsThinking))
         await Task.yield()
 
         XCTAssertEqual(appState.settings.provocationStylePreset, .systemsThinking)
         XCTAssertStyleSelection(
             in: coordinator.currentMenuDescriptors(),
-            expectedCommand: .setStylePresetSystemsThinking
+            expectedCommand: .selectStylePreset(.systemsThinking)
         )
     }
 
@@ -405,7 +405,7 @@ private extension SettingsUITests {
         let styleDescriptors = descriptors.filter { descriptor in
             guard let command = descriptor.command else { return false }
             switch command {
-            case .setStylePresetContrarian, .setStylePresetSocratic, .setStylePresetSystemsThinking:
+            case .selectStylePreset:
                 return true
             default:
                 return false

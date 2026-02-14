@@ -78,7 +78,11 @@ final class AIServicePerformanceTests: XCTestCase {
 
 private extension AIServicePerformanceTests {
     func loadFixture(_ name: String) -> String {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
         let bundle = Bundle(for: AIServicePerformanceTests.self)
+        #endif
         guard let url = bundle.url(forResource: name, withExtension: "txt", subdirectory: "Fixtures") else {
             XCTFail("Missing performance fixture: Fixtures/\(name).txt")
             return "Missing fixture \(name)"

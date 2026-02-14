@@ -191,7 +191,7 @@ final class GlobalHotkeyServiceTests: XCTestCase {
         XCTAssertTrue(service.isRegistered)
     }
 
-    func testFR010_ConflictDuringRefreshDoesNotLeaveStaleRegistration_SC05() throws {
+    func testFR010_ConflictDuringRefreshKeepsPreviousRegistrationActive_SC05() throws {
         let registrar = MockGlobalHotkeyRegistrar()
         let service = GlobalHotkeyService(registrar: registrar)
 
@@ -201,8 +201,8 @@ final class GlobalHotkeyServiceTests: XCTestCase {
         registrar.registerError = .conflict
         service.refreshRegistration(using: AppSettings(hotkeyEnabled: true, hotkeyKeyCode: 17))
 
-        XCTAssertFalse(service.isRegistered)
-        XCTAssertGreaterThanOrEqual(registrar.unregisterCalls, 2)
+        XCTAssertTrue(service.isRegistered)
+        XCTAssertEqual(registrar.unregisterCalls, 1)
     }
 }
 
@@ -231,12 +231,12 @@ private final class MockGlobalHotkeyRegistrar: GlobalHotkeyRegistering {
 
     func register(id: UInt32, keyCode: UInt32, modifiers: UInt32) throws {
         registerCalls += 1
-        lastRegisterID = id
-        lastRegisterKeyCode = keyCode
-        lastRegisterModifiers = modifiers
         if let registerError = registerErrorProvider?(id, registerCalls) {
             throw registerError
         }
+        lastRegisterID = id
+        lastRegisterKeyCode = keyCode
+        lastRegisterModifiers = modifiers
         if let registerError {
             throw registerError
         }
