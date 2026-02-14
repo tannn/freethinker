@@ -1,7 +1,7 @@
 ---
 work_package_id: WP05
 title: Regression Hardening and Verification
-lane: "planned"
+lane: "doing"
 dependencies:
 - WP02
 - WP03
@@ -16,8 +16,8 @@ subtasks:
 - T022
 phase: Phase 3 - Polish & Verification
 assignee: ''
-agent: ''
-shell_pid: ''
+agent: "Code"
+shell_pid: "53429"
 review_status: "has_feedback"
 reviewed_by: "Tanner"
 history:
@@ -186,3 +186,4 @@ xcodebuild test \
 - 2026-02-14T07:24:26Z - system - lane=planned - Prompt created.
 - 2026-02-14T08:16:33Z – unknown – lane=doing – Automated: start implementation
 - 2026-02-14T18:15:21Z – unknown – lane=planned – Moved to planned
+- 2026-02-14T18:16:27Z – Code – shell_pid=53429 – lane=doing – Started implementation via workflow command
