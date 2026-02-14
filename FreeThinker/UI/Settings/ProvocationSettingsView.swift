@@ -41,7 +41,7 @@ public struct ProvocationSettingsView: View {
                             .font(.body)
                             .focused($isCustomInstructionEditorFocused)
                             .accessibilityIdentifier(SettingsAccessibility.Identifier.provocationCustomInstructionEditor)
-                            .onChange(of: draftCustomInstructions) { newValue in
+                            .onChange(of: draftCustomInstructions) { oldValue, newValue in
                                 scheduleCustomInstructionPersistence(newValue)
                             }
 
@@ -90,7 +90,7 @@ public struct ProvocationSettingsView: View {
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .onChange(of: appState.settings.customStyleInstructions) { newValue in
+        .onChange(of: appState.settings.customStyleInstructions) { oldValue, newValue in
             guard !isCustomInstructionEditorFocused else {
                 return
             }
@@ -138,3 +138,4 @@ private extension ProvocationSettingsView {
         }
     }
 }
+

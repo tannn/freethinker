@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -180,6 +180,7 @@
 		B95B6B539F9996D3D1B91F7F /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
 		BCAF102A3189D2CE63AA82A1 /* SettingsWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowController.swift; sourceTree = "<group>"; };
 		BE62001DAFAB446BFF9A0F1E /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		C39D3AFF2F410385002721C6 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		C5D576400F13CE8FDAF5ECF0 /* AIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIService.swift; sourceTree = "<group>"; };
 		C61F83E8610B2215880377BA /* DefaultAIServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultAIServiceTests.swift; sourceTree = "<group>"; };
 		C6FC76C6588795558633275A /* FloatingPanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelViewModel.swift; sourceTree = "<group>"; };
@@ -197,10 +198,6 @@
 		FB4530C99E44AF05F3ACD9A1 /* ProvocationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationSettingsView.swift; sourceTree = "<group>"; };
 		FFA1455C2F43FDE610072271 /* ProvocationPromptComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationPromptComposerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		C3995AA52F403C7B0009D795 /* Resources */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Resources; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		598A080B6BBBBE894647C5C8 /* Frameworks */ = {
@@ -298,13 +295,13 @@
 		5EB1D40860C73D49B5F16CDB = {
 			isa = PBXGroup;
 			children = (
-				C3995AA52F403C7B0009D795 /* Resources */,
 				D6E7412DD4CADAAF05755D04 /* FreeThinker */,
 				A084F3B87624C1A6D0A25992 /* FreeThinkerApp */,
 				4C426D370C68E7F96C4371B4 /* FreeThinkerPerformanceTests */,
 				EE10336986CE25894831C19F /* FreeThinkerTests */,
 				59F24533C62E37615D45B84F /* FreeThinkerUITests */,
 				F2E074FDA2436E345C5ACA37 /* Products */,
+				C39D3AFF2F410385002721C6 /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -953,6 +950,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FreeThinker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -972,6 +971,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FreeThinker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

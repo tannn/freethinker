@@ -15,9 +15,6 @@ public enum MenuBarCommand: Equatable, Sendable {
 
 public enum MenuBarMenuLabel {
     public static let generate = "Generate Provocation"
-    public static let styleContrarian = "Style: Contrarian"
-    public static let styleSocratic = "Style: Socratic"
-    public static let styleSystemsThinking = "Style: Systems Thinking"
     public static let settings = "Settings..."
     public static let onboardingGuide = "Onboarding Guide..."
     public static let launchAtLogin = "Launch at Login"
@@ -77,24 +74,7 @@ public struct MenuBarMenuBuilder: MenuBarMenuBuilding {
                 isEnabled: !state.isGenerating
             ),
             MenuBarMenuItemDescriptor(title: "", command: nil, isSeparator: true),
-            MenuBarMenuItemDescriptor(
-                title: MenuBarMenuLabel.styleContrarian,
-                command: .setStylePresetContrarian,
-                isOn: state.selectedStylePreset == .contrarian
-            ),
-            MenuBarMenuItemDescriptor(
-                title: MenuBarMenuLabel.styleSocratic,
-                command: .setStylePresetSocratic,
-                isOn: state.selectedStylePreset == .socratic
-            ),
-            MenuBarMenuItemDescriptor(
-                title: MenuBarMenuLabel.styleSystemsThinking,
-                command: .setStylePresetSystemsThinking,
-                isOn: state.selectedStylePreset == .systemsThinking
-            ),
-            MenuBarMenuItemDescriptor(title: "", command: nil, isSeparator: true),
             MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.settings, command: .openSettings),
-            MenuBarMenuItemDescriptor(title: MenuBarMenuLabel.onboardingGuide, command: .openOnboardingGuide),
             MenuBarMenuItemDescriptor(
                 title: MenuBarMenuLabel.launchAtLogin,
                 command: .toggleLaunchAtLogin,
@@ -156,6 +136,12 @@ private extension MenuBarCommand {
             return "openOnboardingGuide"
         case .toggleLaunchAtLogin:
             return "toggleLaunchAtLogin"
+        case .setStylePresetContrarian:
+            return "setStylePresetContrarian"
+        case .setStylePresetSocratic:
+            return "setStylePresetSocratic"
+        case .setStylePresetSystemsThinking:
+            return "setStylePresetSystemsThinking"
         case .selectStylePreset(let preset):
             return "stylePreset:\(preset.rawValue)"
         case .quit:

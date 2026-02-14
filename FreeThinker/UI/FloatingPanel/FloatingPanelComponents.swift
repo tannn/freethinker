@@ -46,9 +46,6 @@ public struct FloatingPanelResponseCard: View {
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: FloatingPanelDesignTokens.regularSpacing) {
-                Text(content.headline)
-                    .font(.headline.weight(.semibold))
-                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(content.body)
                     .font(.body)
