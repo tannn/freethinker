@@ -17,6 +17,8 @@ final class MenuBarMenuBuilderRegressionTests: XCTestCase {
             switch command {
             case .openSettings, .openOnboardingGuide, .generate, .toggleLaunchAtLogin, .quit, .selectStylePreset:
                 return false
+            case .setStylePresetContrarian, .setStylePresetSocratic, .setStylePresetSystemsThinking:
+                return true
             }
         })
     }

@@ -153,7 +153,7 @@ final class FloatingPanelUITests: XCTestCase {
 
     func testAccessibilityIdentifiersRemainStable() {
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.panel, "floating_panel.root")
-        XCTAssertEqual(FloatingPanelAccessibility.Identifier.copyButton, "floating_panel.action.copy")
+        XCTAssertEqual(FloatingPanelAccessibility.Identifier.copyTarget, "floating_panel.action.copy_target")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.regenerateButton, "floating_panel.action.regenerate")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.closeButton, "floating_panel.action.close")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.pinButton, "floating_panel.action.pin")
@@ -174,8 +174,7 @@ private extension FloatingPanelUITests {
             styleUsed: .socratic,
             outcome: .success(
                 content: ProvocationContent(
-                    headline: headline,
-                    body: "The argument treats velocity as the same thing as value creation.",
+                    body: "\(headline). The argument treats velocity as the same thing as value creation.",
                     followUpQuestion: "What quality constraints are being traded away?"
                 )
             ),

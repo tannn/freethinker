@@ -32,7 +32,7 @@ final class DefaultAIServiceTests: XCTestCase {
         guard case .success(let content) = response.outcome else {
             return XCTFail("Expected successful outcome")
         }
-        XCTAssertEqual(content.headline, "Incentive mismatch")
+        XCTAssertTrue(content.body.contains("private incentives align with public outcomes"))
     }
 
     func testGenerateProvocationReturnsTimeoutAndCancelsWork() async throws {

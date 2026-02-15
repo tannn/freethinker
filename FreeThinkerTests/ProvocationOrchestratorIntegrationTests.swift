@@ -561,7 +561,6 @@ private actor MockAIService: AIServiceProtocol {
             styleUsed: settings.provocationStylePreset,
             outcome: .success(
                 content: ProvocationContent(
-                    headline: "Challenge the premise",
                     body: "This argument assumes static incentives and no adaptation.",
                     followUpQuestion: "What changes if incentives shift?"
                 )

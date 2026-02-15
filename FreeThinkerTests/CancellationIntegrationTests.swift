@@ -233,7 +233,6 @@ private actor CancellationIgnoringSuccessAIService: AIServiceProtocol {
             styleUsed: settings.provocationStylePreset,
             outcome: .success(
                 content: ProvocationContent(
-                    headline: "Should Not Be Shown",
                     body: "Cancelled results must not be presented.",
                     followUpQuestion: nil
                 )
@@ -329,7 +328,6 @@ private actor CancellationAIService: AIServiceProtocol {
             styleUsed: settings.provocationStylePreset,
             outcome: .success(
                 content: ProvocationContent(
-                    headline: "Counterpoint",
                     body: "A second run completed after cancellation.",
                     followUpQuestion: nil
                 )
