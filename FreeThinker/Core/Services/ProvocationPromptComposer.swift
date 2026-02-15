@@ -63,7 +63,6 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         \(normalizedCustomInstruction(normalizedSettings.customStyleInstructions))
 
         AVOID DUPLICATING THIS PRIOR OUTPUT:
-        HEADLINE: \(previousResponse.headline)
         BODY: \(previousResponse.body)
 
         OUTPUT FORMAT:

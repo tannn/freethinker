@@ -182,6 +182,50 @@ final class ProvocationOrchestratorIntegrationTests: XCTestCase {
         XCTAssertEqual(metrics.droppedInFlight, 1)
         XCTAssertEqual(metrics.droppedDebounced, 1)
     }
+
+    func testRegenerateReusesPreviousSelectionWithoutRecapturingActiveAppText() async throws {
+        let textCapture = MockTextCaptureService(
+            scriptedResults: [
+                .success("Reusable selected text"),
+                .failure(.noSelection)
+            ]
+        )
+        let aiService = MockAIService()
+        let recorder = CallbackRecorder()
+        let orchestrator = makeOrchestrator(
+            textCaptureService: textCapture,
+            aiService: aiService,
+            recorder: recorder,
+            debounceNanoseconds: 100
+        )
+
+        let firstDecision = await orchestrator.trigger(source: .hotkey, regenerateFromResponseID: nil)
+        XCTAssertEqual(firstDecision, .started)
+
+        try await waitUntil("first response event") {
+            await recorder.responseCount == 1
+        }
+
+        let firstResponseID = await recorder.latestResponseID
+        XCTAssertNotNil(firstResponseID)
+
+        let secondDecision = await orchestrator.trigger(
+            source: .regenerate,
+            regenerateFromResponseID: firstResponseID
+        )
+        XCTAssertEqual(secondDecision, .started)
+
+        try await waitUntil("second response event") {
+            await recorder.responseCount == 2
+        }
+
+        let captureCount = await textCapture.captureCallCount
+        let aiCallCount = await aiService.generateCallCount
+        let errorMessages = await recorder.errorMessages
+        XCTAssertEqual(captureCount, 1)
+        XCTAssertEqual(aiCallCount, 2)
+        XCTAssertTrue(errorMessages.isEmpty)
+    }
 }
 
 final class MenuBarMenuBuilderTests: XCTestCase {
@@ -288,8 +332,8 @@ private extension ProvocationOrchestratorIntegrationTests {
                 presentLoading: { _ in
                     await recorder.recordLoading()
                 },
-                presentResponse: { _ in
-                    await recorder.recordResponse()
+                presentResponse: { response in
+                    await recorder.recordResponse(response)
                 },
                 presentError: { presentation in
                     await recorder.recordError(message: presentation.message)
@@ -388,7 +432,8 @@ private actor MockTextCaptureService: TextCaptureServiceProtocol {
     private(set) var observedCancellation = false
 
     private let permission: TextCapturePermissionStatus
-    private let result: Result<String, FreeThinkerError>
+    private let fallbackResult: Result<String, FreeThinkerError>
+    private var scriptedResults: [Result<String, FreeThinkerError>]
     private let captureDelayNanoseconds: UInt64
 
     init(
@@ -397,7 +442,19 @@ private actor MockTextCaptureService: TextCaptureServiceProtocol {
         captureDelayNanoseconds: UInt64 = 0
     ) {
         self.permission = permission
-        self.result = result
+        fallbackResult = result
+        scriptedResults = []
+        self.captureDelayNanoseconds = captureDelayNanoseconds
+    }
+
+    init(
+        permission: TextCapturePermissionStatus = .granted,
+        scriptedResults: [Result<String, FreeThinkerError>],
+        captureDelayNanoseconds: UInt64 = 0
+    ) {
+        self.permission = permission
+        fallbackResult = scriptedResults.last ?? .failure(.noSelection)
+        self.scriptedResults = scriptedResults
         self.captureDelayNanoseconds = captureDelayNanoseconds
     }
 
@@ -422,6 +479,14 @@ private actor MockTextCaptureService: TextCaptureServiceProtocol {
                 }
                 remaining -= step
             }
+        }
+
+        let result: Result<String, FreeThinkerError>
+        if let scripted = scriptedResults.first {
+            result = scripted
+            scriptedResults.removeFirst()
+        } else {
+            result = fallbackResult
         }
 
         switch result {
@@ -528,9 +593,14 @@ private actor CallbackRecorder {
 
     private(set) var events: [Event] = []
     private(set) var errorMessages: [String] = []
+    private(set) var responseIDs: [UUID] = []
 
     var responseCount: Int {
         events.filter { $0 == .response }.count
+    }
+
+    var latestResponseID: UUID? {
+        responseIDs.last
     }
 
     func recordGenerating(_ isGenerating: Bool) {
@@ -541,8 +611,9 @@ private actor CallbackRecorder {
         events.append(.loading)
     }
 
-    func recordResponse() {
+    func recordResponse(_ response: ProvocationResponse) {
         events.append(.response)
+        responseIDs.append(response.id)
     }
 
     func recordError(message: String) {
