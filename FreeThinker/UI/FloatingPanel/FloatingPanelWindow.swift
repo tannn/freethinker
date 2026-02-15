@@ -1,7 +1,7 @@
 import AppKit
 
 public final class FloatingPanelWindow: NSPanel {
-    public init(contentRect: NSRect = NSRect(x: 0, y: 0, width: 420, height: 340)) {
+    public init(contentRect: NSRect = NSRect(x: 0, y: 0, width: 420, height: 380)) {
         super.init(
             contentRect: contentRect,
             styleMask: [.nonactivatingPanel, .borderless],
