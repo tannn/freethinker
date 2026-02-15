@@ -47,9 +47,23 @@ public struct ErrorPresentationMapper: ErrorPresentationMapping {
                 preferPanelPresentation: true
             )
 
+        case .hotkeyShortcutInvalid:
+            return ErrorPresentation(
+                message: "That shortcut is not supported. Choose a key with Command, Shift, Option, or Control.",
+                action: .openHotkeySettings,
+                preferPanelPresentation: true
+            )
+
+        case .hotkeyShortcutReserved:
+            return ErrorPresentation(
+                message: "That shortcut is reserved by macOS. Choose a different combination in Settings.",
+                action: .openHotkeySettings,
+                preferPanelPresentation: true
+            )
+
         case .hotkeyRegistrationConflict:
             return ErrorPresentation(
-                message: "Cmd+Shift+P is already used by another app. Open Settings to change or disable the FreeThinker hotkey.",
+                message: "That shortcut is already used by another app. Open Settings to change or disable the FreeThinker hotkey.",
                 action: .openHotkeySettings,
                 preferPanelPresentation: true
             )

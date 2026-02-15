@@ -18,9 +18,9 @@ final class ProvocationPromptComposerTests: XCTestCase {
 
         XCTAssertTrue(prompt.contains("Take a rigorous contrary angle."))
         XCTAssertTrue(prompt.contains("Focus on policy and incentives."))
-        XCTAssertTrue(prompt.contains("HEADLINE:"))
         XCTAssertTrue(prompt.contains("BODY:"))
         XCTAssertTrue(prompt.contains("FOLLOW_UP:"))
+        XCTAssertFalse(prompt.contains("HEADLINE:"))
     }
 
     func testComposePromptCapsAndSanitizesInputText() throws {
@@ -45,7 +45,6 @@ final class ProvocationPromptComposerTests: XCTestCase {
             provocationType: .custom
         )
         let previous = ProvocationContent(
-            headline: "Hidden tradeoff in hiring automation",
             body: "Automated screening can encode historical bias while claiming neutrality."
         )
 
@@ -56,7 +55,6 @@ final class ProvocationPromptComposerTests: XCTestCase {
         )
 
         XCTAssertTrue(prompt.contains("Generate a distinctly different provocation"))
-        XCTAssertTrue(prompt.contains(previous.headline))
         XCTAssertTrue(prompt.contains(previous.body))
         XCTAssertTrue(prompt.contains("Analyze second-order effects"))
     }

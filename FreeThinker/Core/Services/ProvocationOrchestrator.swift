@@ -97,6 +97,7 @@ public actor ProvocationOrchestrator: ProvocationOrchestrating {
     private var generationTask: Task<Void, Never>?
     private var pendingCancellationReason: ProvocationCancellationReason?
     private var lastAcceptedTriggerTime: UInt64?
+    private var selectionByResponseID: [UUID: String] = [:]
     private var metrics = ProvocationOrchestratorMetrics()
 
     public init(
@@ -203,28 +204,43 @@ private extension ProvocationOrchestrator {
                 source: source
             )
 
-            try Task.checkCancellation()
-            Logger.debug("Stage=permission-preflight", category: .orchestrator)
-            guard await textCaptureService.preflightPermission() == .granted else {
-                recordDiagnostic(
-                    stage: .permissionPreflight,
-                    category: .warning,
-                    message: "Accessibility permission denied",
-                    source: source
-                )
-                await present(error: .accessibilityPermissionDenied, source: source)
-                return
-            }
-
-            Logger.debug("Stage=text-capture", category: .orchestrator)
-            let selectedText = try await textCaptureService.captureSelectedText()
-            recordDiagnostic(
-                stage: .textCapture,
-                category: .info,
-                message: "Selection captured",
+            let selectedText: String
+            if let cachedSelection = cachedSelectionForRegenerate(
                 source: source,
-                metadata: ["captured_character_count": "\(selectedText.count)"]
-            )
+                regenerateFromResponseID: regenerateFromResponseID
+            ) {
+                selectedText = cachedSelection
+                recordDiagnostic(
+                    stage: .textCapture,
+                    category: .info,
+                    message: "Selection reused from previous response",
+                    source: source,
+                    metadata: ["captured_character_count": "\(selectedText.count)"]
+                )
+            } else {
+                try Task.checkCancellation()
+                Logger.debug("Stage=permission-preflight", category: .orchestrator)
+                guard await textCaptureService.preflightPermission() == .granted else {
+                    recordDiagnostic(
+                        stage: .permissionPreflight,
+                        category: .warning,
+                        message: "Accessibility permission denied",
+                        source: source
+                    )
+                    await present(error: .accessibilityPermissionDenied, source: source)
+                    return
+                }
+
+                Logger.debug("Stage=text-capture", category: .orchestrator)
+                selectedText = try await textCaptureService.captureSelectedText()
+                recordDiagnostic(
+                    stage: .textCapture,
+                    category: .info,
+                    message: "Selection captured",
+                    source: source,
+                    metadata: ["captured_character_count": "\(selectedText.count)"]
+                )
+            }
 
             Logger.debug("Stage=panel-loading", category: .orchestrator)
             await callbacks.presentLoading(selectedText)
@@ -298,6 +314,9 @@ private extension ProvocationOrchestrator {
                 source: source,
                 metadata: ["request_id": request.id.uuidString]
             )
+            if response.isSuccess {
+                cacheSelection(selectedText, for: response.id)
+            }
             await callbacks.presentResponse(response)
         } catch is CancellationError {
             metrics.cancellationCount += 1
@@ -368,6 +387,10 @@ private extension ProvocationOrchestrator {
             return "accessibility_permission_denied"
         case .noSelection:
             return "no_selection"
+        case .hotkeyShortcutInvalid:
+            return "hotkey_shortcut_invalid"
+        case .hotkeyShortcutReserved:
+            return "hotkey_shortcut_reserved"
         case .hotkeyRegistrationConflict:
             return "hotkey_registration_conflict"
         case .hotkeyRegistrationFailed:
@@ -397,5 +420,20 @@ private extension ProvocationOrchestrator {
         case .generationAlreadyInProgress:
             return "generation_in_progress"
         }
+    }
+
+    func cachedSelectionForRegenerate(
+        source: ProvocationTriggerSource,
+        regenerateFromResponseID: UUID?
+    ) -> String? {
+        guard source == .regenerate, let regenerateFromResponseID else {
+            return nil
+        }
+
+        return selectionByResponseID[regenerateFromResponseID]
+    }
+
+    func cacheSelection(_ selectedText: String, for responseID: UUID) {
+        selectionByResponseID = [responseID: selectedText]
     }
 }

@@ -28,15 +28,16 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         \(customInstruction)
 
         OUTPUT FORMAT (exactly these labels, one block each):
-        HEADLINE: <single-line insight, max 90 chars>
-        BODY: <1-3 sentences, max 250 chars, plain text>
+        BODY: <1-2 sentences, max 250 chars, plain text>
         FOLLOW_UP: <one optional question, or NONE>
 
         RULES:
-        - Be specific to the provided text.
-        - No markdown, no bullets, no JSON.
-        - Keep language direct and thought-provoking.
-        - Avoid repeating the selected text verbatim.
+        - Be specific to the provided text
+        - No markdown, no bullets, no JSON
+        - Keep language direct and thought-provoking
+        - Avoid repeating the selected text verbatim
+        - Do not be authoritative
+        - Avoid overly long or overly complex sentences
 
         SELECTED_TEXT:
         \"\"\"
@@ -62,12 +63,10 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         \(normalizedCustomInstruction(normalizedSettings.customStyleInstructions))
 
         AVOID DUPLICATING THIS PRIOR OUTPUT:
-        HEADLINE: \(previousResponse.headline)
         BODY: \(previousResponse.body)
 
         OUTPUT FORMAT:
-        HEADLINE: <single-line insight, max 90 chars>
-        BODY: <1-3 sentences, max 250 chars, plain text>
+        BODY: <1-2 sentences, max 250 chars, plain text>
         FOLLOW_UP: <one optional question, or NONE>
 
         SELECTED_TEXT:

@@ -104,13 +104,13 @@ final class DiagnosticsLoggerTests: XCTestCase {
             category: .warning,
             message: "Bad\0Message",
             metadata: [
-                "headline": "Sensitive\0headline",
+                "body": "Sensitive\0body",
                 "request_id": "safe-id"
             ]
         )
 
         XCTAssertFalse(event.message.contains("\0"))
-        XCTAssertEqual(event.metadata["headline"], "[REDACTED]")
+        XCTAssertEqual(event.metadata["body"], "[REDACTED]")
         XCTAssertEqual(event.metadata["request_id"], "safe-id")
     }
 }

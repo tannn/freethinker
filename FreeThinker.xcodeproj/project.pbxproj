@@ -19,6 +19,7 @@
 		26954543099D803A5CBAC0F4 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA69774DFABCBFC665358B2 /* LaunchAtLoginService.swift */; };
 		2D0A7608D465EF86455DF9CF /* ProvocationResponseParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0709657CE7BA8E803EF5592 /* ProvocationResponseParserTests.swift */; };
 		2D66E691D315A684F844912A /* DefaultTextCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6643FAD348E62683788B4C8B /* DefaultTextCaptureService.swift */; };
+		3386125EA02E5023CB9CE196 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AF8005792E3F51B0DC92FA8 /* Assets.xcassets */; };
 		3D0BB899B9AA1DED3ED221C9 /* FloatingPanelAccessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B477765ED2940E3EB0A454D /* FloatingPanelAccessibility.swift */; };
 		43AA21E005112E62F88D82F1 /* DefaultSettingsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA404C52E40DF3E73CF2F73B /* DefaultSettingsService.swift */; };
 		45DA3CF8FBDF532E377BF5CA /* ProvocationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED4FB3EFEDB692286722694E /* ProvocationRequest.swift */; };
@@ -30,6 +31,7 @@
 		5D6804F3DC9F4C239900C445 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C7A37A5981FF401117F6902 /* Logger.swift */; };
 		61E3944C23E4000DF195DD66 /* DefaultAIServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61F83E8610B2215880377BA /* DefaultAIServiceTests.swift */; };
 		63884221AB7AF978F5D4CBAC /* ProvocationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4530C99E44AF05F3ACD9A1 /* ProvocationSettingsView.swift */; };
+		6484C282747A95A242ED6515 /* MenuBarMenuBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 611F8712D2E2590CC224F5A1 /* MenuBarMenuBuilderTests.swift */; };
 		6660FB49C20D143B7EDB32F6 /* AIServicePerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 097812AD27128FAFE6BD1E2C /* AIServicePerformanceTests.swift */; };
 		6BA6CF7B7605EB42024E89E6 /* ProvocationOrchestratorIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B03053D68241E96C3B9C210 /* ProvocationOrchestratorIntegrationTests.swift */; };
 		6C51F223CDFA0F77200F515A /* FreeThinker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E42491BA36D6EEE8FEFB443B /* FreeThinker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -138,6 +140,7 @@
 
 /* Begin PBXFileReference section */
 		097812AD27128FAFE6BD1E2C /* AIServicePerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIServicePerformanceTests.swift; sourceTree = "<group>"; };
+		0AF8005792E3F51B0DC92FA8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0B477765ED2940E3EB0A454D /* FloatingPanelAccessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelAccessibility.swift; sourceTree = "<group>"; };
 		0F0B7B0840E273F406A4AE1B /* ProvocationResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationResponse.swift; sourceTree = "<group>"; };
 		12E5BDE0D1300DDF99B53B2E /* DefaultTextCaptureServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTextCaptureServiceTests.swift; sourceTree = "<group>"; };
@@ -161,6 +164,7 @@
 		52B470A70823A8018433F54D /* UserNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationService.swift; sourceTree = "<group>"; };
 		55AF73CFEF2FC1FE7BDC8F0E /* ProvocationResponseParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationResponseParser.swift; sourceTree = "<group>"; };
 		5CC69D7570906ED23F0708C6 /* FloatingPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelController.swift; sourceTree = "<group>"; };
+		611F8712D2E2590CC224F5A1 /* MenuBarMenuBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarMenuBuilderTests.swift; sourceTree = "<group>"; };
 		63F92CDD0D49BFEFD2A941E9 /* FloatingPanelWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelWindow.swift; sourceTree = "<group>"; };
 		651E03FFC20C661EF8BC7300 /* FreeThinkerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreeThinkerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6643FAD348E62683788B4C8B /* DefaultTextCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultTextCaptureService.swift; sourceTree = "<group>"; };
@@ -188,6 +192,7 @@
 		CE9E46C16BF8554DA1C85E20 /* GlobalHotkeyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyServiceTests.swift; sourceTree = "<group>"; };
 		D4B26CF67C773D5A71A6D3EA /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		DA404C52E40DF3E73CF2F73B /* DefaultSettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSettingsService.swift; sourceTree = "<group>"; };
+		DC3D8AF1EF1656DF927DA8D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DE9EEADBE68722FE1714A5FA /* SettingsRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRootView.swift; sourceTree = "<group>"; };
 		DF330CA640760DEFD3CD97D9 /* DefaultSettingsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSettingsServiceTests.swift; sourceTree = "<group>"; };
 		E0709657CE7BA8E803EF5592 /* ProvocationResponseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationResponseParserTests.swift; sourceTree = "<group>"; };
@@ -299,6 +304,7 @@
 				4C426D370C68E7F96C4371B4 /* FreeThinkerPerformanceTests */,
 				EE10336986CE25894831C19F /* FreeThinkerTests */,
 				59F24533C62E37615D45B84F /* FreeThinkerUITests */,
+				8F319506AC47F6C978E07988 /* Resources */,
 				F2E074FDA2436E345C5ACA37 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -320,6 +326,16 @@
 				C132BFFD5DC305ECC3932B85 /* Utilities */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		8F319506AC47F6C978E07988 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				0AF8005792E3F51B0DC92FA8 /* Assets.xcassets */,
+				DC3D8AF1EF1656DF927DA8D1 /* Info.plist */,
+			);
+			name = Resources;
+			path = FreeThinker/Resources;
 			sourceTree = "<group>";
 		};
 		A084F3B87624C1A6D0A25992 /* FreeThinkerApp */ = {
@@ -389,6 +405,7 @@
 				12E5BDE0D1300DDF99B53B2E /* DefaultTextCaptureServiceTests.swift */,
 				6F9C12CBAB20F0ED95E0AC51 /* DiagnosticsLoggerTests.swift */,
 				CE9E46C16BF8554DA1C85E20 /* GlobalHotkeyServiceTests.swift */,
+				611F8712D2E2590CC224F5A1 /* MenuBarMenuBuilderTests.swift */,
 				9B03053D68241E96C3B9C210 /* ProvocationOrchestratorIntegrationTests.swift */,
 				FFA1455C2F43FDE610072271 /* ProvocationPromptComposerTests.swift */,
 				E0709657CE7BA8E803EF5592 /* ProvocationResponseParserTests.swift */,
@@ -482,6 +499,7 @@
 			buildConfigurationList = E2C18B0CE27C6E320FA4C06C /* Build configuration list for PBXNativeTarget "FreeThinkerApp" */;
 			buildPhases = (
 				998AC6353ACCCB718372F056 /* Sources */,
+				C25F9825C1B9DEEAE611E41E /* Resources */,
 				EDA21426A4EEA0C0E4F290A7 /* Frameworks */,
 				EF9C4CCD5C669AE886425F1A /* Embed Frameworks */,
 			);
@@ -525,7 +543,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					3AD301DABD7025E7C6FB73E6 = {
 						TestTargetID = CA80DA097ECCD15A52AA71BF;
@@ -555,6 +573,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C25F9825C1B9DEEAE611E41E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3386125EA02E5023CB9CE196 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D7607E7F0C10C90F5C3320C5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -579,6 +605,7 @@
 				AB5A2A5559DE8C5A1A6912FA /* DefaultTextCaptureServiceTests.swift in Sources */,
 				1589046306CD959DEEBFEA4F /* DiagnosticsLoggerTests.swift in Sources */,
 				79C09D239BC94A37468A7922 /* GlobalHotkeyServiceTests.swift in Sources */,
+				6484C282747A95A242ED6515 /* MenuBarMenuBuilderTests.swift in Sources */,
 				6BA6CF7B7605EB42024E89E6 /* ProvocationOrchestratorIntegrationTests.swift in Sources */,
 				F39297627A83C093A9CE4DF7 /* ProvocationPromptComposerTests.swift in Sources */,
 				2D0A7608D465EF86455DF9CF /* ProvocationResponseParserTests.swift in Sources */,
@@ -685,6 +712,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -701,6 +729,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -716,6 +745,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -746,9 +776,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -769,6 +801,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
@@ -780,6 +813,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -796,6 +830,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -812,6 +847,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -842,9 +878,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -858,6 +896,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -869,6 +908,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -884,14 +924,15 @@
 		B77BABB151FAEA97DE853ADB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 5RHP74T292;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -899,6 +940,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinkerCore;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -911,6 +953,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -928,6 +971,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FreeThinker.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -946,6 +990,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FreeThinker.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -961,14 +1006,15 @@
 		FF662A7AE4A32328E3610C55 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 5RHP74T292;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -976,6 +1022,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++14";
 				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinkerCore;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;

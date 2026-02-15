@@ -118,6 +118,10 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
     }
 
+    public func copyFromResponseContent() {
+        copyCurrentResult()
+    }
+
     public func requestRegenerate() {
         guard canRegenerate else {
             return
@@ -188,7 +192,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
 
         let followUp = content.followUpQuestion.map { "\n\nFollow-up: \($0)" } ?? ""
-        return "\(content.headline)\n\n\(content.body)\(followUp)"
+        return "\(content.body)\(followUp)"
     }
 
     public var suggestedActionMessage: String? {

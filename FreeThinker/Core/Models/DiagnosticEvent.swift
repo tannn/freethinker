@@ -106,7 +106,6 @@ public extension DiagnosticEvent {
             || normalized.contains("clipboard")
             || normalized.contains("input")
             || normalized.contains("output")
-            || normalized.contains("headline")
             || normalized.contains("body")
             || normalized.contains("follow_up")
             || normalized.contains("followup")

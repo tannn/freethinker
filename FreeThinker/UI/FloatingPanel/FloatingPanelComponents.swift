@@ -20,7 +20,7 @@ public struct FloatingPanelLoadingView: View {
                 .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.loadingIndicator)
                 .accessibilityLabel(FloatingPanelAccessibility.Label.loading)
 
-            Text("Generating a provocative perspective...")
+            Text("Generating a provocative perspective...") // Add style here
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -30,17 +30,22 @@ public struct FloatingPanelLoadingView: View {
 
 public struct FloatingPanelResponseCard: View {
     private let content: ProvocationContent
+    private let canCopy: Bool
+    private let onCopyRequested: () -> Void
 
-    public init(content: ProvocationContent) {
+    public init(
+        content: ProvocationContent,
+        canCopy: Bool = true,
+        onCopyRequested: @escaping () -> Void = {}
+    ) {
         self.content = content
+        self.canCopy = canCopy
+        self.onCopyRequested = onCopyRequested
     }
 
     public var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: FloatingPanelDesignTokens.regularSpacing) {
-                Text(content.headline)
-                    .font(.headline.weight(.semibold))
-                    .fixedSize(horizontal: false, vertical: true)
 
                 Text(content.body)
                     .font(.body)
@@ -55,6 +60,20 @@ public struct FloatingPanelResponseCard: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    guard canCopy else {
+                        return
+                    }
+                    onCopyRequested()
+                }
+            )
+            .textSelection(.enabled)
+            .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.copyTarget)
+            .accessibilityLabel(FloatingPanelAccessibility.Label.copyTarget)
+            .accessibilityHint(FloatingPanelAccessibility.Hint.copyTarget)
+            .accessibilityAddTraits(.isButton)
         }
         .frame(maxHeight: FloatingPanelDesignTokens.maxBodyHeight)
         .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.responseCard)

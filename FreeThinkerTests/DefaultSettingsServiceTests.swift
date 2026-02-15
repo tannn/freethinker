@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import XCTest
 @testable import FreeThinker
@@ -14,6 +15,8 @@ final class DefaultSettingsServiceTests: XCTestCase {
         let service = DefaultSettingsService(userDefaults: defaults)
 
         var settings = AppSettings()
+        settings.hotkeyModifiers = Int(NSEvent.ModifierFlags.command.union(.option).rawValue)
+        settings.hotkeyKeyCode = 46
         settings.diagnosticsEnabled = true
         settings.hasSeenOnboarding = true
         settings.onboardingCompleted = true
@@ -22,10 +25,14 @@ final class DefaultSettingsServiceTests: XCTestCase {
         settings.autoDismissSeconds = 10
         settings.fallbackCaptureEnabled = false
         settings.appUpdateChannel = .beta
+        settings.provocationStylePreset = .systemsThinking
+        settings.customStyleInstructions = "Challenge second-order effects."
 
         try service.saveSettings(settings)
         let loaded = service.loadSettings()
 
+        XCTAssertEqual(loaded.hotkeyModifiers, Int(NSEvent.ModifierFlags.command.union(.option).rawValue))
+        XCTAssertEqual(loaded.hotkeyKeyCode, 46)
         XCTAssertEqual(loaded.diagnosticsEnabled, true)
         XCTAssertEqual(loaded.hasSeenOnboarding, true)
         XCTAssertEqual(loaded.onboardingCompleted, true)
@@ -34,6 +41,8 @@ final class DefaultSettingsServiceTests: XCTestCase {
         XCTAssertEqual(loaded.autoDismissSeconds, 10)
         XCTAssertEqual(loaded.fallbackCaptureEnabled, false)
         XCTAssertEqual(loaded.appUpdateChannel, .beta)
+        XCTAssertEqual(loaded.provocationStylePreset, .systemsThinking)
+        XCTAssertEqual(loaded.customStyleInstructions, "Challenge second-order effects.")
     }
 
     func testLoadSupportsLegacyPayloadWithoutNewFields() throws {
@@ -86,6 +95,39 @@ final class DefaultSettingsServiceTests: XCTestCase {
         XCTAssertEqual(loaded.prompt1, "legacy prompt")
         XCTAssertNotNil(defaults.data(forKey: "app.settings.v2"))
         XCTAssertNil(defaults.data(forKey: "app.settings.v1"))
+    }
+
+    func testFR010_RejectedHotkeyKeyCodeFallsBackToDefaultAcrossLoad_SC03() throws {
+        let defaults = makeDefaults()
+        let service = DefaultSettingsService(userDefaults: defaults)
+
+        let invalid = AppSettings(hotkeyKeyCode: 999)
+        try service.saveSettings(invalid)
+
+        let loaded = service.loadSettings()
+        XCTAssertEqual(loaded.hotkeyKeyCode, 35)
+    }
+
+    func testFR011_ResetStyleCustomizationPersistsDefaultState_SC02() throws {
+        let defaults = makeDefaults()
+        let service = DefaultSettingsService(userDefaults: defaults)
+
+        let customized = AppSettings(
+            provocationStylePreset: .contrarian,
+            customStyleInstructions: "Interrogate incentive asymmetry."
+        )
+        try service.saveSettings(customized)
+
+        try service.saveSettings(
+            AppSettings(
+                provocationStylePreset: .socratic,
+                customStyleInstructions: ""
+            )
+        )
+
+        let loaded = service.loadSettings()
+        XCTAssertEqual(loaded.provocationStylePreset, .socratic)
+        XCTAssertTrue(loaded.customStyleInstructions.isEmpty)
     }
 }
 

@@ -212,6 +212,28 @@ private extension AppContainer {
             )
         }
 
+        appState.onHotkeyValidationRequested = { [weak self] proposedShortcut, effectiveShortcut in
+            guard let self else {
+                return .invalid(
+                    proposedShortcut: proposedShortcut,
+                    effectiveShortcut: effectiveShortcut,
+                    message: "Hotkey validation is temporarily unavailable."
+                )
+            }
+
+            return self.hotkeyService.validateShortcutProposal(
+                proposedShortcut,
+                effectiveShortcut: effectiveShortcut
+            )
+        }
+
+        appState.onHotkeyApplyRequested = { [weak self] settings in
+            guard let self else {
+                throw GlobalHotkeyServiceError.registrationFailed(status: -50)
+            }
+            try self.hotkeyService.register(using: settings)
+        }
+
         appState.onSettingsPersistRequested = { [weak self] settings in
             guard let self else { return }
             do {
@@ -251,14 +273,6 @@ private extension AppContainer {
 
         menuBarCoordinator.onOpenOnboardingGuide = { [weak self] in
             self?.appState.presentOnboarding()
-        }
-
-        menuBarCoordinator.onCheckForUpdates = { [weak self] in
-            self?.checkForUpdates()
-        }
-
-        settingsWindowController.onCheckForUpdates = { [weak self] in
-            self?.menuBarCoordinator.onCheckForUpdates?()
         }
     }
 
@@ -397,17 +411,6 @@ private extension AppContainer {
             Logger.warning("Diagnostics export failed error=\(error.localizedDescription)", category: .diagnostics)
             return "Export failed: \(error.localizedDescription)"
         }
-    }
-
-    func checkForUpdates() {
-        if let releaseURL = ProcessInfo.processInfo.environment["FREETHINKER_RELEASE_URL"],
-           let url = URL(string: releaseURL)
-        {
-            _ = NSWorkspace.shared.open(url)
-            return
-        }
-
-        appState.presentErrorMessage("Updates are delivered via direct download in this build. Set FREETHINKER_RELEASE_URL for quick access.")
     }
 
     static func makeCallbacks(

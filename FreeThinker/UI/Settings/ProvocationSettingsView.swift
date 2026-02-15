@@ -21,7 +21,7 @@ public struct ProvocationSettingsView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Picker("Style preset", selection: stylePresetBinding) {
                             ForEach(ProvocationStylePreset.allCases) { preset in
-                                Text(presetTitle(for: preset))
+                                Text(preset.displayName)
                                     .tag(preset)
                             }
                         }
@@ -41,7 +41,7 @@ public struct ProvocationSettingsView: View {
                             .font(.body)
                             .focused($isCustomInstructionEditorFocused)
                             .accessibilityIdentifier(SettingsAccessibility.Identifier.provocationCustomInstructionEditor)
-                            .onChange(of: draftCustomInstructions) { newValue in
+                            .onChange(of: draftCustomInstructions) { oldValue, newValue in
                                 scheduleCustomInstructionPersistence(newValue)
                             }
 
@@ -90,7 +90,7 @@ public struct ProvocationSettingsView: View {
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
-        .onChange(of: appState.settings.customStyleInstructions) { newValue in
+        .onChange(of: appState.settings.customStyleInstructions) { oldValue, newValue in
             guard !isCustomInstructionEditorFocused else {
                 return
             }
@@ -129,17 +129,6 @@ private extension ProvocationSettingsView {
         draftCustomInstructions.contains("\0")
     }
 
-    func presetTitle(for preset: ProvocationStylePreset) -> String {
-        switch preset {
-        case .contrarian:
-            return "Contrarian"
-        case .socratic:
-            return "Socratic"
-        case .systemsThinking:
-            return "Systems Thinking"
-        }
-    }
-
     func scheduleCustomInstructionPersistence(_ value: String) {
         persistTask?.cancel()
         persistTask = Task {
@@ -149,3 +138,4 @@ private extension ProvocationSettingsView {
         }
     }
 }
+

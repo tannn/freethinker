@@ -1,18 +1,25 @@
 import AppKit
 
 public final class FloatingPanelWindow: NSPanel {
-    public init(contentRect: NSRect = NSRect(x: 0, y: 0, width: 420, height: 340)) {
+    public init(contentRect: NSRect = NSRect(x: 0, y: 0, width: 420, height: 380)) {
         super.init(
             contentRect: contentRect,
-            styleMask: [.nonactivatingPanel, .titled, .fullSizeContentView],
+            styleMask: [.nonactivatingPanel, .borderless],
             backing: .buffered,
             defer: false
         )
 
+        isOpaque = false
+        backgroundColor = .clear
+
+        if let contentView = self.contentView {
+            contentView.wantsLayer = true
+            contentView.layer?.cornerRadius = 16
+            contentView.layer?.masksToBounds = true
+        }
+
         isFloatingPanel = true
         level = .floating
-        titleVisibility = .hidden
-        titlebarAppearsTransparent = true
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         animationBehavior = .utilityWindow
         isMovableByWindowBackground = true

@@ -1,20 +1,19 @@
+import AppKit
 import SwiftUI
 
 public struct GeneralSettingsView: View {
     @ObservedObject private var appState: AppState
     @ObservedObject private var panelViewModel: FloatingPanelViewModel
 
-    private let onCheckForUpdates: (() -> Void)?
-
     @State private var exportStatus: String?
+    @State private var draftHotkeyModifiers: Int
+    @State private var draftHotkeyKeyCode: Int
 
-    public init(
-        appState: AppState,
-        onCheckForUpdates: (() -> Void)? = nil
-    ) {
+    public init(appState: AppState) {
         self.appState = appState
         _panelViewModel = ObservedObject(wrappedValue: appState.panelViewModel)
-        self.onCheckForUpdates = onCheckForUpdates
+        _draftHotkeyModifiers = State(initialValue: appState.settings.hotkeyShortcut.modifiers)
+        _draftHotkeyKeyCode = State(initialValue: appState.settings.hotkeyShortcut.keyCode)
     }
 
     public var body: some View {
@@ -26,8 +25,8 @@ public struct GeneralSettingsView: View {
                 feedbackView
 
                 behaviorSection
+                hotkeyShortcutSection
                 launchSection
-                updatesSection
                 diagnosticsSection
                 onboardingSection
             }
@@ -36,6 +35,10 @@ public struct GeneralSettingsView: View {
         }
         .onDisappear {
             appState.clearSettingsFeedback()
+        }
+        .onChange(of: appState.settings.hotkeyShortcut) { _, shortcut in
+            draftHotkeyModifiers = shortcut.modifiers
+            draftHotkeyKeyCode = shortcut.keyCode
         }
     }
 }
@@ -121,34 +124,76 @@ private extension GeneralSettingsView {
         }
     }
 
-    var updatesSection: some View {
-        GroupBox("Updates") {
+    var hotkeyShortcutSection: some View {
+        GroupBox("Hotkey Shortcut") {
             VStack(alignment: .leading, spacing: 12) {
-                Toggle("Automatically check for updates", isOn: automaticallyCheckForUpdatesBinding)
-                    .accessibilityIdentifier(SettingsAccessibility.Identifier.generalAutoUpdateToggle)
+                Text("Current shortcut: \(appState.settings.hotkeyShortcut.displayString)")
+                    .font(.callout.weight(.medium))
 
-                Picker("Update channel", selection: appUpdateChannelBinding) {
-                    ForEach(AppUpdateChannel.allCases) { channel in
-                        Text(channel.displayName)
-                            .tag(channel)
+                HStack(alignment: .top, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Modifiers")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        HStack(spacing: 12) {
+                            Toggle("Cmd", isOn: modifierBinding(.command))
+                            Toggle("Shift", isOn: modifierBinding(.shift))
+                            Toggle("Option", isOn: modifierBinding(.option))
+                            Toggle("Ctrl", isOn: modifierBinding(.control))
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Key")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Picker("Key", selection: $draftHotkeyKeyCode) {
+                            ForEach(Self.hotkeyKeyOptions, id: \.keyCode) { option in
+                                Text(option.label)
+                                    .tag(option.keyCode)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .frame(maxWidth: 150, alignment: .leading)
+                        .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyEditor)
                     }
                 }
-                .pickerStyle(.segmented)
-                .accessibilityIdentifier(SettingsAccessibility.Identifier.generalUpdateChannelPicker)
 
-                Button("Check for Updates Now") {
-                    onCheckForUpdates?()
+                HStack(spacing: 10) {
+                    Button("Apply Shortcut") {
+                        let proposed = HotkeyShortcut(
+                            modifiers: draftHotkeyModifiers,
+                            keyCode: draftHotkeyKeyCode
+                        )
+                        _ = appState.applyHotkeyShortcut(proposed)
+                    }
+                    .disabled(appState.settings.hotkeyEnabled == false)
+
+                    Button("Reset to Default") {
+                        _ = appState.resetHotkeyShortcutToDefault()
+                    }
+                    .disabled(appState.settings.hotkeyEnabled == false)
+                    .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyResetButton)
                 }
-                .accessibilityIdentifier(SettingsAccessibility.Identifier.generalCheckForUpdatesButton)
 
-                Text("Updates are delivered via direct download in this build.")
+                if let result = appState.hotkeyCustomizationResult,
+                   let message = result.message {
+                    Label(message, systemImage: result.isAccepted ? "checkmark.circle.fill" : "xmark.octagon.fill")
+                        .foregroundStyle(result.isAccepted ? .green : .red)
+                        .font(.footnote)
+                        .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyFeedback)
+                }
+
+                Text("Include at least one modifier key. Some macOS shortcuts are reserved and cannot be used.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
-
     var diagnosticsSection: some View {
         GroupBox("Diagnostics") {
             VStack(alignment: .leading, spacing: 12) {
@@ -194,6 +239,47 @@ private extension GeneralSettingsView {
 }
 
 private extension GeneralSettingsView {
+    static let hotkeyModifierMask: NSEvent.ModifierFlags = [.command, .shift, .option, .control]
+    static let hotkeyKeyOptions: [(keyCode: Int, label: String)] = [
+        (0, "A"),
+        (11, "B"),
+        (8, "C"),
+        (2, "D"),
+        (14, "E"),
+        (3, "F"),
+        (5, "G"),
+        (4, "H"),
+        (34, "I"),
+        (38, "J"),
+        (40, "K"),
+        (37, "L"),
+        (46, "M"),
+        (45, "N"),
+        (31, "O"),
+        (35, "P"),
+        (12, "Q"),
+        (15, "R"),
+        (1, "S"),
+        (17, "T"),
+        (32, "U"),
+        (9, "V"),
+        (13, "W"),
+        (7, "X"),
+        (16, "Y"),
+        (6, "Z"),
+        (29, "0"),
+        (18, "1"),
+        (19, "2"),
+        (20, "3"),
+        (21, "4"),
+        (23, "5"),
+        (22, "6"),
+        (26, "7"),
+        (28, "8"),
+        (25, "9"),
+        (49, "Space")
+    ]
+
     var hotkeyEnabledBinding: Binding<Bool> {
         Binding(
             get: { appState.settings.hotkeyEnabled },
@@ -257,24 +343,6 @@ private extension GeneralSettingsView {
         )
     }
 
-    var automaticallyCheckForUpdatesBinding: Binding<Bool> {
-        Binding(
-            get: { appState.settings.automaticallyCheckForUpdates },
-            set: { isEnabled in
-                Task { await appState.setAutomaticallyCheckForUpdates(isEnabled) }
-            }
-        )
-    }
-
-    var appUpdateChannelBinding: Binding<AppUpdateChannel> {
-        Binding(
-            get: { appState.settings.appUpdateChannel },
-            set: { channel in
-                Task { await appState.setAppUpdateChannel(channel) }
-            }
-        )
-    }
-
     var diagnosticsEnabledBinding: Binding<Bool> {
         Binding(
             get: { appState.settings.diagnosticsEnabled },
@@ -293,4 +361,27 @@ private extension GeneralSettingsView {
     var menuBarIconToggleLocked: Bool {
         !appState.settings.hotkeyEnabled && appState.settings.showMenuBarIcon
     }
+
+    func modifierBinding(_ modifier: NSEvent.ModifierFlags) -> Binding<Bool> {
+        Binding(
+            get: {
+                hotkeyModifierFlags.contains(modifier)
+            },
+            set: { isEnabled in
+                var updated = hotkeyModifierFlags
+                if isEnabled {
+                    updated.insert(modifier)
+                } else {
+                    updated.remove(modifier)
+                }
+
+                draftHotkeyModifiers = Int(updated.intersection(Self.hotkeyModifierMask).rawValue)
+            }
+        )
+    }
+
+    var hotkeyModifierFlags: NSEvent.ModifierFlags {
+        NSEvent.ModifierFlags(rawValue: UInt(draftHotkeyModifiers)).intersection(Self.hotkeyModifierMask)
+    }
 }
+

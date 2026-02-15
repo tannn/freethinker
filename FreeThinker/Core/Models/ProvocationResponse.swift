@@ -1,16 +1,13 @@
 import Foundation
 
 public struct ProvocationContent: Equatable, Codable, Sendable {
-    public static let maxHeadlineLength = 100
     public static let maxBodyLength = 420
     public static let maxFollowUpLength = 140
 
-    public let headline: String
     public let body: String
     public let followUpQuestion: String?
 
-    public init(headline: String, body: String, followUpQuestion: String? = nil) {
-        self.headline = String(headline.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxHeadlineLength))
+    public init(body: String, followUpQuestion: String? = nil) {
         self.body = String(body.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxBodyLength))
         if let followUpQuestion {
             let normalized = followUpQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
