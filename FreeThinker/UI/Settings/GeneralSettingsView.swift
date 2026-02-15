@@ -175,6 +175,7 @@ private extension GeneralSettingsView {
                     Button("Reset to Default") {
                         _ = appState.resetHotkeyShortcutToDefault()
                     }
+                    .disabled(appState.settings.hotkeyEnabled == false)
                     .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyResetButton)
                 }
 
@@ -383,3 +384,4 @@ private extension GeneralSettingsView {
         NSEvent.ModifierFlags(rawValue: UInt(draftHotkeyModifiers)).intersection(Self.hotkeyModifierMask)
     }
 }
+
