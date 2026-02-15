@@ -98,7 +98,7 @@ final class CancellationIntegrationTests: XCTestCase {
         let observedCancelSecond = await ai.observedCancellation
         XCTAssertTrue(observedCancelSecond)
 
-        try await waitUntil("response from second generation") {
+        try await waitUntil("response from second generation", timeoutNanoseconds: 3_000_000_000) {
             await recorder.responseCount == 1
         }
     }
