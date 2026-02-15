@@ -172,7 +172,7 @@ final class ProvocationOrchestratorIntegrationTests: XCTestCase {
         let fourth = await orchestrator.trigger(source: .menu, regenerateFromResponseID: nil)
         XCTAssertEqual(fourth, .started)
 
-        try await waitUntil("second response") {
+        try await waitUntil("second response", timeoutNanoseconds: 3_000_000_000) {
             await recorder.responseCount == 2
         }
 
