@@ -20,7 +20,7 @@ public struct FloatingPanelLoadingView: View {
                 .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.loadingIndicator)
                 .accessibilityLabel(FloatingPanelAccessibility.Label.loading)
 
-            Text("Generating a provocative perspective...")
+            Text("Generating a provocative perspective...") // Add style here
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }

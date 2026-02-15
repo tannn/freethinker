@@ -28,7 +28,7 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         \(customInstruction)
 
         OUTPUT FORMAT (exactly these labels, one block each):
-        BODY: <1-3 sentences, max 250 chars, plain text>
+        BODY: <1-2 sentences, max 250 chars, plain text>
         FOLLOW_UP: <one optional question, or NONE>
 
         RULES:
@@ -66,7 +66,7 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         BODY: \(previousResponse.body)
 
         OUTPUT FORMAT:
-        BODY: <1-3 sentences, max 250 chars, plain text>
+        BODY: <1-2 sentences, max 250 chars, plain text>
         FOLLOW_UP: <one optional question, or NONE>
 
         SELECTED_TEXT:

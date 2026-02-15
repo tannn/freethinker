@@ -192,7 +192,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
 
         let followUp = content.followUpQuestion.map { "\n\nFollow-up: \($0)" } ?? ""
-        return "\(content.headline)\n\n\(content.body)\(followUp)"
+        return "\(content.body)\(followUp)"
     }
 
     public var suggestedActionMessage: String? {

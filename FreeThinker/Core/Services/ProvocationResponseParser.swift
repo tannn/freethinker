@@ -11,12 +11,8 @@ public struct ProvocationResponseParser: ProvocationResponseParsing, Sendable {
 
         let extracted = extractTaggedSections(from: trimmed)
 
-        let headline = normalizePanelText(
-            extracted.headline ?? fallbackHeadline(from: trimmed),
-            maxLength: ProvocationContent.maxHeadlineLength
-        )
         let body = normalizePanelText(
-            extracted.body ?? fallbackBody(from: trimmed, excludingHeadline: headline),
+            extracted.body ?? fallbackBody(from: trimmed),
             maxLength: ProvocationContent.maxBodyLength
         )
         let followUp = normalizeOptionalFollowUp(
@@ -24,12 +20,11 @@ public struct ProvocationResponseParser: ProvocationResponseParsing, Sendable {
             maxLength: ProvocationContent.maxFollowUpLength
         )
 
-        guard !headline.isEmpty, !body.isEmpty else {
+        guard !body.isEmpty else {
             throw FreeThinkerError.invalidResponse
         }
 
         return ProvocationContent(
-            headline: headline,
             body: body,
             followUpQuestion: followUp
         )
@@ -38,13 +33,11 @@ public struct ProvocationResponseParser: ProvocationResponseParsing, Sendable {
 
 private extension ProvocationResponseParser {
     enum TaggedSection {
-        case headline
         case body
         case followUp
     }
 
     struct ExtractedSections {
-        let headline: String?
         let body: String?
         let followUp: String?
     }
@@ -72,7 +65,6 @@ private extension ProvocationResponseParser {
         }
 
         return ExtractedSections(
-            headline: joinedSection(sectionBuffers[.headline]),
             body: joinedSection(sectionBuffers[.body]),
             followUp: joinedSection(sectionBuffers[.followUp])
         )
@@ -90,8 +82,6 @@ private extension ProvocationResponseParser {
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         switch tag {
-        case "headline":
-            return (.headline, value)
         case "body":
             return (.body, value)
         case "follow_up", "follow-up", "followup":
@@ -115,23 +105,7 @@ private extension ProvocationResponseParser {
         return joined.isEmpty ? nil : joined
     }
 
-    func fallbackHeadline(from text: String) -> String {
-        let lines = text
-            .components(separatedBy: .newlines)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-
-        guard let first = lines.first else { return "" }
-        return first
-    }
-
-    func fallbackBody(from text: String, excludingHeadline headline: String) -> String {
-        if text == headline { return "" }
-        let withoutHeadline = text.replacingOccurrences(of: headline, with: "", options: [.anchored], range: nil)
-        let normalized = normalizeWhitespace(withoutHeadline)
-        if !normalized.isEmpty {
-            return normalized
-        }
+    func fallbackBody(from text: String) -> String {
         return text
     }
 
