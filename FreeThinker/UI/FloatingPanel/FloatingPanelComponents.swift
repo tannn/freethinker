@@ -12,7 +12,7 @@ public struct FloatingPanelLoadingView: View {
     private let styleDisplayName: String
 
     public init(styleDisplayName: String) {
-        self.styleDisplayName = styleDisplayName
+        self.styleDisplayName = styleDisplayName.lowercased()
     }
 
     public var body: some View {
