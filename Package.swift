@@ -16,9 +16,15 @@ let package = Package(
             targets: ["FreeThinkerApp"]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/sindresorhus/KeyboardShortcuts", from: "2.4.0")
+    ],
     targets: [
         .target(
             name: "FreeThinker",
+            dependencies: [
+                .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts")
+            ],
             path: "FreeThinker",
             exclude: [
                 "Resources"

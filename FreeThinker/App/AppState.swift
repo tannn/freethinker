@@ -302,15 +302,6 @@ public final class AppState: ObservableObject {
 
         do {
             try onHotkeyApplyRequested?(updated)
-        } catch let error as GlobalHotkeyServiceError {
-            let rejected = validationResult(
-                for: error,
-                proposedShortcut: proposedResult.proposedShortcut,
-                effectiveShortcut: previousShortcut
-            )
-            settingsValidationMessage = rejected.message
-            hotkeyCustomizationResult = rejected
-            return rejected
         } catch {
             let rejected = HotkeyValidationResult.invalid(
                 proposedShortcut: proposedResult.proposedShortcut,
@@ -481,39 +472,6 @@ private extension AppState {
         }
 
         return error.localizedDescription
-    }
-
-    func validationResult(
-        for error: GlobalHotkeyServiceError,
-        proposedShortcut: HotkeyShortcut,
-        effectiveShortcut: HotkeyShortcut
-    ) -> HotkeyValidationResult {
-        switch error {
-        case .conflict:
-            return .conflict(
-                proposedShortcut: proposedShortcut,
-                effectiveShortcut: effectiveShortcut,
-                message: "That shortcut is already used by another app."
-            )
-        case .invalidShortcut(let message):
-            return .invalid(
-                proposedShortcut: proposedShortcut,
-                effectiveShortcut: effectiveShortcut,
-                message: message
-            )
-        case .reservedShortcut(let message):
-            return .reserved(
-                proposedShortcut: proposedShortcut,
-                effectiveShortcut: effectiveShortcut,
-                message: message
-            )
-        case .disabled, .registrationFailed, .handlerInstallFailed:
-            return .invalid(
-                proposedShortcut: proposedShortcut,
-                effectiveShortcut: effectiveShortcut,
-                message: "This shortcut could not be applied. Try a different key combination."
-            )
-        }
     }
 
     func notifyOnboardingVisibilityChanged() {

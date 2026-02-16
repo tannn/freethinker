@@ -14,7 +14,6 @@
 		13DDC8070C358306DBAEDE1B /* FreeThinker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42491BA36D6EEE8FEFB443B /* FreeThinker.framework */; };
 		1589046306CD959DEEBFEA4F /* DiagnosticsLoggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C12CBAB20F0ED95E0AC51 /* DiagnosticsLoggerTests.swift */; };
 		173CAC8BC3386C57C644D599 /* FreeThinkerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17018298641BEFD6A5153F07 /* FreeThinkerError.swift */; };
-		1A9F7D332DC6BB1AA45C4E85 /* GlobalHotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9208CDFA108EE42802ED22 /* GlobalHotkeyService.swift */; };
 		20EDD98ECFFC2739D20C4E74 /* UserNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B470A70823A8018433F54D /* UserNotificationService.swift */; };
 		26954543099D803A5CBAC0F4 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA69774DFABCBFC665358B2 /* LaunchAtLoginService.swift */; };
 		2D0A7608D465EF86455DF9CF /* ProvocationResponseParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0709657CE7BA8E803EF5592 /* ProvocationResponseParserTests.swift */; };
@@ -66,6 +65,8 @@
 		E17C516997B155940B9ACEC8 /* FreeThinker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E42491BA36D6EEE8FEFB443B /* FreeThinker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		E813F95B9F823306806815E2 /* SettingsWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCAF102A3189D2CE63AA82A1 /* SettingsWindowController.swift */; };
 		F04021198CE56AFCC673F96A /* SettingsAccessibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D2C4BD21A1D27E0D99CE0E3 /* SettingsAccessibility.swift */; };
+		F22D748AB91ED8AC4FD4F3AE /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 48C236D0ED0288713FC5F8C4 /* KeyboardShortcuts */; };
+		F3514103B5A3083BD31CBC01 /* KeyboardShortcutsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86265DEDC25F16FE4E7CFF28 /* KeyboardShortcutsExtension.swift */; };
 		F39297627A83C093A9CE4DF7 /* ProvocationPromptComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFA1455C2F43FDE610072271 /* ProvocationPromptComposerTests.swift */; };
 		F87F1E46C4CABAF35D648CD8 /* FloatingPanelUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7B70A36B03474AA89A9FB3 /* FloatingPanelUITests.swift */; };
 		FF2BA3EFF53562368BB3153E /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95B6B539F9996D3D1B91F7F /* AppContainer.swift */; };
@@ -149,7 +150,6 @@
 		1A7B70A36B03474AA89A9FB3 /* FloatingPanelUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelUITests.swift; sourceTree = "<group>"; };
 		257A1C2B5BAE9F0138D63500 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2CCDF524909692782A8A6ED9 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		2F9208CDFA108EE42802ED22 /* GlobalHotkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyService.swift; sourceTree = "<group>"; };
 		336D252A2923C954934F2F89 /* CancellationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellationIntegrationTests.swift; sourceTree = "<group>"; };
 		35666B97911A0080C603C35B /* MenuBarMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarMenuBuilder.swift; sourceTree = "<group>"; };
 		37830600F7FADB3AFB954DD0 /* FreeThinkerPerformanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreeThinkerPerformanceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -173,6 +173,7 @@
 		7D2C4BD21A1D27E0D99CE0E3 /* SettingsAccessibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAccessibility.swift; sourceTree = "<group>"; };
 		859D761123DDC10C9ABAF67E /* ProvocationPromptComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvocationPromptComposer.swift; sourceTree = "<group>"; };
 		85F5E74DC687B500E7172DA3 /* small.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = small.txt; sourceTree = "<group>"; };
+		86265DEDC25F16FE4E7CFF28 /* KeyboardShortcutsExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardShortcutsExtension.swift; sourceTree = "<group>"; };
 		87EAFED21434DC2973B7B6D9 /* FoundationModelsAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationModelsAdapter.swift; sourceTree = "<group>"; };
 		8C5B8C7369A3E091A702407C /* DiagnosticsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsLogger.swift; sourceTree = "<group>"; };
 		8DA69774DFABCBFC665358B2 /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
@@ -204,6 +205,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		27DD14B5CDA261AB4C1FA8F0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F22D748AB91ED8AC4FD4F3AE /* KeyboardShortcuts in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		598A080B6BBBBE894647C5C8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -352,6 +361,7 @@
 				8C5B8C7369A3E091A702407C /* DiagnosticsLogger.swift */,
 				B3092CDCBCC451478685D633 /* ErrorPresentationMapper.swift */,
 				17018298641BEFD6A5153F07 /* FreeThinkerError.swift */,
+				86265DEDC25F16FE4E7CFF28 /* KeyboardShortcutsExtension.swift */,
 				3C7A37A5981FF401117F6902 /* Logger.swift */,
 			);
 			path = Utilities;
@@ -365,7 +375,6 @@
 				DA404C52E40DF3E73CF2F73B /* DefaultSettingsService.swift */,
 				6643FAD348E62683788B4C8B /* DefaultTextCaptureService.swift */,
 				87EAFED21434DC2973B7B6D9 /* FoundationModelsAdapter.swift */,
-				2F9208CDFA108EE42802ED22 /* GlobalHotkeyService.swift */,
 				8DA69774DFABCBFC665358B2 /* LaunchAtLoginService.swift */,
 				A78AB0565E79A0841C7A13CB /* ProvocationOrchestrator.swift */,
 				859D761123DDC10C9ABAF67E /* ProvocationPromptComposer.swift */,
@@ -482,6 +491,7 @@
 			buildConfigurationList = E2A2D0CED07175468FE8A344 /* Build configuration list for PBXNativeTarget "FreeThinker" */;
 			buildPhases = (
 				A4C58D30A5109F6FDC48F7D9 /* Sources */,
+				27DD14B5CDA261AB4C1FA8F0 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -489,6 +499,7 @@
 			);
 			name = FreeThinker;
 			packageProductDependencies = (
+				48C236D0ED0288713FC5F8C4 /* KeyboardShortcuts */,
 			);
 			productName = FreeThinker;
 			productReference = E42491BA36D6EEE8FEFB443B /* FreeThinker.framework */;
@@ -560,6 +571,9 @@
 			);
 			mainGroup = 5EB1D40860C73D49B5F16CDB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				10ED491C06C1D38C35ACDF7C /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -654,7 +668,7 @@
 				C4583E9DA760407A49CECC68 /* FoundationModelsAdapter.swift in Sources */,
 				173CAC8BC3386C57C644D599 /* FreeThinkerError.swift in Sources */,
 				8144B3A1A48CB07C45CB05F6 /* GeneralSettingsView.swift in Sources */,
-				1A9F7D332DC6BB1AA45C4E85 /* GlobalHotkeyService.swift in Sources */,
+				F3514103B5A3083BD31CBC01 /* KeyboardShortcutsExtension.swift in Sources */,
 				26954543099D803A5CBAC0F4 /* LaunchAtLoginService.swift in Sources */,
 				5D6804F3DC9F4C239900C445 /* Logger.swift in Sources */,
 				731D660288987AD2BB3E44AF /* MenuBarCoordinator.swift in Sources */,
@@ -745,7 +759,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -847,7 +860,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -974,6 +986,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FreeThinker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -993,6 +1007,8 @@
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FreeThinker;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1088,6 +1104,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		10ED491C06C1D38C35ACDF7C /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sindresorhus/KeyboardShortcuts";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		48C236D0ED0288713FC5F8C4 /* KeyboardShortcuts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 10ED491C06C1D38C35ACDF7C /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */;
+			productName = KeyboardShortcuts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 94E5AB414F2F3ADCB39B7592 /* Project object */;
 }

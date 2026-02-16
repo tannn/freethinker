@@ -237,7 +237,7 @@ final class SettingsUITests: XCTestCase {
             .valid(proposedShortcut: proposed, effectiveShortcut: proposed)
         }
         appState.onHotkeyApplyRequested = { _ in
-            throw GlobalHotkeyServiceError.conflict
+            throw CancellationError()
         }
         appState.onSettingsPersistRequested = { settings in
             await recorder.record(settings)
@@ -250,7 +250,7 @@ final class SettingsUITests: XCTestCase {
         let result = appState.applyHotkeyShortcut(proposed)
         await Task.yield()
 
-        XCTAssertEqual(result.status, .conflict)
+        XCTAssertEqual(result.status, .invalid)
         XCTAssertEqual(appState.settings.hotkeyShortcut, .defaultShortcut)
         let saveCount = await recorder.saveCount()
         XCTAssertEqual(saveCount, 0)

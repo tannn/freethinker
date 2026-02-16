@@ -1,4 +1,5 @@
 import AppKit
+import KeyboardShortcuts
 import SwiftUI
 
 public struct GeneralSettingsView: View {
@@ -6,14 +7,10 @@ public struct GeneralSettingsView: View {
     @ObservedObject private var panelViewModel: FloatingPanelViewModel
 
     @State private var exportStatus: String?
-    @State private var draftHotkeyModifiers: Int
-    @State private var draftHotkeyKeyCode: Int
 
     public init(appState: AppState) {
         self.appState = appState
         _panelViewModel = ObservedObject(wrappedValue: appState.panelViewModel)
-        _draftHotkeyModifiers = State(initialValue: appState.settings.hotkeyShortcut.modifiers)
-        _draftHotkeyKeyCode = State(initialValue: appState.settings.hotkeyShortcut.keyCode)
     }
 
     public var body: some View {
@@ -33,12 +30,14 @@ public struct GeneralSettingsView: View {
             .padding(24)
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
+        .onAppear {
+            syncRecorderShortcut(with: appState.settings.hotkeyShortcut)
+        }
         .onDisappear {
             appState.clearSettingsFeedback()
         }
         .onChange(of: appState.settings.hotkeyShortcut) { _, shortcut in
-            draftHotkeyModifiers = shortcut.modifiers
-            draftHotkeyKeyCode = shortcut.keyCode
+            syncRecorderShortcut(with: shortcut)
         }
     }
 }
@@ -70,7 +69,7 @@ private extension GeneralSettingsView {
     var behaviorSection: some View {
         GroupBox("Behavior") {
             VStack(alignment: .leading, spacing: 12) {
-                Toggle("Enable global hotkey (Cmd+Shift+P)", isOn: hotkeyEnabledBinding)
+                Toggle("Enable global hotkey", isOn: hotkeyEnabledBinding)
                     .disabled(hotkeyToggleLocked)
                     .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyToggle)
 
@@ -127,57 +126,16 @@ private extension GeneralSettingsView {
     var hotkeyShortcutSection: some View {
         GroupBox("Hotkey Shortcut") {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Current shortcut: \(appState.settings.hotkeyShortcut.displayString)")
-                    .font(.callout.weight(.medium))
-
-                HStack(alignment: .top, spacing: 16) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Modifiers")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        HStack(spacing: 12) {
-                            Toggle("Cmd", isOn: modifierBinding(.command))
-                            Toggle("Shift", isOn: modifierBinding(.shift))
-                            Toggle("Option", isOn: modifierBinding(.option))
-                            Toggle("Ctrl", isOn: modifierBinding(.control))
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Key")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Picker("Key", selection: $draftHotkeyKeyCode) {
-                            ForEach(Self.hotkeyKeyOptions, id: \.keyCode) { option in
-                                Text(option.label)
-                                    .tag(option.keyCode)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .labelsHidden()
-                        .frame(maxWidth: 150, alignment: .leading)
-                        .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyEditor)
-                    }
-                }
-
-                HStack(spacing: 10) {
-                    Button("Apply Shortcut") {
-                        let proposed = HotkeyShortcut(
-                            modifiers: draftHotkeyModifiers,
-                            keyCode: draftHotkeyKeyCode
-                        )
-                        _ = appState.applyHotkeyShortcut(proposed)
-                    }
+                KeyboardShortcuts.Recorder(for: .popup, onChange: applyRecorderShortcut)
                     .disabled(appState.settings.hotkeyEnabled == false)
+                    .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyEditor)
 
-                    Button("Reset to Default") {
-                        _ = appState.resetHotkeyShortcutToDefault()
-                    }
-                    .disabled(appState.settings.hotkeyEnabled == false)
-                    .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyResetButton)
+                Button("Reset to Default") {
+                    let result = appState.resetHotkeyShortcutToDefault()
+                    syncRecorderShortcut(with: result.effectiveShortcut)
                 }
+                .disabled(appState.settings.hotkeyEnabled == false)
+                .accessibilityIdentifier(SettingsAccessibility.Identifier.generalHotkeyResetButton)
 
                 if let result = appState.hotkeyCustomizationResult,
                    let message = result.message {
@@ -239,47 +197,6 @@ private extension GeneralSettingsView {
 }
 
 private extension GeneralSettingsView {
-    static let hotkeyModifierMask: NSEvent.ModifierFlags = [.command, .shift, .option, .control]
-    static let hotkeyKeyOptions: [(keyCode: Int, label: String)] = [
-        (0, "A"),
-        (11, "B"),
-        (8, "C"),
-        (2, "D"),
-        (14, "E"),
-        (3, "F"),
-        (5, "G"),
-        (4, "H"),
-        (34, "I"),
-        (38, "J"),
-        (40, "K"),
-        (37, "L"),
-        (46, "M"),
-        (45, "N"),
-        (31, "O"),
-        (35, "P"),
-        (12, "Q"),
-        (15, "R"),
-        (1, "S"),
-        (17, "T"),
-        (32, "U"),
-        (9, "V"),
-        (13, "W"),
-        (7, "X"),
-        (16, "Y"),
-        (6, "Z"),
-        (29, "0"),
-        (18, "1"),
-        (19, "2"),
-        (20, "3"),
-        (21, "4"),
-        (23, "5"),
-        (22, "6"),
-        (26, "7"),
-        (28, "8"),
-        (25, "9"),
-        (49, "Space")
-    ]
-
     var hotkeyEnabledBinding: Binding<Bool> {
         Binding(
             get: { appState.settings.hotkeyEnabled },
@@ -362,26 +279,29 @@ private extension GeneralSettingsView {
         !appState.settings.hotkeyEnabled && appState.settings.showMenuBarIcon
     }
 
-    func modifierBinding(_ modifier: NSEvent.ModifierFlags) -> Binding<Bool> {
-        Binding(
-            get: {
-                hotkeyModifierFlags.contains(modifier)
-            },
-            set: { isEnabled in
-                var updated = hotkeyModifierFlags
-                if isEnabled {
-                    updated.insert(modifier)
-                } else {
-                    updated.remove(modifier)
-                }
+    func applyRecorderShortcut(_ shortcut: KeyboardShortcuts.Shortcut?) {
+        guard let shortcut else {
+            let result = appState.resetHotkeyShortcutToDefault()
+            syncRecorderShortcut(with: result.effectiveShortcut)
+            return
+        }
 
-                draftHotkeyModifiers = Int(updated.intersection(Self.hotkeyModifierMask).rawValue)
-            }
+        let proposed = HotkeyShortcut(
+            modifiers: Int(shortcut.modifiers.rawValue),
+            keyCode: shortcut.carbonKeyCode
         )
+        let result = appState.applyHotkeyShortcut(proposed)
+        syncRecorderShortcut(with: result.effectiveShortcut)
     }
 
-    var hotkeyModifierFlags: NSEvent.ModifierFlags {
-        NSEvent.ModifierFlags(rawValue: UInt(draftHotkeyModifiers)).intersection(Self.hotkeyModifierMask)
+    func syncRecorderShortcut(with hotkey: HotkeyShortcut) {
+        let key = KeyboardShortcuts.Key(rawValue: hotkey.keyCode)
+        let modifiers = NSEvent.ModifierFlags(rawValue: UInt(hotkey.modifiers))
+        let shortcut = KeyboardShortcuts.Shortcut(key, modifiers: modifiers)
+        guard KeyboardShortcuts.Name.popup.shortcut != shortcut else {
+            return
+        }
+
+        KeyboardShortcuts.Name.popup.shortcut = shortcut
     }
 }
-
