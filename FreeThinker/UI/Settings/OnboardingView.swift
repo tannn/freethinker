@@ -45,7 +45,7 @@ public struct OnboardingView: View {
                 checklistRow(
                     title: "Hotkey Awareness",
                     subtitle: appState.onboardingReadiness.hotkeyAwarenessConfirmed
-                        ? "Cmd+Shift+P confirmed"
+                        ? "Cmd+Shift+P confirmed. This can be changed in settings."
                         : "Use Cmd+Shift+P to generate provocations from selected text.",
                     completed: appState.onboardingReadiness.hotkeyAwarenessConfirmed,
                     buttonTitle: appState.onboardingReadiness.hotkeyAwarenessConfirmed ? "Confirmed" : "I Understand",

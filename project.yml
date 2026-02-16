@@ -8,6 +8,10 @@ configs:
 settings:
   base:
     SWIFT_VERSION: 5.9
+packages:
+  KeyboardShortcuts:
+    url: https://github.com/sindresorhus/KeyboardShortcuts
+    from: 2.4.0
 targets:
   FreeThinker:
     type: framework
@@ -20,6 +24,8 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.freethinker.FreeThinkerCore
+    dependencies:
+      - package: KeyboardShortcuts
   FreeThinkerApp:
     type: application
     platform: macOS
