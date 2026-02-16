@@ -24,13 +24,26 @@ playground.xcworkspace
 Packages/
 Package.pins
 Package.resolved
-*.xcodeproj
+
 #
 # Xcode automatically generates this directory with a .xcworkspacedata file and xcuserdata
 # hence it is not needed unless you have added a package configuration file to your project
 # .swiftpm
 
 .build/
+
+## Xcode 8 and earlier
+*.xcscmblueprint
+*.xccheckout
+
+### Xcode Patch ###
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+/*.gcno
+**/xcshareddata/WorkspaceSettings.xcsettings
 
 # CocoaPods
 #
@@ -84,3 +97,6 @@ fastlane/test_output
 
 .agent-cache.json
 .vscode/
+
+Dependencies/
+.accio/

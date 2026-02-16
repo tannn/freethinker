@@ -26,13 +26,36 @@ Strenghten your thinking. Be a FreeThinker.
 - Apple Silicon
 - Xcode 16.0+ to build from source
 
-## Developer Entry Points
-- Quickstart: `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/quickstart.md`
-- Manual QA checklist: `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/research/manual-qa-checklist.md`
-- Release sign-off: `kitty-specs/001-freethinker-menu-bar-ai-provocation-app/research/release-signoff.md`
-- Release process: `docs/release.md`
+## Getting Started
 
-## Test Command
+### Clone & Resolve
 ```bash
+git clone https://github.com/tannn/freethinker.git
+cd freethinker
+swift package resolve
+```
+
+### Building
+You can open `Package.swift` directly in Xcode, or generate the Xcode project:
+
+```bash
+# Generate legacy xcodeproj
+swift package generate-xcodeproj
+
+# OR (Recommended) Generate via XcodeGen
+xcodegen generate
+```
+
+To build from the command line:
+```bash
+swift build
+```
+
+### Running Tests
+```bash
+# Via SwiftPM
 swift test
+
+# Via xcodebuild (if using .xcodeproj)
+xcodebuild test -scheme FreeThinker
 ```
