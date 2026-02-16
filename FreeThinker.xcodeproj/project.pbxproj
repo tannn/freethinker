@@ -14,7 +14,6 @@
 		13DDC8070C358306DBAEDE1B /* FreeThinker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E42491BA36D6EEE8FEFB443B /* FreeThinker.framework */; };
 		1589046306CD959DEEBFEA4F /* DiagnosticsLoggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C12CBAB20F0ED95E0AC51 /* DiagnosticsLoggerTests.swift */; };
 		173CAC8BC3386C57C644D599 /* FreeThinkerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17018298641BEFD6A5153F07 /* FreeThinkerError.swift */; };
-		1A9F7D332DC6BB1AA45C4E85 /* GlobalHotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9208CDFA108EE42802ED22 /* GlobalHotkeyService.swift */; };
 		20EDD98ECFFC2739D20C4E74 /* UserNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B470A70823A8018433F54D /* UserNotificationService.swift */; };
 		26954543099D803A5CBAC0F4 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DA69774DFABCBFC665358B2 /* LaunchAtLoginService.swift */; };
 		2D0A7608D465EF86455DF9CF /* ProvocationResponseParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0709657CE7BA8E803EF5592 /* ProvocationResponseParserTests.swift */; };
@@ -151,7 +150,6 @@
 		1A7B70A36B03474AA89A9FB3 /* FloatingPanelUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelUITests.swift; sourceTree = "<group>"; };
 		257A1C2B5BAE9F0138D63500 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2CCDF524909692782A8A6ED9 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
-		2F9208CDFA108EE42802ED22 /* GlobalHotkeyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyService.swift; sourceTree = "<group>"; };
 		336D252A2923C954934F2F89 /* CancellationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellationIntegrationTests.swift; sourceTree = "<group>"; };
 		35666B97911A0080C603C35B /* MenuBarMenuBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarMenuBuilder.swift; sourceTree = "<group>"; };
 		37830600F7FADB3AFB954DD0 /* FreeThinkerPerformanceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FreeThinkerPerformanceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -377,7 +375,6 @@
 				DA404C52E40DF3E73CF2F73B /* DefaultSettingsService.swift */,
 				6643FAD348E62683788B4C8B /* DefaultTextCaptureService.swift */,
 				87EAFED21434DC2973B7B6D9 /* FoundationModelsAdapter.swift */,
-				2F9208CDFA108EE42802ED22 /* GlobalHotkeyService.swift */,
 				8DA69774DFABCBFC665358B2 /* LaunchAtLoginService.swift */,
 				A78AB0565E79A0841C7A13CB /* ProvocationOrchestrator.swift */,
 				859D761123DDC10C9ABAF67E /* ProvocationPromptComposer.swift */,
@@ -671,7 +668,6 @@
 				C4583E9DA760407A49CECC68 /* FoundationModelsAdapter.swift in Sources */,
 				173CAC8BC3386C57C644D599 /* FreeThinkerError.swift in Sources */,
 				8144B3A1A48CB07C45CB05F6 /* GeneralSettingsView.swift in Sources */,
-				1A9F7D332DC6BB1AA45C4E85 /* GlobalHotkeyService.swift in Sources */,
 				F3514103B5A3083BD31CBC01 /* KeyboardShortcutsExtension.swift in Sources */,
 				26954543099D803A5CBAC0F4 /* LaunchAtLoginService.swift in Sources */,
 				5D6804F3DC9F4C239900C445 /* Logger.swift in Sources */,
