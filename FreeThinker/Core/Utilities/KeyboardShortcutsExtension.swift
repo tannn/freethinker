@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import KeyboardShortcuts
 
@@ -32,6 +33,14 @@ public final class HotkeyCoordinator: ObservableObject {
     }
 
     public func refresh(using settings: AppSettings) {
+        let shortcut = KeyboardShortcuts.Shortcut(
+            KeyboardShortcuts.Key(rawValue: settings.hotkeyShortcut.keyCode),
+            modifiers: NSEvent.ModifierFlags(rawValue: UInt(settings.hotkeyShortcut.modifiers))
+        )
+        if KeyboardShortcuts.Name.popup.shortcut != shortcut {
+            KeyboardShortcuts.Name.popup.shortcut = shortcut
+        }
+
         if settings.hotkeyEnabled {
             KeyboardShortcuts.enable(.popup)
             startListening()
