@@ -69,6 +69,7 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
         try Task.checkCancellation()
 
         guard preflightPermission() == .granted else {
+            requestAccessibilityPermissionPromptIfNeeded()
             Logger.warning("Selection capture blocked: accessibility permission denied", category: .textCapture)
             throw FreeThinkerError.accessibilityPermissionDenied
         }
