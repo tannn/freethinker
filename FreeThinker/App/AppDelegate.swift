@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import KeyboardShortcuts
 
 @MainActor
 public final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -20,7 +21,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     public func applicationDidBecomeActive(_ notification: Notification) {
-        container.hotkeyService.refreshRegistration(using: container.appState.settings)
+        HotkeyCoordinator.shared.refresh(using: container.appState.settings)
     }
 
     public func applicationWillTerminate(_ notification: Notification) {

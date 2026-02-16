@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import KeyboardShortcuts
 
 @MainActor
 public final class AppContainer {
@@ -7,7 +8,6 @@ public final class AppContainer {
     public let aiService: any AIServiceProtocol
     public let textCaptureService: any TextCaptureServiceProtocol
     public let orchestrator: any ProvocationOrchestrating
-    public let hotkeyService: any GlobalHotkeyServiceProtocol
     public let menuBarCoordinator: MenuBarCoordinator
     public let settingsService: any SettingsServiceProtocol
     public let diagnosticsLogger: any DiagnosticsLogging
@@ -26,7 +26,6 @@ public final class AppContainer {
         textCaptureService: any TextCaptureServiceProtocol = DefaultTextCaptureService(),
         notificationService: any UserNotificationServiceProtocol = LoggerUserNotificationService(),
         errorMapper: ErrorPresentationMapping = ErrorPresentationMapper(),
-        hotkeyService: any GlobalHotkeyServiceProtocol,
         launchAtLoginController: any LaunchAtLoginControlling = LaunchAtLoginService(),
         settingsService: any SettingsServiceProtocol = DefaultSettingsService(),
         diagnosticsLogger: any DiagnosticsLogging = DiagnosticsLogger(),
@@ -36,7 +35,6 @@ public final class AppContainer {
         self.aiService = aiService
         self.textCaptureService = textCaptureService
         self.errorMapper = errorMapper
-        self.hotkeyService = hotkeyService
         self.launchAtLoginController = launchAtLoginController
         self.settingsService = settingsService
         self.diagnosticsLogger = diagnosticsLogger
@@ -84,7 +82,6 @@ public final class AppContainer {
             textCaptureService: textCaptureService,
             notificationService: LoggerUserNotificationService(),
             errorMapper: ErrorPresentationMapper(),
-            hotkeyService: GlobalHotkeyService(),
             launchAtLoginController: LaunchAtLoginService(),
             settingsService: settingsService,
             diagnosticsLogger: DiagnosticsLogger(),
@@ -113,19 +110,14 @@ public final class AppContainer {
             settings = appState.settings
         }
 
-        hotkeyService.onTrigger = { [weak self] in
+        HotkeyCoordinator.shared.onTrigger = { [weak self] in
             guard let self else { return }
             Task {
                 _ = await self.orchestrator.trigger(source: .hotkey, regenerateFromResponseID: nil)
             }
         }
 
-        hotkeyService.onRegistrationError = { [weak self] error in
-            guard let self else { return }
-            self.presentHotkeyRegistrationError(error)
-        }
-
-        hotkeyService.refreshRegistration(using: settings)
+        HotkeyCoordinator.shared.refresh(using: settings)
 
         // Hotkey registration callbacks may mutate reachability settings.
         settings = appState.settings
@@ -161,7 +153,7 @@ public final class AppContainer {
             await orchestrator.cancelCurrentGeneration(reason: .appWillTerminate)
         }
         floatingPanelController.cleanup()
-        hotkeyService.unregister()
+        HotkeyCoordinator.shared.stopListening()
         menuBarCoordinator.uninstallStatusItem()
 
         diagnosticsLogger.record(
@@ -189,7 +181,7 @@ private extension AppContainer {
 
         appState.onSettingsUpdated = { [weak self] settings in
             guard let self else { return }
-            self.hotkeyService.refreshRegistration(using: settings)
+            HotkeyCoordinator.shared.refresh(using: settings)
             self.diagnosticsLogger.setEnabled(settings.diagnosticsEnabled)
             Task {
                 await self.textCaptureService.setFallbackCaptureEnabled(settings.fallbackCaptureEnabled)
@@ -212,26 +204,15 @@ private extension AppContainer {
             )
         }
 
-        appState.onHotkeyValidationRequested = { [weak self] proposedShortcut, effectiveShortcut in
-            guard let self else {
-                return .invalid(
-                    proposedShortcut: proposedShortcut,
-                    effectiveShortcut: effectiveShortcut,
-                    message: "Hotkey validation is temporarily unavailable."
-                )
-            }
-
-            return self.hotkeyService.validateShortcutProposal(
-                proposedShortcut,
-                effectiveShortcut: effectiveShortcut
+        appState.onHotkeyValidationRequested = { proposedShortcut, effectiveShortcut in
+            return HotkeyValidationResult.valid(
+                proposedShortcut: proposedShortcut,
+                effectiveShortcut: proposedShortcut
             )
         }
 
-        appState.onHotkeyApplyRequested = { [weak self] settings in
-            guard let self else {
-                throw GlobalHotkeyServiceError.registrationFailed(status: -50)
-            }
-            try self.hotkeyService.register(using: settings)
+        appState.onHotkeyApplyRequested = { _ in
+            return
         }
 
         appState.onSettingsPersistRequested = { [weak self] settings in
