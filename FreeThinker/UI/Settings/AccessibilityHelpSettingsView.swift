@@ -27,7 +27,7 @@ public struct AccessibilityHelpSettingsView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                Text("If FreeThinker does not appear in the list, restart the app after granting permission.")
+                Text("If permission does not persist across relaunch, move FreeThinker to /Applications, relaunch, then enable Accessibility again.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }

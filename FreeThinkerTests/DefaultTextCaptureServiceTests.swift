@@ -1,3 +1,4 @@
+import os
 import XCTest
 @testable import FreeThinker
 
@@ -63,5 +64,76 @@ final class DefaultTextCaptureServiceTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    func testCaptureRequestsAccessibilityPromptWhenPermissionDenied() async {
+        let promptCount = OSAllocatedUnfairLock(initialState: 0)
+        let service = DefaultTextCaptureService(
+            permissionChecker: { false },
+            permissionPromptRequester: {
+                promptCount.withLock { $0 += 1 }
+                return false
+            },
+            accessibilityReachabilityProbe: { false },
+            clipboardFallbackProvider: { nil }
+        )
+
+        do {
+            _ = try await service.captureSelectedText()
+            XCTFail("Expected accessibilityPermissionDenied when trust is missing")
+        } catch let error as FreeThinkerError {
+            XCTAssertEqual(error, .accessibilityPermissionDenied)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        XCTAssertEqual(promptCount.withLock { $0 }, 1)
+    }
+
+    func testPermissionPromptUsesCooldownToAvoidRepeatedPromptSpam() async {
+        struct PromptState {
+            var promptCount: Int = 0
+            var now: UInt64 = 1_000
+        }
+
+        let state = OSAllocatedUnfairLock(initialState: PromptState())
+        let service = DefaultTextCaptureService(
+            permissionChecker: { false },
+            permissionPromptRequester: {
+                state.withLock { $0.promptCount += 1 }
+                return false
+            },
+            permissionPromptCooldownNanoseconds: 500,
+            uptimeNanosecondsProvider: {
+                state.withLock { $0.now }
+            },
+            accessibilityReachabilityProbe: { false },
+            clipboardFallbackProvider: { nil }
+        )
+
+        for _ in 0..<2 {
+            do {
+                _ = try await service.captureSelectedText()
+                XCTFail("Expected accessibilityPermissionDenied while trust is missing")
+            } catch let error as FreeThinkerError {
+                XCTAssertEqual(error, .accessibilityPermissionDenied)
+            } catch {
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+
+        XCTAssertEqual(state.withLock { $0.promptCount }, 1)
+
+        state.withLock { $0.now = 2_000 }
+        do {
+            _ = try await service.captureSelectedText()
+            XCTFail("Expected accessibilityPermissionDenied while trust is missing")
+        } catch let error as FreeThinkerError {
+            XCTAssertEqual(error, .accessibilityPermissionDenied)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+
+        XCTAssertEqual(state.withLock { $0.promptCount }, 2)
     }
 }

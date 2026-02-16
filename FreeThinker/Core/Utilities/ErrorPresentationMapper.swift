@@ -29,13 +29,24 @@ public protocol ErrorPresentationMapping: Sendable {
 }
 
 public struct ErrorPresentationMapper: ErrorPresentationMapping {
-    public init() {}
+    private let isTranslocatedProvider: @Sendable () -> Bool
+
+    public init(
+        isTranslocatedProvider: @escaping @Sendable () -> Bool = {
+            Bundle.main.bundlePath.contains("/AppTranslocation/")
+        }
+    ) {
+        self.isTranslocatedProvider = isTranslocatedProvider
+    }
 
     public func map(error: FreeThinkerError, source: ProvocationTriggerSource) -> ErrorPresentation {
         switch error {
         case .accessibilityPermissionDenied:
+            let translocationHint = isTranslocatedProvider()
+                ? " FreeThinker appears to be running from a translocated location. Move it to /Applications, relaunch, then re-enable Accessibility once."
+                : ""
             return ErrorPresentation(
-                message: "FreeThinker needs Accessibility access. Open Settings -> Privacy & Security -> Accessibility, then enable FreeThinker.",
+                message: "FreeThinker needs Accessibility access. Open Settings -> Privacy & Security -> Accessibility, then enable FreeThinker.\(translocationHint)",
                 action: .openAccessibilitySettings,
                 preferPanelPresentation: true
             )
