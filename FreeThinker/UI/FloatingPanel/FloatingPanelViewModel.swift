@@ -28,6 +28,7 @@ public final class FloatingPanelViewModel: ObservableObject {
     @Published public private(set) var isRegenerating: Bool = false
     @Published public private(set) var copyFeedback: String?
     @Published public private(set) var suggestedAction: ErrorPresentationAction?
+    @Published public var styleDisplayName: String = ProvocationStylePreset.socratic.displayName
 
     public var onCloseRequested: (() -> Void)?
     public var onRegenerateRequested: ((_ regenerateFromResponseID: UUID?) async -> Void)?
@@ -46,13 +47,15 @@ public final class FloatingPanelViewModel: ObservableObject {
         dismissOnCopy: Bool,
         autoDismissSeconds: TimeInterval = 6,
         timing: any FloatingPanelTiming = SystemFloatingPanelTiming(),
-        pasteboardWriter: ((String) -> Void)? = nil
+        pasteboardWriter: ((String) -> Void)? = nil,
+        styleDisplayName: String = ProvocationStylePreset.socratic.displayName
     ) {
         self.isPinned = isPinned
         self.dismissOnCopy = dismissOnCopy
         self.autoDismissSeconds = max(1, autoDismissSeconds)
         self.timing = timing
         self.pasteboardWriter = pasteboardWriter ?? FloatingPanelViewModel.defaultPasteboardWriter
+        self.styleDisplayName = styleDisplayName
     }
 
     deinit {

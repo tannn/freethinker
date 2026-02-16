@@ -259,6 +259,8 @@ private actor CancellationTextCaptureService: TextCaptureServiceProtocol {
 
     func setFallbackCaptureEnabled(_ isEnabled: Bool) {}
 
+    func requestAccessibilityPermissionPromptIfNeeded() {}
+
     func captureSelectedText() async throws -> String {
         if delayNanoseconds > 0 {
             var remaining = delayNanoseconds

@@ -2,12 +2,12 @@ import AppKit
 import Combine
 import Foundation
 
-public protocol PanelPinningStore: Sendable {
+public protocol PanelPinningStore {
     func loadPinnedState() -> Bool
     func savePinnedState(_ isPinned: Bool)
 }
 
-public final class UserDefaultsPanelPinningStore: PanelPinningStore, @unchecked Sendable {
+public struct UserDefaultsPanelPinningStore: PanelPinningStore {
     private let userDefaults: UserDefaults
     private let key: String
 
@@ -108,7 +108,8 @@ public final class AppState: ObservableObject {
             dismissOnCopy: validatedSettings.dismissOnCopy,
             autoDismissSeconds: validatedSettings.autoDismissSeconds,
             timing: timing,
-            pasteboardWriter: resolvedPasteboardWriter
+            pasteboardWriter: resolvedPasteboardWriter,
+            styleDisplayName: validatedSettings.provocationStylePreset.displayName
         )
 
         panelViewModel.onPinStateChanged = { [weak self] isPinned in
@@ -123,6 +124,7 @@ public final class AppState: ObservableObject {
             self?.onCloseRequested?()
             self?.panelController?.hide()
         }
+        panelViewModel.styleDisplayName = validatedSettings.provocationStylePreset.displayName
     }
 
     public func attachPanelController(_ controller: FloatingPanelController) {
@@ -187,6 +189,7 @@ public final class AppState: ObservableObject {
             self.settings = candidate
             panelViewModel.dismissOnCopy = self.settings.dismissOnCopy
             panelViewModel.autoDismissSeconds = self.settings.autoDismissSeconds
+            panelViewModel.styleDisplayName = self.settings.provocationStylePreset.displayName
             onboardingReadiness.hotkeyAwarenessConfirmed = self.settings.hotkeyAwarenessConfirmed
             onSettingsUpdated?(self.settings)
             persistSettingsIfNeeded(self.settings)
@@ -517,3 +520,4 @@ private extension AppState {
         onOnboardingPresentationChanged?(isOnboardingPresented)
     }
 }
+

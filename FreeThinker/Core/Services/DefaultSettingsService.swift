@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol SettingsServiceProtocol: Sendable {
+public protocol SettingsServiceProtocol {
     func loadSettings() -> AppSettings
     func saveSettings(_ settings: AppSettings) throws
 }
@@ -9,7 +9,7 @@ public enum SettingsServiceError: Error, Equatable, Sendable {
     case encodingFailed
 }
 
-public final class DefaultSettingsService: SettingsServiceProtocol, @unchecked Sendable {
+public final class DefaultSettingsService: SettingsServiceProtocol {
     private let userDefaults: UserDefaults
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder

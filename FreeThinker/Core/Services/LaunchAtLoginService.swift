@@ -14,7 +14,7 @@ public enum LaunchAtLoginError: Error, Equatable, Sendable {
     case failed(String)
 }
 
-public final class LaunchAtLoginService: LaunchAtLoginControlling, @unchecked Sendable {
+public struct LaunchAtLoginService: LaunchAtLoginControlling {
     public init() {}
 
     public func isEnabled() -> Bool {

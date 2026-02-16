@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 public actor DefaultAIService: AIServiceProtocol {
     public private(set) var currentModel: ModelOption
@@ -212,35 +213,38 @@ private actor TimeoutRaceBox<T> {
     }
 }
 
-private final class TimeoutTaskStore: @unchecked Sendable {
-    private let lock = NSLock()
-    private var operation: Task<Void, Never>?
-    private var timeout: Task<Void, Never>?
+private struct TimeoutTaskStore: Sendable {
+    private struct State {
+        var operation: Task<Void, Never>?
+        var timeout: Task<Void, Never>?
+    }
+
+    private let state = OSAllocatedUnfairLock(initialState: State())
 
     func set(operation: Task<Void, Never>, timeout: Task<Void, Never>) {
-        lock.lock()
-        self.operation = operation
-        self.timeout = timeout
-        lock.unlock()
+        state.withLock { state in
+            state.operation = operation
+            state.timeout = timeout
+        }
     }
 
     func cancelOperation() {
-        lock.lock()
-        operation?.cancel()
-        lock.unlock()
+        state.withLock { state in
+            state.operation?.cancel()
+        }
     }
 
     func cancelTimeout() {
-        lock.lock()
-        timeout?.cancel()
-        lock.unlock()
+        state.withLock { state in
+            state.timeout?.cancel()
+        }
     }
 
     func cancelAll() {
-        lock.lock()
-        operation?.cancel()
-        timeout?.cancel()
-        lock.unlock()
+        state.withLock { state in
+            state.operation?.cancel()
+            state.timeout?.cancel()
+        }
     }
 }
 

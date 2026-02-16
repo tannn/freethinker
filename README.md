@@ -1,5 +1,5 @@
 # FreeThinker
-![macOS](https://img.shields.io/badge/macOS-blue) ![License](https://img.shields.io/badge/license-GPLv3-green)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/tannn/freethinker/swift.yml) ![macOS](https://img.shields.io/badge/macOS-blue) ![License](https://img.shields.io/badge/license-GPLv3-green)
 
 Menu bar macOS app for generating concise AI provocations from selected text using on-device Apple Foundation Models.
 

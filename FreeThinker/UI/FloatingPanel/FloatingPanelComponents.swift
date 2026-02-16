@@ -9,7 +9,11 @@ public enum FloatingPanelDesignTokens {
 }
 
 public struct FloatingPanelLoadingView: View {
-    public init() {}
+    private let styleDisplayName: String
+
+    public init(styleDisplayName: String) {
+        self.styleDisplayName = styleDisplayName.lowercased()
+    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: FloatingPanelDesignTokens.regularSpacing) {
@@ -20,7 +24,7 @@ public struct FloatingPanelLoadingView: View {
                 .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.loadingIndicator)
                 .accessibilityLabel(FloatingPanelAccessibility.Label.loading)
 
-            Text("Generating a provocative perspective...") // Add style here
+            Text("Generating a \(styleDisplayName) perspective…")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -60,21 +64,21 @@ public struct FloatingPanelResponseCard: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    guard canCopy else {
-                        return
-                    }
-                    onCopyRequested()
-                }
-            )
-            .textSelection(.enabled)
             .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.copyTarget)
             .accessibilityLabel(FloatingPanelAccessibility.Label.copyTarget)
             .accessibilityHint(FloatingPanelAccessibility.Hint.copyTarget)
             .accessibilityAddTraits(.isButton)
         }
+        .contentShape(Rectangle())
+        .highPriorityGesture(
+            TapGesture().onEnded {
+                guard canCopy else {
+                    return
+                }
+                onCopyRequested()
+            },
+            including: .all
+        )
         .frame(maxHeight: FloatingPanelDesignTokens.maxBodyHeight)
         .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.responseCard)
     }

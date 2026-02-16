@@ -12,20 +12,28 @@ public protocol TextCaptureServiceProtocol: Actor, Sendable {
     func preflightPermission() -> TextCapturePermissionStatus
     func setFallbackCaptureEnabled(_ isEnabled: Bool)
     func captureSelectedText() async throws -> String
+    func requestAccessibilityPermissionPromptIfNeeded()
 }
 
 public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
     private let maxSelectionLength: Int
     private let permissionChecker: @Sendable () -> Bool
+    private let permissionPromptRequester: @Sendable () -> Bool
+    private let permissionPromptCooldownNanoseconds: UInt64
+    private let uptimeNanosecondsProvider: @Sendable () -> UInt64
     private let accessibilityReachabilityProbe: @Sendable () -> Bool
     private let accessibilitySelectionProvider: @Sendable () -> String?
     private let clipboardFallbackProvider: (@Sendable () -> String?)?
     private var fallbackCaptureEnabled: Bool
+    private var lastPermissionPromptUptimeNanoseconds: UInt64?
 
     public init(
         maxSelectionLength: Int = ProvocationRequest.maxSelectedTextLength,
         fallbackCaptureEnabled: Bool = true,
         permissionChecker: (@Sendable () -> Bool)? = nil,
+        permissionPromptRequester: (@Sendable () -> Bool)? = nil,
+        permissionPromptCooldownNanoseconds: UInt64 = 6_000_000_000,
+        uptimeNanosecondsProvider: (@Sendable () -> UInt64)? = nil,
         accessibilityReachabilityProbe: (@Sendable () -> Bool)? = nil,
         accessibilitySelectionProvider: (@Sendable () -> String?)? = nil,
         clipboardFallbackProvider: (@Sendable () -> String?)? = nil
@@ -33,6 +41,13 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
         self.maxSelectionLength = maxSelectionLength
         self.fallbackCaptureEnabled = fallbackCaptureEnabled
         self.permissionChecker = permissionChecker ?? { AXIsProcessTrusted() }
+        self.permissionPromptRequester = permissionPromptRequester ?? {
+            Self.requestAccessibilityPermissionPrompt()
+        }
+        self.permissionPromptCooldownNanoseconds = permissionPromptCooldownNanoseconds
+        self.uptimeNanosecondsProvider = uptimeNanosecondsProvider ?? {
+            DispatchTime.now().uptimeNanoseconds
+        }
         self.accessibilityReachabilityProbe = accessibilityReachabilityProbe ?? {
             Self.isAccessibilityAPIReachable()
         }
@@ -54,6 +69,7 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
         try Task.checkCancellation()
 
         guard preflightPermission() == .granted else {
+            requestAccessibilityPermissionPromptIfNeeded()
             Logger.warning("Selection capture blocked: accessibility permission denied", category: .textCapture)
             throw FreeThinkerError.accessibilityPermissionDenied
         }
@@ -145,6 +161,30 @@ private extension DefaultTextCaptureService {
         )
 
         return status != .apiDisabled
+    }
+
+    @discardableResult
+    static func requestAccessibilityPermissionPrompt() -> Bool {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        return AXIsProcessTrustedWithOptions(options)
+    }
+
+    public func requestAccessibilityPermissionPromptIfNeeded() {
+        let now = uptimeNanosecondsProvider()
+        if
+            let lastPromptUptime = lastPermissionPromptUptimeNanoseconds,
+            now >= lastPromptUptime,
+            (now - lastPromptUptime) < permissionPromptCooldownNanoseconds
+        {
+            return
+        }
+
+        lastPermissionPromptUptimeNanoseconds = now
+        let alreadyTrusted = permissionPromptRequester()
+        Logger.info(
+            "Requested accessibility permission prompt trusted=\(alreadyTrusted)",
+            category: .textCapture
+        )
     }
 
     func fallbackCaptureSelection() async -> String? {
