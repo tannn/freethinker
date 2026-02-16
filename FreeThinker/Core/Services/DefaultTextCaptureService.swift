@@ -12,6 +12,7 @@ public protocol TextCaptureServiceProtocol: Actor, Sendable {
     func preflightPermission() -> TextCapturePermissionStatus
     func setFallbackCaptureEnabled(_ isEnabled: Bool)
     func captureSelectedText() async throws -> String
+    func requestAccessibilityPermissionPromptIfNeeded()
 }
 
 public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
@@ -68,7 +69,6 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
         try Task.checkCancellation()
 
         guard preflightPermission() == .granted else {
-            requestAccessibilityPermissionPromptIfNeeded()
             Logger.warning("Selection capture blocked: accessibility permission denied", category: .textCapture)
             throw FreeThinkerError.accessibilityPermissionDenied
         }
@@ -168,7 +168,7 @@ private extension DefaultTextCaptureService {
         return AXIsProcessTrustedWithOptions(options)
     }
 
-    func requestAccessibilityPermissionPromptIfNeeded() {
+    public func requestAccessibilityPermissionPromptIfNeeded() {
         let now = uptimeNanosecondsProvider()
         if
             let lastPromptUptime = lastPermissionPromptUptimeNanoseconds,

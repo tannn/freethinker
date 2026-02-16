@@ -221,6 +221,7 @@ private extension ProvocationOrchestrator {
                 try Task.checkCancellation()
                 Logger.debug("Stage=permission-preflight", category: .orchestrator)
                 guard await textCaptureService.preflightPermission() == .granted else {
+                    await textCaptureService.requestAccessibilityPermissionPromptIfNeeded()
                     recordDiagnostic(
                         stage: .permissionPreflight,
                         category: .warning,
