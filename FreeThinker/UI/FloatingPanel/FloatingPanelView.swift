@@ -69,7 +69,7 @@ public struct FloatingPanelView: View {
 
         case let .loading(selectedTextPreview):
             VStack(alignment: .leading, spacing: FloatingPanelDesignTokens.regularSpacing) {
-                FloatingPanelLoadingView()
+                FloatingPanelLoadingView(styleDisplayName: viewModel.styleDisplayName)
 
                 if let selectedTextPreview {
                     Text("Source: \(selectedTextPreview)")
@@ -106,6 +106,7 @@ public struct FloatingPanelView: View {
 
     private var footer: some View {
         HStack(spacing: FloatingPanelDesignTokens.regularSpacing) {
+            Spacer()
             Button("Regenerate") {
                 viewModel.requestRegenerate()
             }
@@ -116,8 +117,6 @@ public struct FloatingPanelView: View {
             .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.regenerateButton)
             .accessibilityLabel(FloatingPanelAccessibility.Label.regenerate)
             .accessibilityHint(FloatingPanelAccessibility.Hint.regenerate)
-
-            Spacer()
         }
     }
 

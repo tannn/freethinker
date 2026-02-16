@@ -20,13 +20,15 @@ public final class FloatingPanelController: NSObject {
     }
 
     public func show() {
+        NSApp.activate(ignoringOtherApps: true)
+
         if panel.isVisible {
-            panel.orderFront(nil)
+            panel.makeKeyAndOrderFront(nil)
             return
         }
 
         positionPanel()
-        panel.orderFront(nil)
+        panel.makeKeyAndOrderFront(nil)
     }
 
     public func hide() {

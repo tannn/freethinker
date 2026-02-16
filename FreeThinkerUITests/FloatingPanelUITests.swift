@@ -128,6 +128,27 @@ final class FloatingPanelUITests: XCTestCase {
         XCTAssertEqual(closeCount, 0)
     }
 
+    func testFR002_CopyFromResponseContentCopiesOnFirstInvocation_SC04() throws {
+        var copiedPayloads: [String] = []
+        var closeCount = 0
+        let viewModel = FloatingPanelViewModel(
+            isPinned: false,
+            dismissOnCopy: true,
+            timing: ImmediateTiming(),
+            pasteboardWriter: { copiedPayloads.append($0) }
+        )
+        viewModel.onCloseRequested = {
+            closeCount += 1
+        }
+
+        viewModel.setSuccess(try makeSuccessResponse())
+        viewModel.copyFromResponseContent()
+
+        XCTAssertEqual(copiedPayloads.count, 1)
+        XCTAssertEqual(closeCount, 1)
+        XCTAssertEqual(viewModel.copyFeedback, "Copied")
+    }
+
     func testPinnedPanelPersistsAcrossTriggerCycles() {
         let pinningStore = InMemoryPinningStore()
 
@@ -157,6 +178,11 @@ final class FloatingPanelUITests: XCTestCase {
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.regenerateButton, "floating_panel.action.regenerate")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.closeButton, "floating_panel.action.close")
         XCTAssertEqual(FloatingPanelAccessibility.Identifier.pinButton, "floating_panel.action.pin")
+    }
+
+    func testFloatingPanelWindowUsesExplicitKeyBehaviorForImmediateClickActions() {
+        let window = FloatingPanelWindow()
+        XCTAssertFalse(window.becomesKeyOnlyIfNeeded)
     }
 }
 
