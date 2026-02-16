@@ -1,6 +1,6 @@
 import Foundation
 
-public protocol DiagnosticsLogging: Sendable {
+public protocol DiagnosticsLogging {
     func isEnabled() -> Bool
     func setEnabled(_ enabled: Bool)
     func record(_ event: DiagnosticEvent)
@@ -14,7 +14,7 @@ public protocol DiagnosticsLogging: Sendable {
     func exportEvents(to url: URL) throws
 }
 
-public final class DiagnosticsLogger: DiagnosticsLogging, @unchecked Sendable {
+public final class DiagnosticsLogger: DiagnosticsLogging {
     private let userDefaults: UserDefaults
     private let encoder: JSONEncoder
     private let decoder: JSONDecoder

@@ -2,12 +2,12 @@ import AppKit
 import Combine
 import Foundation
 
-public protocol PanelPinningStore: Sendable {
+public protocol PanelPinningStore {
     func loadPinnedState() -> Bool
     func savePinnedState(_ isPinned: Bool)
 }
 
-public final class UserDefaultsPanelPinningStore: PanelPinningStore, @unchecked Sendable {
+public struct UserDefaultsPanelPinningStore: PanelPinningStore {
     private let userDefaults: UserDefaults
     private let key: String
 
