@@ -36,13 +36,10 @@ swift package resolve
 ```
 
 ### Building
-You can open `Package.swift` directly in Xcode, or generate the Xcode project:
+You can open `Package.swift` directly in Xcode, or generate the Xcode project via XcodeGen:
 
 ```bash
-# Generate legacy xcodeproj
-swift package generate-xcodeproj
-
-# OR (Recommended) Generate via XcodeGen
+# Generate .xcodeproj from project.yml
 xcodegen generate
 ```
 
