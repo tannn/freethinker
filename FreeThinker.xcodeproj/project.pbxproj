@@ -37,7 +37,6 @@
 		71D4AC2401B28A64A5FC47DF /* SettingsRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9EEADBE68722FE1714A5FA /* SettingsRootView.swift */; };
 		731D660288987AD2BB3E44AF /* MenuBarCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9183FA9BB1AA133F6D6EEE6 /* MenuBarCoordinator.swift */; };
 		73AF868B219A06942E3C25D0 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE62001DAFAB446BFF9A0F1E /* AppSettings.swift */; };
-		79C09D239BC94A37468A7922 /* GlobalHotkeyServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE9E46C16BF8554DA1C85E20 /* GlobalHotkeyServiceTests.swift */; };
 		80D66C5B20D4BB007A89D9B3 /* FreeThinkerAppMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F98C716F5DCDDCD0F5AF451 /* FreeThinkerAppMain.swift */; };
 		8144B3A1A48CB07C45CB05F6 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C121209B5ABEF9BB55E079B /* GeneralSettingsView.swift */; };
 		85307E3179D447F3A8F07233 /* large.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1A7797E13B5E0FA44D688C4E /* large.txt */; };
@@ -190,7 +189,6 @@
 		C6FC76C6588795558633275A /* FloatingPanelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelViewModel.swift; sourceTree = "<group>"; };
 		C9183FA9BB1AA133F6D6EEE6 /* MenuBarCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarCoordinator.swift; sourceTree = "<group>"; };
 		CC73EE341827878D9859DAD6 /* FloatingPanelComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingPanelComponents.swift; sourceTree = "<group>"; };
-		CE9E46C16BF8554DA1C85E20 /* GlobalHotkeyServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyServiceTests.swift; sourceTree = "<group>"; };
 		D4B26CF67C773D5A71A6D3EA /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		DA404C52E40DF3E73CF2F73B /* DefaultSettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSettingsService.swift; sourceTree = "<group>"; };
 		DC3D8AF1EF1656DF927DA8D1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -413,7 +411,6 @@
 				DF330CA640760DEFD3CD97D9 /* DefaultSettingsServiceTests.swift */,
 				12E5BDE0D1300DDF99B53B2E /* DefaultTextCaptureServiceTests.swift */,
 				6F9C12CBAB20F0ED95E0AC51 /* DiagnosticsLoggerTests.swift */,
-				CE9E46C16BF8554DA1C85E20 /* GlobalHotkeyServiceTests.swift */,
 				611F8712D2E2590CC224F5A1 /* MenuBarMenuBuilderTests.swift */,
 				9B03053D68241E96C3B9C210 /* ProvocationOrchestratorIntegrationTests.swift */,
 				FFA1455C2F43FDE610072271 /* ProvocationPromptComposerTests.swift */,
@@ -618,7 +615,6 @@
 				0B0EA60CF2912FB6AF4F1F8F /* DefaultSettingsServiceTests.swift in Sources */,
 				AB5A2A5559DE8C5A1A6912FA /* DefaultTextCaptureServiceTests.swift in Sources */,
 				1589046306CD959DEEBFEA4F /* DiagnosticsLoggerTests.swift in Sources */,
-				79C09D239BC94A37468A7922 /* GlobalHotkeyServiceTests.swift in Sources */,
 				6484C282747A95A242ED6515 /* MenuBarMenuBuilderTests.swift in Sources */,
 				6BA6CF7B7605EB42024E89E6 /* ProvocationOrchestratorIntegrationTests.swift in Sources */,
 				F39297627A83C093A9CE4DF7 /* ProvocationPromptComposerTests.swift in Sources */,
@@ -983,6 +979,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FreeThinker.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 100;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
@@ -993,6 +990,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinker;
 				SDKROOT = macosx;
 			};
@@ -1004,6 +1002,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = FreeThinker.entitlements;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 100;
 				DEAD_CODE_STRIPPING = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = FreeThinker/Resources/Info.plist;
@@ -1014,6 +1013,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 0.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.freethinker.FreeThinker;
 				SDKROOT = macosx;
 			};
