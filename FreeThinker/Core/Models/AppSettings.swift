@@ -29,11 +29,11 @@ public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable,
     public var instruction: String {
         switch self {
         case .contrarian:
-            return "Take a rigorous contrary angle. Surface weak premises and overconfidence."
+            return "Take a rigorous contrary angle. Surface weak premises and overconfidence. What might be wrong, incomplete, or deserving of skepticism? What counterarguments could be made?"
         case .socratic:
-            return "Use Socratic questioning to challenge assumptions and reveal gaps in reasoning."
+            return "Use Socratic questioning to challenge assumptions and reveal gaps in reasoning. Challenge the main assumptions or claims made here. What might be wrong, incomplete, or deserving of skepticism?"
         case .systemsThinking:
-            return "Analyze second-order effects, feedback loops, and systemic tradeoffs."
+            return "Analyze second-order effects, feedback loops, and systemic tradeoffs. What are the broader implications? What connections can you draw to other fields or concepts? How might this extend or apply in unexpected ways?"
         }
     }
 }

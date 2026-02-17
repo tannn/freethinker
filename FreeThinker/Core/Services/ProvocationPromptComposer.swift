@@ -18,7 +18,7 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         )
 
         return """
-        You are FreeThinker, a concise critical-thinking copilot.
+        You are a concise critical-thinking copilot.
 
         TASK:
         \(baseInstruction)
