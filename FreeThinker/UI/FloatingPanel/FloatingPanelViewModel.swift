@@ -2,36 +2,67 @@ import AppKit
 import Combine
 import Foundation
 
+/// Protocol abstracting sleep timing for testability in ``FloatingPanelViewModel``.
 public protocol FloatingPanelTiming: Sendable {
+    /// Suspends the current task for the given number of nanoseconds.
+    ///
+    /// - Parameter nanoseconds: The sleep duration.
+    /// - Throws: `CancellationError` if the task is cancelled.
     func sleep(nanoseconds: UInt64) async throws
 }
 
+/// The default timing implementation backed by `Task.sleep`.
 public struct SystemFloatingPanelTiming: FloatingPanelTiming {
+    /// Creates the system timing provider.
     public init() {}
 
+    /// Suspends using `Task.sleep(nanoseconds:)`.
     public func sleep(nanoseconds: UInt64) async throws {
         try await Task.sleep(nanoseconds: nanoseconds)
     }
 }
 
+/// Observable view model for the floating provocation panel.
+///
+/// `FloatingPanelViewModel` is `@MainActor`-isolated and drives the panel's SwiftUI
+/// views. It manages the UI state machine, auto-dismiss timers, copy-feedback animations,
+/// pin state, and regenerate requests.
 @MainActor
 public final class FloatingPanelViewModel: ObservableObject {
+    /// The panel's UI state machine.
     public enum State: Equatable {
+        /// The panel is hidden or in its initial resting state.
         case idle
+        /// A generation is in progress; an optional text preview may be shown.
         case loading(selectedTextPreview: String?)
+        /// Generation succeeded; the panel shows the provocation response.
         case success(response: ProvocationResponse)
+        /// Generation failed or was rejected; the panel shows an error message.
         case error(message: String)
     }
 
+    /// The current UI state. Drives the panel's displayed content.
     @Published public private(set) var state: State = .idle
+    /// Whether the panel is pinned and therefore exempt from auto-dismiss.
     @Published public private(set) var isPinned: Bool
+    /// `true` while a regeneration request is in flight.
     @Published public private(set) var isRegenerating: Bool = false
+    /// Transient copy confirmation text shown briefly after the user copies a result.
     @Published public private(set) var copyFeedback: String?
+    /// A suggested remediation action shown alongside the error message, or `nil`.
     @Published public private(set) var suggestedAction: ErrorPresentationAction?
+    /// The display name of the currently active provocation style preset.
     @Published public var styleDisplayName: String = ProvocationStylePreset.socratic.displayName
 
+    /// Called when the user requests to close the panel.
     public var onCloseRequested: (() -> Void)?
+    /// Called when the user requests a new result for the current selection.
+    ///
+    /// - Parameter regenerateFromResponseID: The ID of the response to regenerate from, or `nil`.
     public var onRegenerateRequested: ((_ regenerateFromResponseID: UUID?) async -> Void)?
+    /// Called when the pin state changes so the host can persist it.
+    ///
+    /// - Parameter isPinned: The new pinned state.
     public var onPinStateChanged: ((_ isPinned: Bool) -> Void)?
 
     private let timing: any FloatingPanelTiming
@@ -39,9 +70,20 @@ public final class FloatingPanelViewModel: ObservableObject {
     private var autoDismissTask: Task<Void, Never>?
     private var feedbackTask: Task<Void, Never>?
 
+    /// Seconds after which the panel auto-dismisses when not pinned.
     public var autoDismissSeconds: TimeInterval
+    /// Whether the panel dismisses automatically when the user copies a result.
     public var dismissOnCopy: Bool
 
+    /// Creates a `FloatingPanelViewModel` with the given initial configuration.
+    ///
+    /// - Parameters:
+    ///   - isPinned: Whether the panel starts pinned.
+    ///   - dismissOnCopy: Whether the panel dismisses when the user copies a result.
+    ///   - autoDismissSeconds: Delay before auto-dismiss (minimum 1 second). Defaults to 6.
+    ///   - timing: Sleep provider for auto-dismiss and feedback timers.
+    ///   - pasteboardWriter: Closure that writes text to the pasteboard. Defaults to `NSPasteboard.general`.
+    ///   - styleDisplayName: Initial display name for the style label.
     public init(
         isPinned: Bool,
         dismissOnCopy: Bool,
@@ -63,6 +105,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         feedbackTask?.cancel()
     }
 
+    /// Resets the panel to the idle state and cancels all transient timers.
     public func setIdle() {
         state = .idle
         isRegenerating = false
@@ -71,6 +114,9 @@ public final class FloatingPanelViewModel: ObservableObject {
         cancelTransientTasks()
     }
 
+    /// Transitions the panel to a loading state.
+    ///
+    /// - Parameter selectedTextPreview: Optional truncated preview of the selected text to show while loading.
     public func setLoading(selectedTextPreview: String? = nil) {
         state = .loading(selectedTextPreview: normalizedPreview(selectedTextPreview))
         isRegenerating = false
@@ -79,6 +125,9 @@ public final class FloatingPanelViewModel: ObservableObject {
         cancelTransientTasks()
     }
 
+    /// Transitions the panel to the success state and schedules auto-dismiss if unpinned.
+    ///
+    /// - Parameter response: The successful ``ProvocationResponse`` to display.
     public func setSuccess(_ response: ProvocationResponse) {
         state = .success(response: response)
         isRegenerating = false
@@ -87,10 +136,18 @@ public final class FloatingPanelViewModel: ObservableObject {
         scheduleAutoDismissIfNeeded()
     }
 
+    /// Transitions the panel to an error state using the error's localised user message.
+    ///
+    /// - Parameter error: The ``FreeThinkerError`` to display.
     public func setError(_ error: FreeThinkerError) {
         setErrorMessage(error.userMessage)
     }
 
+    /// Transitions the panel to an error state using a pre-mapped ``ErrorPresentation``.
+    ///
+    /// Sets `suggestedAction` if the presentation includes a non-`.none` action.
+    ///
+    /// - Parameter presentation: The mapped error presentation to display.
     public func setErrorPresentation(_ presentation: ErrorPresentation) {
         state = .error(message: presentation.message)
         isRegenerating = false
@@ -107,6 +164,10 @@ public final class FloatingPanelViewModel: ObservableObject {
         scheduleAutoDismissIfNeeded()
     }
 
+    /// Copies the current result's body and follow-up question to the pasteboard.
+    ///
+    /// Sets `copyFeedback` to `"Copied"` briefly, then clears it. If `dismissOnCopy`
+    /// is `true` and the panel is unpinned, the panel is closed after copying.
     public func copyCurrentResult() {
         guard let copyText else {
             return
@@ -121,10 +182,15 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
     }
 
+    /// Alias for ``copyCurrentResult()``.
     public func copyFromResponseContent() {
         copyCurrentResult()
     }
 
+    /// Requests a new provocation generation for the same selected text.
+    ///
+    /// No-ops if ``canRegenerate`` is `false`. Sets `isRegenerating` to `true` while
+    /// the request is in flight and resets it when the response arrives.
     public func requestRegenerate() {
         guard canRegenerate else {
             return
@@ -144,11 +210,16 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
     }
 
+    /// Cancels pending timers and notifies the host to close the panel.
     public func closePanel() {
         cancelTransientTasks()
         onCloseRequested?()
     }
 
+    /// Toggles the pinned state of the panel.
+    ///
+    /// When pinning, any pending auto-dismiss timer is cancelled. When unpinning,
+    /// an auto-dismiss timer is started if the current state warrants one.
     public func togglePin() {
         isPinned.toggle()
         onPinStateChanged?(isPinned)
@@ -160,6 +231,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
     }
 
+    /// `true` when the panel is in the success state and ``copyText`` is non-nil.
     public var canCopy: Bool {
         guard case .success = state else {
             return false
@@ -167,6 +239,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         return copyText != nil
     }
 
+    /// `true` when the panel is in a state from which regeneration is possible and not already regenerating.
     public var canRegenerate: Bool {
         switch state {
         case .idle:
@@ -178,10 +251,12 @@ public final class FloatingPanelViewModel: ObservableObject {
         }
     }
 
+    /// Always `true`; the panel can always be closed by the user.
     public var canClose: Bool {
         true
     }
 
+    /// The response currently displayed in the success state, or `nil` otherwise.
     public var currentResponse: ProvocationResponse? {
         if case let .success(response) = state {
             return response
@@ -198,6 +273,7 @@ public final class FloatingPanelViewModel: ObservableObject {
         return "\(content.body)\(followUp)"
     }
 
+    /// A human-readable string describing the `suggestedAction`, or `nil` if there is none.
     public var suggestedActionMessage: String? {
         guard let suggestedAction else {
             return nil

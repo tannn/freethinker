@@ -1,8 +1,22 @@
 import Foundation
 
+/// Concrete implementation of ``ProvocationResponseParsing`` that extracts `BODY:` and
+/// `FOLLOW_UP:` labelled sections from raw model output.
+///
+/// The parser is lenient: if the expected labels are absent, the entire output is used
+/// as the body and a trailing question mark heuristic is applied to extract a follow-up.
+/// Text is normalised (whitespace collapsed, NUL bytes removed) and truncated to the
+/// ``ProvocationContent`` length constants before being returned.
 public struct ProvocationResponseParser: ProvocationResponseParsing, Sendable {
+    /// Creates a default `ProvocationResponseParser`.
     public init() {}
 
+    /// Parses raw model output into a ``ProvocationContent`` value.
+    ///
+    /// - Parameter rawOutput: The unstructured string returned by the model.
+    /// - Returns: A ``ProvocationContent`` with a body and optional follow-up question.
+    /// - Throws: ``FreeThinkerError/generationFailed`` if `rawOutput` is empty after normalisation,
+    ///   or ``FreeThinkerError/invalidResponse`` if the body section is empty.
     public func parse(rawOutput: String) throws -> ProvocationContent {
         let trimmed = normalizeWhitespace(rawOutput)
         guard !trimmed.isEmpty else {

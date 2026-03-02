@@ -2,14 +2,34 @@ import AppKit
 import Foundation
 import KeyboardShortcuts
 
+/// The composition root for the FreeThinker app.
+///
+/// `AppContainer` creates and wires all core services, coordinates lifecycle events,
+/// and provides the single point of truth for dependency injection. It is `@MainActor`-isolated
+/// because it directly owns and manipulates `AppState`.
+///
+/// Typical usage:
+/// ```swift
+/// let container = AppContainer()
+/// container.start()
+/// // … app runs …
+/// container.stop()
+/// ```
 @MainActor
 public final class AppContainer {
+    /// The shared observable app state consumed by SwiftUI views.
     public let appState: AppState
+    /// The AI service that performs on-device text generation.
     public let aiService: any AIServiceProtocol
+    /// The service responsible for capturing selected text from the active app.
     public let textCaptureService: any TextCaptureServiceProtocol
+    /// The orchestrator that coordinates the end-to-end generation pipeline.
     public let orchestrator: any ProvocationOrchestrating
+    /// Manages the menu bar status item and its menu.
     public let menuBarCoordinator: MenuBarCoordinator
+    /// Persists and loads ``AppSettings`` to and from disk.
     public let settingsService: any SettingsServiceProtocol
+    /// Records diagnostic events for troubleshooting.
     public let diagnosticsLogger: any DiagnosticsLogging
 
     private let errorMapper: ErrorPresentationMapping
@@ -20,6 +40,18 @@ public final class AppContainer {
     private let floatingPanelController: FloatingPanelController
     private var onboardingWindowController: OnboardingWindowController?
 
+    /// Creates an `AppContainer` with explicit dependencies, suitable for testing.
+    ///
+    /// - Parameters:
+    ///   - appState: The shared observable state object.
+    ///   - aiService: Service performing AI generation.
+    ///   - textCaptureService: Service capturing the user's selected text.
+    ///   - notificationService: Service posting background user notifications.
+    ///   - errorMapper: Maps ``FreeThinkerError`` values to ``ErrorPresentation`` instances.
+    ///   - launchAtLoginController: Manages the Launch at Login system setting.
+    ///   - settingsService: Reads and writes ``AppSettings`` to disk.
+    ///   - diagnosticsLogger: Records diagnostic events.
+    ///   - modelAvailabilityProvider: Probes whether the on-device AI model is available.
     public init(
         appState: AppState,
         aiService: any AIServiceProtocol = DefaultAIService(),
@@ -69,6 +101,9 @@ public final class AppContainer {
         wireCallbacks()
     }
 
+    /// Creates an `AppContainer` with all production dependencies.
+    ///
+    /// Loads persisted settings via `DefaultSettingsService` before constructing the state.
     public convenience init() {
         let settingsService = DefaultSettingsService()
         let loadedSettings = settingsService.loadSettings()
@@ -89,6 +124,16 @@ public final class AppContainer {
         )
     }
 
+    /// Starts the container and all managed services.
+    ///
+    /// - Recovers unreachable startup settings (hotkey and menu bar both disabled).
+    /// - Syncs the Launch at Login setting from the system.
+    /// - Registers the global hotkey.
+    /// - Installs or removes the menu bar status item based on settings.
+    /// - Refreshes onboarding readiness.
+    /// - Presents the onboarding window if not previously completed.
+    ///
+    /// Must be called once after the app delegate's `applicationDidFinishLaunching`.
     public func start() {
         var settings = appState.settings
 
@@ -148,6 +193,11 @@ public final class AppContainer {
         }
     }
 
+    /// Gracefully shuts down the container.
+    ///
+    /// Cancels any in-flight generation, cleans up the floating panel, stops the global
+    /// hotkey listener, and removes the menu bar status item. Call from
+    /// `applicationWillTerminate`.
     public func stop() {
         Task {
             await orchestrator.cancelCurrentGeneration(reason: .appWillTerminate)

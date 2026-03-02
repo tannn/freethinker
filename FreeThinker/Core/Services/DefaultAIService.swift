@@ -1,9 +1,18 @@
 import Foundation
 import os
 
+/// Concrete actor that implements ``AIServiceProtocol`` using the Foundation Models framework.
+///
+/// `DefaultAIService` composes prompts, delegates inference to a ``FoundationModelsAdapterProtocol``,
+/// and parses raw output into ``ProvocationContent``. It wraps generation in a configurable timeout
+/// and retries transient failures up to `maxInitializationRetries` times with exponential back-off.
+///
+/// Actor isolation guarantees that `currentModel` mutations are safe across concurrent callers.
 public actor DefaultAIService: AIServiceProtocol {
+    /// The model variant currently configured for generation.
     public private(set) var currentModel: ModelOption
 
+    /// `true` when the underlying adapter reports ``FoundationModelAvailability/available``.
     public var isAvailable: Bool {
         adapter.availability() == .available
     }
@@ -15,6 +24,16 @@ public actor DefaultAIService: AIServiceProtocol {
     private let maxInitializationRetries: Int
     private let retryBackoffNanoseconds: UInt64
 
+    /// Creates a `DefaultAIService` with the given dependencies.
+    ///
+    /// - Parameters:
+    ///   - adapter: Foundation Models adapter used for inference. Defaults to `FoundationModelsAdapter()`.
+    ///   - promptComposer: Composes prompt strings from requests and settings.
+    ///   - parser: Parses raw model output into ``ProvocationContent``.
+    ///   - currentModel: The initial model variant. Defaults to ``ModelOption/default``.
+    ///   - maxInitializationRetries: How many times to retry a transient failure (0 = no retries). Defaults to 2.
+    ///   - retryBackoffNanoseconds: Base back-off duration between retry attempts. Defaults to 150 ms.
+    ///   - clock: Time source for timeout and retry scheduling.
     public init(
         adapter: any FoundationModelsAdapterProtocol = FoundationModelsAdapter(),
         promptComposer: any ProvocationPromptComposing = ProvocationPromptComposer(),
@@ -33,14 +52,30 @@ public actor DefaultAIService: AIServiceProtocol {
         self.clock = clock
     }
 
+    /// Updates the active model variant for future generation calls.
+    ///
+    /// - Parameter model: The new model to use.
     public func setCurrentModel(_ model: ModelOption) {
         currentModel = model
     }
 
+    /// Warms up `currentModel` by delegating to the adapter's preload routine.
+    ///
+    /// - Throws: Errors propagated from the adapter if the model cannot be loaded.
     public func preloadModel() async throws {
         try await adapter.preload(model: currentModel)
     }
 
+    /// Generates a provocation for the given request, applying timeout and retry logic.
+    ///
+    /// Settings are validated before use. `currentModel` is updated to match
+    /// `settings.selectedModel` at the start of each call. The method never throws;
+    /// errors are captured in the returned response's ``ProvocationOutcome/failure(error:)`` case.
+    ///
+    /// - Parameters:
+    ///   - request: The provocation request with selected text and type.
+    ///   - settings: App settings specifying model, timeout, and style.
+    /// - Returns: A ``ProvocationResponse`` containing generated content or an error.
     public func generateProvocation(request: ProvocationRequest, settings: AppSettings) async -> ProvocationResponse {
         let normalizedSettings = settings.validated()
         let startedAt = clock.now()
@@ -248,18 +283,35 @@ private struct TimeoutTaskStore: Sendable {
     }
 }
 
+/// Protocol for the time source used by ``DefaultAIService``.
+///
+/// Abstracting the clock allows tests to inject a controlled time source
+/// without requiring real delays.
 public protocol AIServiceClock: Sendable {
+    /// Returns the current wall-clock date.
     func now() -> Date
+
+    /// Suspends the current task for the given number of nanoseconds.
+    ///
+    /// - Parameter nanoseconds: The sleep duration in nanoseconds.
+    /// - Throws: `CancellationError` if the task is cancelled during sleep.
     func sleep(nanoseconds: UInt64) async throws
 }
 
+/// The default clock backed by `Date()` and `Task.sleep`.
 public struct SystemAIServiceClock: AIServiceClock {
+    /// Creates the system clock.
     public init() {}
 
+    /// Returns the current date from the system clock.
     public func now() -> Date {
         Date()
     }
 
+    /// Sleeps using `Task.sleep(nanoseconds:)`.
+    ///
+    /// - Parameter nanoseconds: The sleep duration in nanoseconds.
+    /// - Throws: `CancellationError` if the task is cancelled.
     public func sleep(nanoseconds: UInt64) async throws {
         try await Task.sleep(nanoseconds: nanoseconds)
     }
