@@ -89,6 +89,24 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
         Logger.info("Selection capture yielded no text", category: .textCapture)
         throw FreeThinkerError.noSelection
     }
+
+    public func requestAccessibilityPermissionPromptIfNeeded() {
+        let now = uptimeNanosecondsProvider()
+        if
+            let lastPromptUptime = lastPermissionPromptUptimeNanoseconds,
+            now >= lastPromptUptime,
+            (now - lastPromptUptime) < permissionPromptCooldownNanoseconds
+        {
+            return
+        }
+
+        lastPermissionPromptUptimeNanoseconds = now
+        let alreadyTrusted = permissionPromptRequester()
+        Logger.info(
+            "Requested accessibility permission prompt trusted=\(alreadyTrusted)",
+            category: .textCapture
+        )
+    }
 }
 
 private extension DefaultTextCaptureService {
@@ -167,24 +185,6 @@ private extension DefaultTextCaptureService {
     static func requestAccessibilityPermissionPrompt() -> Bool {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
-    }
-
-    public func requestAccessibilityPermissionPromptIfNeeded() {
-        let now = uptimeNanosecondsProvider()
-        if
-            let lastPromptUptime = lastPermissionPromptUptimeNanoseconds,
-            now >= lastPromptUptime,
-            (now - lastPromptUptime) < permissionPromptCooldownNanoseconds
-        {
-            return
-        }
-
-        lastPermissionPromptUptimeNanoseconds = now
-        let alreadyTrusted = permissionPromptRequester()
-        Logger.info(
-            "Requested accessibility permission prompt trusted=\(alreadyTrusted)",
-            category: .textCapture
-        )
     }
 
     func fallbackCaptureSelection() async -> String? {
