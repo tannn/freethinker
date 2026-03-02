@@ -56,3 +56,37 @@ swift test
 # Via xcodebuild (if using .xcodeproj)
 xcodebuild test -scheme FreeThinker
 ```
+
+## Development Setup
+
+After cloning, install the git hooks:
+
+```bash
+bash scripts/setup-hooks.sh
+```
+
+This symlinks everything in `git-hooks/` into `.git/hooks/`. It is idempotent — safe to re-run.
+
+### Commit Convention
+
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+<type>(<scope>): <description>
+```
+
+- **type** — one of: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `style`, `perf`, `ci`
+- **scope** — optional, lowercase alphanumeric (e.g. `ui`, `model`, `deps`)
+- **description** — lowercase imperative phrase, no trailing period, max 72 chars on the subject line
+- **body** — optional; must be separated from the subject by a blank line
+
+Examples:
+
+```
+feat(ui): add dark mode toggle
+fix: handle nil pointer in model loader
+docs: update contributing guidelines
+chore(deps): bump sparkle to 2.6.4
+```
+
+The `commit-msg` hook (installed by `setup-hooks.sh`) validates this format automatically.
