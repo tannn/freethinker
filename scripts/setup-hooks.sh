@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup-hooks.sh — install tracked git hooks into .git/hooks/
+# setup-hooks.sh — install tracked git hooks into the active git hooks directory
 #
 # Run once after cloning:
 #   bash scripts/setup-hooks.sh
@@ -10,7 +10,18 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HOOKS_SOURCE="$REPO_ROOT/git-hooks"
-HOOKS_DEST="$REPO_ROOT/.git/hooks"
+
+# Respect core.hooksPath when configured; fall back to .git/hooks
+_configured_path="$(git -C "$REPO_ROOT" config core.hooksPath 2>/dev/null || true)"
+if [[ -n "$_configured_path" ]]; then
+  # core.hooksPath may be relative — resolve it from the repo root
+  case "$_configured_path" in
+    /*) HOOKS_DEST="$_configured_path" ;;
+    *)  HOOKS_DEST="$REPO_ROOT/$_configured_path" ;;
+  esac
+else
+  HOOKS_DEST="$REPO_ROOT/.git/hooks"
+fi
 
 if [[ ! -d "$HOOKS_SOURCE" ]]; then
   printf '[setup-hooks] ERROR: %s not found. Run from repo root.\n' "$HOOKS_SOURCE" >&2
