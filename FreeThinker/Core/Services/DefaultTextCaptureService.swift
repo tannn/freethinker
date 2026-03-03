@@ -3,18 +3,50 @@ import ApplicationServices
 import Carbon.HIToolbox.Events
 import Foundation
 
+/// The result of checking whether the app has Accessibility permission.
 public enum TextCapturePermissionStatus: Equatable, Sendable {
+    /// Permission has been granted; text capture can proceed.
     case granted
+    /// Permission has been denied; capture will fail.
     case denied
 }
 
+/// Protocol for reading the user's currently selected text from the active application.
+///
+/// Conforming types are actors to ensure safe concurrent access to their mutable state.
 public protocol TextCaptureServiceProtocol: Actor, Sendable {
+    /// Checks whether Accessibility permission is available without prompting.
+    ///
+    /// - Returns: ``TextCapturePermissionStatus/granted`` if the app can read selected text.
     func preflightPermission() -> TextCapturePermissionStatus
+
+    /// Enables or disables the clipboard-based fallback capture strategy.
+    ///
+    /// - Parameter isEnabled: `true` to allow clipboard fallback; `false` to disable it.
     func setFallbackCaptureEnabled(_ isEnabled: Bool)
+
+    /// Reads the user's currently selected text from the focused application.
+    ///
+    /// Tries the Accessibility API first. If that yields no text and fallback is enabled,
+    /// it simulates Cmd+C and reads the clipboard result, restoring the original clipboard
+    /// contents afterwards.
+    ///
+    /// - Returns: The trimmed selected text, truncated to ``ProvocationRequest/maxSelectedTextLength``.
+    /// - Throws: ``FreeThinkerError/accessibilityPermissionDenied`` if permission is absent,
+    ///   or ``FreeThinkerError/noSelection`` if no text could be captured.
     func captureSelectedText() async throws -> String
+
+    /// Presents the macOS Accessibility permission prompt if one has not been shown recently.
+    ///
+    /// Respects a cooldown window to avoid showing the prompt repeatedly.
     func requestAccessibilityPermissionPromptIfNeeded()
 }
 
+/// Concrete actor that implements ``TextCaptureServiceProtocol`` using the Accessibility API
+/// with an optional clipboard-based fallback.
+///
+/// All dependencies are injectable for unit testing, including the permission checker,
+/// the AX selection provider, and the clipboard fallback provider.
 public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
     private let maxSelectionLength: Int
     private let permissionChecker: @Sendable () -> Bool
@@ -27,6 +59,20 @@ public actor DefaultTextCaptureService: TextCaptureServiceProtocol {
     private var fallbackCaptureEnabled: Bool
     private var lastPermissionPromptUptimeNanoseconds: UInt64?
 
+    /// Creates a `DefaultTextCaptureService` with injectable dependencies.
+    ///
+    /// - Parameters:
+    ///   - maxSelectionLength: Characters to retain from the captured selection.
+    ///     Defaults to ``ProvocationRequest/maxSelectedTextLength``.
+    ///   - fallbackCaptureEnabled: Whether the clipboard fallback strategy is active. Defaults to `true`.
+    ///   - permissionChecker: Closure that returns `AXIsProcessTrusted()`. Injected for testing.
+    ///   - permissionPromptRequester: Closure that requests the Accessibility prompt. Injected for testing.
+    ///   - permissionPromptCooldownNanoseconds: Minimum nanoseconds between successive prompts.
+    ///     Defaults to 6 seconds.
+    ///   - uptimeNanosecondsProvider: Closure returning the current system uptime. Injected for testing.
+    ///   - accessibilityReachabilityProbe: Probe that verifies the AX API is reachable. Injected for testing.
+    ///   - accessibilitySelectionProvider: Closure reading `kAXSelectedTextAttribute`. Injected for testing.
+    ///   - clipboardFallbackProvider: Optional replacement for the Cmd+C fallback. Injected for testing.
     public init(
         maxSelectionLength: Int = ProvocationRequest.maxSelectedTextLength,
         fallbackCaptureEnabled: Bool = true,

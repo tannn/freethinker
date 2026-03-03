@@ -1,20 +1,28 @@
 import AppKit
 import Foundation
 
+/// The on-device Foundation Model variant to use for generation.
 public enum ModelOption: String, Codable, CaseIterable, Identifiable, Sendable {
+    /// The default general-purpose model.
     case `default`
+    /// A model variant tuned for creative writing tasks.
     case creativeWriting
 
     public var id: String { rawValue }
 }
 
+/// The critical-thinking style applied when composing provocation prompts.
 public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable, Sendable {
+    /// Takes a contrary angle and challenges weak premises.
     case contrarian
+    /// Uses Socratic questioning to expose gaps in reasoning.
     case socratic
+    /// Analyses second-order effects and systemic trade-offs.
     case systemsThinking
 
     public var id: String { rawValue }
 
+    /// A human-readable name suitable for display in the UI.
     public var displayName: String {
         switch self {
         case .contrarian:
@@ -26,6 +34,7 @@ public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable,
         }
     }
 
+    /// The style instruction injected into the model prompt for this preset.
     public var instruction: String {
         switch self {
         case .contrarian:
@@ -38,12 +47,16 @@ public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable,
     }
 }
 
+/// The software update channel the app subscribes to.
 public enum AppUpdateChannel: String, Codable, CaseIterable, Identifiable, Sendable {
+    /// Production releases only.
     case stable
+    /// Pre-release builds for early testing.
     case beta
 
     public var id: String { rawValue }
 
+    /// A human-readable channel name for display in Settings.
     public var displayName: String {
         switch self {
         case .stable:
@@ -54,13 +67,18 @@ public enum AppUpdateChannel: String, Codable, CaseIterable, Identifiable, Senda
     }
 }
 
+/// Identifies a named section within the Settings window.
 public enum SettingsSection: String, CaseIterable, Identifiable, Sendable {
+    /// General app preferences (hotkey, menu bar, launch at login, etc.).
     case general
+    /// Provocation style and prompt customisation settings.
     case provocation
+    /// Accessibility troubleshooting and permission guidance.
     case accessibilityHelp
 
     public var id: String { rawValue }
 
+    /// The localised title shown in the Settings navigation sidebar.
     public var title: String {
         switch self {
         case .general:
@@ -73,38 +91,63 @@ public enum SettingsSection: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// A global keyboard shortcut consisting of modifier flags and a key code.
 public struct HotkeyShortcut: Codable, Equatable, Hashable, Sendable {
+    /// The app's default shortcut: Cmd+Shift+P.
     public static let defaultShortcut = HotkeyShortcut(
         modifiers: AppSettings.defaultHotkeyModifiers,
         keyCode: AppSettings.defaultHotkeyKeyCode
     )
 
+    /// The raw `NSEvent.ModifierFlags` value (e.g., command + shift).
     public let modifiers: Int
+    /// The virtual key code (Carbon key codes).
     public let keyCode: Int
 
+    /// Creates a shortcut with the given modifier flags and key code.
+    ///
+    /// - Parameters:
+    ///   - modifiers: Raw `NSEvent.ModifierFlags` integer value.
+    ///   - keyCode: Carbon virtual key code.
     public init(modifiers: Int, keyCode: Int) {
         self.modifiers = modifiers
         self.keyCode = keyCode
     }
 
+    /// A human-readable representation such as `"Cmd+Shift+P"`.
     public var displayString: String {
         HotkeyDisplayFormatter.displayString(for: self)
     }
 }
 
+/// The outcome of validating a proposed global hotkey shortcut.
 public enum HotkeyValidationStatus: String, Equatable, Sendable {
+    /// The shortcut is acceptable and was (or can be) registered.
     case valid
+    /// The shortcut is structurally invalid (e.g., no modifier key).
     case invalid
+    /// The shortcut is reserved by macOS and cannot be used.
     case reserved
+    /// The shortcut is already claimed by another application.
     case conflict
 }
 
+/// The result of validating a proposed hotkey shortcut.
+///
+/// `proposedShortcut` is the shortcut the user requested;
+/// `effectiveShortcut` is the shortcut that will actually be used
+/// (may differ if the validator chose a safe alternative).
 public struct HotkeyValidationResult: Equatable, Sendable {
+    /// The validation outcome.
     public let status: HotkeyValidationStatus
+    /// An optional localised message to display to the user.
     public let message: String?
+    /// The shortcut the user originally requested.
     public let proposedShortcut: HotkeyShortcut
+    /// The shortcut that will actually be registered.
     public let effectiveShortcut: HotkeyShortcut
 
+    /// Creates a validation result with explicit values.
     public init(
         status: HotkeyValidationStatus,
         message: String?,
@@ -117,6 +160,7 @@ public struct HotkeyValidationResult: Equatable, Sendable {
         self.effectiveShortcut = effectiveShortcut
     }
 
+    /// `true` when `status` is ``HotkeyValidationStatus/valid``.
     public var isAccepted: Bool {
         status == .valid
     }
@@ -238,37 +282,73 @@ private extension HotkeyDisplayFormatter {
     }
 }
 
+/// The root settings model for FreeThinker.
+///
+/// `AppSettings` is persisted as JSON via a custom `Codable` implementation that
+/// falls back to defaults for missing keys, enabling forward and backward compatibility.
+/// Call ``validated()`` after loading from disk or applying user changes to clamp
+/// all values to their legal ranges.
 public struct AppSettings: Codable, Equatable, Sendable {
+    /// The current JSON schema version; used to migrate old persisted values.
     public static let currentSchemaVersion = 2
+    /// Default modifier flags for the global hotkey (Cmd+Shift = 1_179_648).
     public static let defaultHotkeyModifiers = 1_179_648
+    /// Default key code for the global hotkey (P = 35).
     public static let defaultHotkeyKeyCode = 35
+    /// Default text for the first custom prompt template.
     public static let defaultPrompt1 = "Identify hidden assumptions, unstated premises, or implicit biases in the following text."
+    /// Default text for the second custom prompt template.
     public static let defaultPrompt2 = "Provide a strong, well-reasoned counterargument or alternative perspective to the following claim."
+    /// Maximum allowed length (in characters) for prompt1 and prompt2.
     public static let maxPromptLength = 1_000
+    /// Maximum allowed length (in characters) for `customStyleInstructions`.
     public static let maxCustomInstructionLength = 300
+    /// Minimum allowed value for `autoDismissSeconds`.
     public static let minAutoDismissSeconds: TimeInterval = 2
+    /// Maximum allowed value for `autoDismissSeconds`.
     public static let maxAutoDismissSeconds: TimeInterval = 20
 
+    /// The persisted schema version of this settings value.
     public var schemaVersion: Int
+    /// Whether the global hotkey is active.
     public var hotkeyEnabled: Bool
+    /// Raw `NSEvent.ModifierFlags` for the global hotkey.
     public var hotkeyModifiers: Int
+    /// Carbon virtual key code for the global hotkey.
     public var hotkeyKeyCode: Int
+    /// The first customisable prompt template (hidden assumptions style).
     public var prompt1: String
+    /// The second customisable prompt template (counterargument style).
     public var prompt2: String
+    /// Whether the app launches at login.
     public var launchAtLogin: Bool
+    /// The on-device model variant used for generation.
     public var selectedModel: ModelOption
+    /// Whether the menu bar status item is visible.
     public var showMenuBarIcon: Bool
+    /// Whether the panel is automatically dismissed after the user copies a result.
     public var dismissOnCopy: Bool
+    /// Seconds before the panel auto-dismisses after showing a result (clamped to 2–20).
     public var autoDismissSeconds: TimeInterval
+    /// Whether clipboard-based text capture fallback is enabled.
     public var fallbackCaptureEnabled: Bool
+    /// Whether diagnostic event recording is active.
     public var diagnosticsEnabled: Bool
+    /// `true` once the user has seen the onboarding flow at least once.
     public var hasSeenOnboarding: Bool
+    /// `true` once the user has completed all onboarding steps.
     public var onboardingCompleted: Bool
+    /// `true` once the user has confirmed awareness of the global hotkey.
     public var hotkeyAwarenessConfirmed: Bool
+    /// The active provocation style preset.
     public var provocationStylePreset: ProvocationStylePreset
+    /// Optional extra instructions appended to the style section of the prompt (max 300 chars).
     public var customStyleInstructions: String
+    /// Whether Sparkle checks for updates automatically.
     public var automaticallyCheckForUpdates: Bool
+    /// The update channel (stable or beta).
     public var appUpdateChannel: AppUpdateChannel
+    /// Maximum seconds the AI generation may run before timing out (clamped to 1–15).
     public var aiTimeoutSeconds: TimeInterval
 
     public init(
@@ -384,6 +464,20 @@ public extension AppSettings {
 }
 
 public extension AppSettings {
+    /// Returns a copy of these settings with all values clamped to their valid ranges.
+    ///
+    /// Specifically:
+    /// - `schemaVersion` is bumped to ``currentSchemaVersion`` if lower.
+    /// - `hotkeyKeyCode` is reset to ``defaultHotkeyKeyCode`` if out of range 0–127.
+    /// - `hotkeyModifiers` is reset to ``defaultHotkeyModifiers`` if negative.
+    /// - `prompt1` and `prompt2` are trimmed and truncated to ``maxPromptLength``, then
+    ///   restored to their defaults if empty.
+    /// - `customStyleInstructions` is sanitised and truncated to ``maxCustomInstructionLength``.
+    /// - `autoDismissSeconds` is clamped to `minAutoDismissSeconds...maxAutoDismissSeconds`.
+    /// - `aiTimeoutSeconds` is clamped to 1...15.
+    /// - `hasSeenOnboarding` is set to `true` if `onboardingCompleted` is `true`.
+    ///
+    /// - Returns: A validated copy of `self`.
     func validated() -> AppSettings {
         var result = self
 

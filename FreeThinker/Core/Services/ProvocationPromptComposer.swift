@@ -1,10 +1,29 @@
 import Foundation
 
+/// Concrete implementation of ``ProvocationPromptComposing`` that formats the full
+/// prompt sent to the Foundation Models framework.
+///
+/// The prompt structure is:
+/// - A system persona line.
+/// - A TASK section derived from the request's ``ProvocationType`` and custom prompts.
+/// - A STYLE section from the active ``ProvocationStylePreset`` and any custom instructions.
+/// - A strict OUTPUT FORMAT specifying BODY and FOLLOW_UP labels.
+/// - Rules constraining response length and style.
+/// - The sanitised selected text delimited by triple-quotes.
 public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
     private static let maxSanitizedTextLength = ProvocationRequest.maxSelectedTextLength
 
+    /// Creates a default `ProvocationPromptComposer`.
     public init() {}
 
+    /// Composes the initial provocation prompt for the given request and settings.
+    ///
+    /// Settings are validated before use. The selected text is sanitised and truncated.
+    ///
+    /// - Parameters:
+    ///   - request: The provocation request containing the selected text and type.
+    ///   - settings: App settings providing prompts, style, and custom instructions.
+    /// - Returns: The fully-formatted prompt string.
     public func composePrompt(for request: ProvocationRequest, settings: AppSettings) -> String {
         let normalizedSettings = settings.validated()
         let selectedText = sanitizeSelectedText(request.selectedText, maxLength: Self.maxSanitizedTextLength)
@@ -46,6 +65,15 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         """
     }
 
+    /// Composes a follow-up prompt that generates a distinct alternative provocation.
+    ///
+    /// Includes the previous response's body in the prompt so the model avoids repeating it.
+    ///
+    /// - Parameters:
+    ///   - request: The original provocation request.
+    ///   - previousResponse: The prior generation result to avoid duplicating.
+    ///   - settings: App settings controlling style.
+    /// - Returns: A prompt string instructing the model to produce a different result.
     public func composeFollowUpPrompt(
         for request: ProvocationRequest,
         previousResponse: ProvocationContent,

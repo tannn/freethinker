@@ -1,19 +1,54 @@
 import Foundation
 
+/// Protocol for recording and exporting diagnostic events.
+///
+/// Conforming types are responsible for thread safety. Recording is a no-op
+/// when ``isEnabled()`` returns `false`.
 public protocol DiagnosticsLogging {
+    /// Returns whether diagnostic recording is currently active.
     func isEnabled() -> Bool
+
+    /// Enables or disables diagnostic recording.
+    ///
+    /// - Parameter enabled: `true` to start recording; `false` to stop.
     func setEnabled(_ enabled: Bool)
+
+    /// Records a pre-constructed ``DiagnosticEvent``.
+    ///
+    /// - Parameter event: The event to append to the in-memory log.
     func record(_ event: DiagnosticEvent)
+
+    /// Constructs and records a diagnostic event from component parts.
+    ///
+    /// - Parameters:
+    ///   - stage: The functional area that produced the event.
+    ///   - category: The event severity.
+    ///   - message: A brief human-readable description.
+    ///   - metadata: Supplemental key-value pairs (sensitive keys are redacted).
     func record(
         stage: DiagnosticStage,
         category: DiagnosticCategory,
         message: String,
         metadata: [String: String]
     )
+
+    /// Returns all events currently held in memory, in chronological order.
     func recentEvents() -> [DiagnosticEvent]
+
+    /// Serialises events to a pretty-printed JSON file at the given URL.
+    ///
+    /// Creates intermediate directories if needed. Writes atomically.
+    ///
+    /// - Parameter url: The destination file URL.
+    /// - Throws: Encoding or file-system errors if the export fails.
     func exportEvents(to url: URL) throws
 }
 
+/// Thread-safe ``DiagnosticsLogging`` implementation backed by `UserDefaults`.
+///
+/// Events are stored in memory and persisted to `UserDefaults` after each write.
+/// The log is bounded by ``maxEvents`` and ``maxStorageBytes``; the oldest events
+/// are dropped when either limit is exceeded.
 public final class DiagnosticsLogger: DiagnosticsLogging {
     private let userDefaults: UserDefaults
     private let encoder: JSONEncoder
@@ -27,6 +62,16 @@ public final class DiagnosticsLogger: DiagnosticsLogging {
     private var enabled: Bool
     private var events: [DiagnosticEvent]
 
+    /// Creates a `DiagnosticsLogger` with injectable dependencies.
+    ///
+    /// - Parameters:
+    ///   - userDefaults: `UserDefaults` instance for persistence. Defaults to `.standard`.
+    ///   - encoder: JSON encoder for writing events. Defaults to `JSONEncoder()`.
+    ///   - decoder: JSON decoder for loading persisted events. Defaults to `JSONDecoder()`.
+    ///   - enabledKey: `UserDefaults` key for the enabled flag. Defaults to `"diagnostics.enabled"`.
+    ///   - storageKey: `UserDefaults` key for the events array. Defaults to `"diagnostics.events.v1"`.
+    ///   - maxEvents: Maximum number of events retained (minimum 1). Defaults to 300.
+    ///   - maxStorageBytes: Maximum encoded size in bytes (minimum 2 048). Defaults to 64 KiB.
     public init(
         userDefaults: UserDefaults = .standard,
         encoder: JSONEncoder = JSONEncoder(),
