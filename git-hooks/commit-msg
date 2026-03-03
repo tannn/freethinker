@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# commit-msg hook: enforces Conventional Commits format
+#
+# Format: <type>(<scope>): <description>
+#   - type: feat|fix|docs|chore|refactor|test|style|perf|ci
+#   - scope: optional, lowercase alphanumeric/hyphens in parentheses
+#   - description: lowercase imperative phrase, no trailing period
+#   - first line must be <=72 characters
+#   - if a body is present, a blank line must separate it from the subject
+
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(head -1 "$COMMIT_MSG_FILE")
+
+TYPES="feat|fix|docs|chore|refactor|test|style|perf|ci"
+PATTERN="^(${TYPES})(\([a-z0-9]([a-z0-9-]*[a-z0-9])?\))?!?: [a-z]([^.]|.*[^.])?$"
+
+error() {
+  printf '\n[commit-msg] ERROR: %s\n\n' "$*" >&2
+}
+
+# 1. Check Conventional Commits format
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  error "Commit message does not follow Conventional Commits format."
+  cat >&2 <<'HELP'
+  Expected format:  <type>(<scope>): <description>
+
+  Examples:
+    feat(ui): add dark mode toggle
+    fix: handle nil pointer in model loader
+    docs: update contributing guidelines
+    chore(deps): bump sparkle to 2.6.4
+
+  Allowed types: feat, fix, docs, chore, refactor, test, style, perf, ci
+  Rules:
+    - description must start with a lowercase letter
+    - description must be in imperative mood (e.g. "add" not "adds"/"added")
+    - no trailing period on the subject line
+
+HELP
+  exit 1
+fi
+
+# 2. Check subject line length (<= 72 chars)
+SUBJECT_LEN=${#COMMIT_MSG}
+if [[ "$SUBJECT_LEN" -gt 72 ]]; then
+  error "Subject line is ${SUBJECT_LEN} characters (max 72)."
+  printf '  Subject: %s\n\n' "$COMMIT_MSG" >&2
+  exit 1
+fi
+
+# 3. If a body exists, verify blank line separates subject from body
+LINE_COUNT=$(wc -l < "$COMMIT_MSG_FILE")
+if [[ "$LINE_COUNT" -gt 1 ]]; then
+  SECOND_LINE=$(sed -n '2p' "$COMMIT_MSG_FILE")
+  if [[ -n "$SECOND_LINE" ]]; then
+    error "Missing blank line between subject and body."
+    printf '  Add an empty line after the subject before the body text.\n\n' >&2
+    exit 1
+  fi
+fi
+
+exit 0
