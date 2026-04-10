@@ -131,8 +131,12 @@ public struct FloatingPanelView: View {
         .buttonStyle(.plain)
         .keyboardShortcut("p", modifiers: [.command])
         .accessibilityIdentifier(FloatingPanelAccessibility.Identifier.pinButton)
-        .accessibilityLabel(viewModel.isPinned ? FloatingPanelAccessibility.Label.unpin : FloatingPanelAccessibility.Label.pin)
-        .accessibilityHint(viewModel.isPinned ? FloatingPanelAccessibility.Hint.unpin : FloatingPanelAccessibility.Hint.pin)
+        .accessibilityLabel(
+            viewModel.isPinned ? FloatingPanelAccessibility.Label.unpin : FloatingPanelAccessibility.Label.pin
+        )
+        .accessibilityHint(
+            viewModel.isPinned ? FloatingPanelAccessibility.Hint.unpin : FloatingPanelAccessibility.Hint.pin
+        )
     }
 
     private var closeButton: some View {

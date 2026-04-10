@@ -94,7 +94,11 @@ public actor FoundationModelsAdapter: FoundationModelsAdapterProtocol {
 
         do {
             let response = try await session.respond(to: normalizedPrompt)
-            let trimmed = String(response.content.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).prefix(options.maximumOutputCharacters))
+            let trimmed = String(
+                response.content
+                    .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+                    .prefix(options.maximumOutputCharacters)
+            )
             guard !trimmed.isEmpty else {
                 throw FreeThinkerError.generationFailed
             }

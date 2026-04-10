@@ -400,7 +400,10 @@ private extension ProvocationOrchestrator {
                 if error == .cancelled || Task.isCancelled {
                     metrics.cancellationCount += 1
                     let reason = pendingCancellationReason?.rawValue ?? "task-cancelled"
-                    Logger.info("Pipeline cancelled source=\(source.rawValue) reason=\(reason)", category: .orchestrator)
+                    Logger.info(
+                        "Pipeline cancelled source=\(source.rawValue) reason=\(reason)",
+                        category: .orchestrator
+                    )
                     recordDiagnostic(
                         stage: .aiGeneration,
                         category: .warning,
