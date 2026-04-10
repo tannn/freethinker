@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# prepare-commit-msg hook: normalizes commit subject lines before commit-msg validation
+#
+# Normalizations applied:
+#   1. Lowercases the first character of the description after 'type(scope): '
+#   2. Strips a trailing period from the subject line
+#
+# No-ops for:
+#   - Merge commits (source = merge)
+#   - Squash commits (source = squash)
+#   - Fixup commits (source = commit with fixup! prefix)
+#   - Template-only messages (subject is empty or all comments)
+#   - Messages that already conform (no changes needed)
+
+set -euo pipefail
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="${2:-}"
+
+# Skip merge, squash commits
+case "$COMMIT_SOURCE" in
+  merge|squash) exit 0 ;;
+esac
+
+# Read the first non-comment, non-empty line as the subject
+SUBJECT=$(grep -m1 -v '^#' "$COMMIT_MSG_FILE" | sed 's/[[:space:]]*$//') || SUBJECT=""
+
+# Skip if subject is empty (template-only message)
+[[ -z "$SUBJECT" ]] && exit 0
+
+# Skip fixup commits
+if echo "$SUBJECT" | grep -qE '^(fixup|squash)! '; then
+  exit 0
+fi
+
+TYPES="feat|fix|docs|chore|refactor|test|style|perf|ci"
+CC_PREFIX_PATTERN="^(${TYPES})(\([a-z0-9]([a-z0-9-]*[a-z0-9])?\))?!?: "
+
+# Only normalize if the subject matches a Conventional Commits prefix
+if ! echo "$SUBJECT" | grep -qE "$CC_PREFIX_PATTERN"; then
+  exit 0
+fi
+
+# Extract the prefix (e.g. "feat(ui): ") and the description
+PREFIX=$(echo "$SUBJECT" | grep -oE "$CC_PREFIX_PATTERN")
+DESCRIPTION="${SUBJECT#"$PREFIX"}"
+
+# 1. Lowercase the first character of the description
+if [[ -n "$DESCRIPTION" ]]; then
+  FIRST_CHAR="${DESCRIPTION:0:1}"
+  LOWER_FIRST=$(echo "$FIRST_CHAR" | tr '[:upper:]' '[:lower:]')
+  DESCRIPTION="${LOWER_FIRST}${DESCRIPTION:1}"
+fi
+
+# 2. Strip trailing period
+DESCRIPTION="${DESCRIPTION%.}"
+
+NORMALIZED="${PREFIX}${DESCRIPTION}"
+
+# If nothing changed, exit cleanly
+[[ "$NORMALIZED" == "$SUBJECT" ]] && exit 0
+
+# Replace the subject line in the commit message file, preserving the rest
+# Use awk to replace only the first non-comment, non-empty line (print directly,
+# never use sub() which would treat the subject as an ERE regex and mishandle scopes)
+awk -v new="$NORMALIZED" '
+  !done && !/^#/ && /[^[:space:]]/ { print new; done = 1; next }
+  { print }
+' "$COMMIT_MSG_FILE" > "${COMMIT_MSG_FILE}.tmp" && mv "${COMMIT_MSG_FILE}.tmp" "$COMMIT_MSG_FILE"
