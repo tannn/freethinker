@@ -32,7 +32,9 @@ public struct ProvocationPromptComposer: ProvocationPromptComposing, Sendable {
         let customInstruction = normalizedCustomInstruction(normalizedSettings.customStyleInstructions)
 
         Logger.debug(
-            "Composing prompt type=\(request.provocationType.rawValue) style=\(normalizedSettings.provocationStylePreset.rawValue) textChars=\(selectedText.count)",
+            "Composing prompt type=\(request.provocationType.rawValue) "
+                + "style=\(normalizedSettings.provocationStylePreset.rawValue) "
+                + "textChars=\(selectedText.count)",
             category: .promptComposer
         )
 

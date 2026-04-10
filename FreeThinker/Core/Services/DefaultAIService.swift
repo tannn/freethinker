@@ -104,7 +104,8 @@ public actor DefaultAIService: AIServiceProtocol {
 
             let content = try parser.parse(rawOutput: rawOutput)
             Logger.info(
-                "Generated provocation requestId=\(request.id.uuidString) durationMs=\(Int(clock.now().timeIntervalSince(startedAt) * 1_000))",
+                "Generated provocation requestId=\(request.id.uuidString) "
+                    + "durationMs=\(Int(clock.now().timeIntervalSince(startedAt) * 1_000))",
                 category: .aiService
             )
 
