@@ -413,14 +413,28 @@ public final class AppState: ObservableObject {
         updateSettings(next)
     }
 
+    /// Enables or disables the "dismiss panel on copy" behaviour.
+    ///
+    /// - Parameter isEnabled: `true` to dismiss the panel immediately after the user copies a result.
     public func setDismissOnCopy(_ isEnabled: Bool) async {
         await mutateSettings { $0.dismissOnCopy = isEnabled }
     }
 
+    /// Sets the number of seconds before the panel auto-dismisses after showing a result.
+    ///
+    /// The value is clamped to a minimum of 1 second by ``FloatingPanelViewModel``.
+    ///
+    /// - Parameter seconds: The desired auto-dismiss delay in seconds.
     public func setAutoDismissSeconds(_ seconds: TimeInterval) async {
         await mutateSettings { $0.autoDismissSeconds = seconds }
     }
 
+    /// Enables or disables the global hotkey.
+    ///
+    /// At least one of the global hotkey or the menu bar icon must remain enabled;
+    /// ``updateSettings(_:)`` will reject a combination where both are disabled.
+    ///
+    /// - Parameter isEnabled: `true` to register the global hotkey with the system.
     public func setHotkeyEnabled(_ isEnabled: Bool) async {
         await mutateSettings { $0.hotkeyEnabled = isEnabled }
     }
@@ -511,14 +525,30 @@ public final class AppState: ObservableObject {
         return resetResult
     }
 
+    /// Shows or hides the menu bar status item.
+    ///
+    /// At least one of the global hotkey or the menu bar icon must remain enabled.
+    ///
+    /// - Parameter isEnabled: `true` to show the menu bar icon.
     public func setShowMenuBarIcon(_ isEnabled: Bool) async {
         await mutateSettings { $0.showMenuBarIcon = isEnabled }
     }
 
+    /// Enables or disables the clipboard fallback for text capture.
+    ///
+    /// When enabled, FreeThinker falls back to reading from the clipboard if Accessibility
+    /// text capture fails.
+    ///
+    /// - Parameter isEnabled: `true` to allow the clipboard fallback.
     public func setFallbackCaptureEnabled(_ isEnabled: Bool) async {
         await mutateSettings { $0.fallbackCaptureEnabled = isEnabled }
     }
 
+    /// Pins or unpins the floating panel without toggling its current state.
+    ///
+    /// This is a no-op if the panel is already in the requested state.
+    ///
+    /// - Parameter isPinned: `true` to pin the panel; `false` to unpin it.
     public func setPanelPinned(_ isPinned: Bool) async {
         guard panelViewModel.isPinned != isPinned else {
             return
@@ -526,22 +556,41 @@ public final class AppState: ObservableObject {
         panelViewModel.togglePin()
     }
 
+    /// Enables or disables automatic update checks.
+    ///
+    /// - Parameter isEnabled: `true` to allow FreeThinker to check for updates in the background.
     public func setAutomaticallyCheckForUpdates(_ isEnabled: Bool) async {
         await mutateSettings { $0.automaticallyCheckForUpdates = isEnabled }
     }
 
+    /// Sets the update channel used when checking for new app versions.
+    ///
+    /// - Parameter channel: The desired ``AppUpdateChannel`` (e.g. stable or beta).
     public func setAppUpdateChannel(_ channel: AppUpdateChannel) async {
         await mutateSettings { $0.appUpdateChannel = channel }
     }
 
+    /// Applies a provocation style preset to the current settings.
+    ///
+    /// The panel's style display name is updated via ``updateSettings(_:)`` so the UI
+    /// reflects the change immediately.
+    ///
+    /// - Parameter preset: The ``ProvocationStylePreset`` to activate.
     public func setProvocationStylePreset(_ preset: ProvocationStylePreset) async {
         await mutateSettings { $0.provocationStylePreset = preset }
     }
 
+    /// Saves custom style instructions that are appended to the AI prompt.
+    ///
+    /// - Parameter instructions: The user-authored instruction text. An empty string
+    ///   clears any previously saved custom instructions.
     public func setCustomStyleInstructions(_ instructions: String) async {
         await mutateSettings { $0.customStyleInstructions = instructions }
     }
 
+    /// Resets the provocation style to the default preset and clears any custom instructions.
+    ///
+    /// Equivalent to setting the preset to `.socratic` and the custom instructions to `""`.
     public func resetProvocationStyleCustomization() async {
         await mutateSettings {
             $0.provocationStylePreset = .socratic
