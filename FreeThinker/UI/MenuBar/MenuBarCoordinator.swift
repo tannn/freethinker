@@ -2,12 +2,24 @@ import AppKit
 import Combine
 import Foundation
 
+/// Manages the macOS menu bar status item and dispatches menu commands.
+///
+/// `MenuBarCoordinator` installs and removes the `NSStatusItem`, rebuilds its `NSMenu`
+/// whenever app state changes, and routes selected menu items to the appropriate handler.
+/// It is `@MainActor`-isolated because all `NSStatusBar` and `NSMenu` APIs must run on the
+/// main thread.
 @MainActor
 public final class MenuBarCoordinator: NSObject {
+    /// Called when the user selects "Open Settings" from the menu.
     public var onOpenSettings: (() -> Void)?
+    /// Called when the user selects "Open Onboarding Guide" from the menu.
     public var onOpenOnboardingGuide: (() -> Void)?
+    /// Called when the user selects "Quit" from the menu.
+    ///
+    /// If `nil`, `NSApp.terminate(nil)` is called directly.
     public var onQuit: (() -> Void)?
 
+    /// The currently installed status item, or `nil` if the icon is hidden.
     public private(set) var statusItem: NSStatusItem?
 
     private let appState: AppState
@@ -29,6 +41,9 @@ public final class MenuBarCoordinator: NSObject {
         bindState()
     }
 
+    /// Adds the FreeThinker sparkle icon to the system menu bar if it is not already present.
+    ///
+    /// Calling this method when a status item already exists is a no-op.
     public func installStatusItemIfNeeded() {
         guard statusItem == nil else {
             return
@@ -42,6 +57,9 @@ public final class MenuBarCoordinator: NSObject {
         Logger.info("Installed menu bar status item", category: .menuBar)
     }
 
+    /// Removes the FreeThinker status item from the menu bar.
+    ///
+    /// Calling this method when no status item is installed is a no-op.
     public func uninstallStatusItem() {
         guard let statusItem else {
             return

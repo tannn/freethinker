@@ -1,5 +1,9 @@
 import SwiftUI
 
+/// Design constants shared across all floating panel views.
+///
+/// Centralising these values ensures visual consistency and makes global
+/// adjustments (e.g. spacing, corner radius) a single-site change.
 public enum FloatingPanelDesignTokens {
     public static let cornerRadius: CGFloat = 16
     public static let compactSpacing: CGFloat = 8
@@ -8,9 +12,17 @@ public enum FloatingPanelDesignTokens {
     public static let maxBodyHeight: CGFloat = 220
 }
 
+/// A loading placeholder shown while the AI generates a provocation.
+///
+/// Displays a circular progress indicator and a message that names the
+/// active style preset so the user knows what kind of response to expect.
 public struct FloatingPanelLoadingView: View {
     private let styleDisplayName: String
 
+    /// Creates a loading view for the given style preset.
+    ///
+    /// - Parameter styleDisplayName: The display name of the active style preset.
+    ///   The name is lowercased before display.
     public init(styleDisplayName: String) {
         self.styleDisplayName = styleDisplayName.lowercased()
     }
@@ -32,11 +44,20 @@ public struct FloatingPanelLoadingView: View {
     }
 }
 
+/// A scrollable card that renders the body and optional follow-up question from a provocation response.
+///
+/// Tapping the card copies its content when `canCopy` is `true` by invoking `onCopyRequested`.
 public struct FloatingPanelResponseCard: View {
     private let content: ProvocationContent
     private let canCopy: Bool
     private let onCopyRequested: () -> Void
 
+    /// Creates a response card.
+    ///
+    /// - Parameters:
+    ///   - content: The provocation content to render.
+    ///   - canCopy: Whether tapping the card should trigger a copy. Defaults to `true`.
+    ///   - onCopyRequested: Closure called when the user taps the card and `canCopy` is `true`.
     public init(
         content: ProvocationContent,
         canCopy: Bool = true,
@@ -84,10 +105,18 @@ public struct FloatingPanelResponseCard: View {
     }
 }
 
+/// An inline error callout that displays a failure message and an optional remediation hint.
+///
+/// Rendered with a red tinted background to draw the user's attention to the failure state.
 public struct FloatingPanelErrorCallout: View {
     private let message: String
     private let suggestedAction: String?
 
+    /// Creates an error callout.
+    ///
+    /// - Parameters:
+    ///   - message: A localised description of the error.
+    ///   - suggestedAction: An optional follow-up action the user can take to recover.
     public init(message: String, suggestedAction: String? = nil) {
         self.message = message
         self.suggestedAction = suggestedAction

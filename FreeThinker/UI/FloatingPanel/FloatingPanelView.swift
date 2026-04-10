@@ -1,5 +1,10 @@
 import SwiftUI
 
+/// The root SwiftUI view for the floating provocation panel.
+///
+/// `FloatingPanelView` renders a header (title, copy feedback, pin, and close buttons),
+/// a body that switches between idle, loading, success, and error states, and a footer
+/// with the Regenerate action. It is driven entirely by ``FloatingPanelViewModel``.
 public struct FloatingPanelView: View {
     @ObservedObject private var viewModel: FloatingPanelViewModel
     @FocusState private var focusedControl: FocusedControl?

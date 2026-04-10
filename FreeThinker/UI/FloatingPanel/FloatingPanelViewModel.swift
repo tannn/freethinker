@@ -156,6 +156,13 @@ public final class FloatingPanelViewModel: ObservableObject {
         scheduleAutoDismissIfNeeded()
     }
 
+    /// Transitions the panel to an error state with a raw message string.
+    ///
+    /// Clears any pending `suggestedAction` and schedules auto-dismiss.
+    /// Prefer ``setError(_:)`` or ``setErrorPresentation(_:)`` when a typed
+    /// error or suggested action is available.
+    ///
+    /// - Parameter message: The localised error message to display.
     public func setErrorMessage(_ message: String) {
         state = .error(message: message)
         isRegenerating = false
@@ -264,6 +271,11 @@ public final class FloatingPanelViewModel: ObservableObject {
         return nil
     }
 
+    /// The plain-text string that would be written to the pasteboard on copy.
+    ///
+    /// Combines the response body with the optional follow-up question, separated
+    /// by a blank line. Returns `nil` when the panel is not in the success state
+    /// or the response has no content.
     public var copyText: String? {
         guard let content = currentResponse?.content else {
             return nil
