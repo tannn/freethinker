@@ -413,14 +413,25 @@ public final class AppState: ObservableObject {
         updateSettings(next)
     }
 
+    /// Sets whether the panel auto-dismisses when the user copies a result.
+    ///
+    /// - Parameter isEnabled: `true` to dismiss on copy; `false` to keep the panel open.
     public func setDismissOnCopy(_ isEnabled: Bool) async {
         await mutateSettings { $0.dismissOnCopy = isEnabled }
     }
 
+    /// Sets the number of seconds the panel waits before auto-dismissing.
+    ///
+    /// Values below 1 second are clamped to 1 second by ``FloatingPanelViewModel``.
+    ///
+    /// - Parameter seconds: The desired auto-dismiss delay.
     public func setAutoDismissSeconds(_ seconds: TimeInterval) async {
         await mutateSettings { $0.autoDismissSeconds = seconds }
     }
 
+    /// Enables or disables the global hotkey.
+    ///
+    /// - Parameter isEnabled: `true` to register the hotkey; `false` to unregister it.
     public func setHotkeyEnabled(_ isEnabled: Bool) async {
         await mutateSettings { $0.hotkeyEnabled = isEnabled }
     }
@@ -511,14 +522,27 @@ public final class AppState: ObservableObject {
         return resetResult
     }
 
+    /// Shows or hides the menu bar icon.
+    ///
+    /// - Parameter isEnabled: `true` to show the icon; `false` to hide it.
     public func setShowMenuBarIcon(_ isEnabled: Bool) async {
         await mutateSettings { $0.showMenuBarIcon = isEnabled }
     }
 
+    /// Enables or disables the clipboard-based fallback text capture path.
+    ///
+    /// - Parameter isEnabled: `true` to allow clipboard fallback; `false` to restrict
+    ///   capture to the Accessibility API only.
     public func setFallbackCaptureEnabled(_ isEnabled: Bool) async {
         await mutateSettings { $0.fallbackCaptureEnabled = isEnabled }
     }
 
+    /// Pins or unpins the floating panel.
+    ///
+    /// Delegates to ``FloatingPanelViewModel/togglePin()`` when the requested state
+    /// differs from the current one. No-ops if the panel is already in the target state.
+    ///
+    /// - Parameter isPinned: `true` to pin the panel; `false` to unpin it.
     public func setPanelPinned(_ isPinned: Bool) async {
         guard panelViewModel.isPinned != isPinned else {
             return
@@ -526,22 +550,36 @@ public final class AppState: ObservableObject {
         panelViewModel.togglePin()
     }
 
+    /// Enables or disables automatic update checks.
+    ///
+    /// - Parameter isEnabled: `true` to check for updates automatically; `false` to disable.
     public func setAutomaticallyCheckForUpdates(_ isEnabled: Bool) async {
         await mutateSettings { $0.automaticallyCheckForUpdates = isEnabled }
     }
 
+    /// Sets the update channel used when checking for new app versions.
+    ///
+    /// - Parameter channel: The desired ``AppUpdateChannel``.
     public func setAppUpdateChannel(_ channel: AppUpdateChannel) async {
         await mutateSettings { $0.appUpdateChannel = channel }
     }
 
+    /// Applies a new provocation style preset.
+    ///
+    /// - Parameter preset: The ``ProvocationStylePreset`` to activate.
     public func setProvocationStylePreset(_ preset: ProvocationStylePreset) async {
         await mutateSettings { $0.provocationStylePreset = preset }
     }
 
+    /// Saves custom style instructions used when the active preset is `.custom`.
+    ///
+    /// - Parameter instructions: The free-form instruction text entered by the user.
     public func setCustomStyleInstructions(_ instructions: String) async {
         await mutateSettings { $0.customStyleInstructions = instructions }
     }
 
+    /// Resets the provocation style to the default preset (Socratic) and clears any
+    /// custom instructions.
     public func resetProvocationStyleCustomization() async {
         await mutateSettings {
             $0.provocationStylePreset = .socratic
