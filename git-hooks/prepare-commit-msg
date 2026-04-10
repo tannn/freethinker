@@ -2,7 +2,7 @@
 # prepare-commit-msg hook: normalizes commit subject lines before commit-msg validation
 #
 # Normalizations applied:
-#   1. Lowercases the description portion after 'type(scope): '
+#   1. Lowercases the first character of the description after 'type(scope): '
 #   2. Strips a trailing period from the subject line
 #
 # No-ops for:
@@ -23,7 +23,7 @@ case "$COMMIT_SOURCE" in
 esac
 
 # Read the first non-comment, non-empty line as the subject
-SUBJECT=$(grep -m1 -v '^#' "$COMMIT_MSG_FILE" | sed 's/[[:space:]]*$//' || true)
+SUBJECT=$(grep -m1 -v '^#' "$COMMIT_MSG_FILE" | sed 's/[[:space:]]*$//') || SUBJECT=""
 
 # Skip if subject is empty (template-only message)
 [[ -z "$SUBJECT" ]] && exit 0
@@ -61,11 +61,9 @@ NORMALIZED="${PREFIX}${DESCRIPTION}"
 [[ "$NORMALIZED" == "$SUBJECT" ]] && exit 0
 
 # Replace the subject line in the commit message file, preserving the rest
-# Use awk to replace only the first non-comment, non-empty line
-awk -v old="$SUBJECT" -v new="$NORMALIZED" '
-  !done && !/^#/ && /[^[:space:]]/ {
-    sub(old, new)
-    done = 1
-  }
+# Use awk to replace only the first non-comment, non-empty line (print directly,
+# never use sub() which would treat the subject as an ERE regex and mishandle scopes)
+awk -v new="$NORMALIZED" '
+  !done && !/^#/ && /[^[:space:]]/ { print new; done = 1; next }
   { print }
 ' "$COMMIT_MSG_FILE" > "${COMMIT_MSG_FILE}.tmp" && mv "${COMMIT_MSG_FILE}.tmp" "$COMMIT_MSG_FILE"
