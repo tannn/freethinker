@@ -79,10 +79,13 @@ public struct ErrorPresentationMapper: ErrorPresentationMapping {
         switch error {
         case .accessibilityPermissionDenied:
             let translocationHint = isTranslocatedProvider()
-                ? " FreeThinker appears to be running from a translocated location. Move it to /Applications, relaunch, then re-enable Accessibility once."
+                ? " FreeThinker appears to be running from a translocated location."
+                    + " Move it to /Applications, relaunch, then re-enable Accessibility once."
                 : ""
             return ErrorPresentation(
-                message: "FreeThinker needs Accessibility access. Open Settings -> Privacy & Security -> Accessibility, then enable FreeThinker.\(translocationHint)",
+                message: "FreeThinker needs Accessibility access."
+                    + " Open Settings -> Privacy & Security -> Accessibility, then enable FreeThinker."
+                    + translocationHint,
                 action: .openAccessibilitySettings,
                 preferPanelPresentation: true
             )
@@ -110,14 +113,16 @@ public struct ErrorPresentationMapper: ErrorPresentationMapping {
 
         case .hotkeyRegistrationConflict:
             return ErrorPresentation(
-                message: "That shortcut is already used by another app. Open Settings to change or disable the FreeThinker hotkey.",
+                message: "That shortcut is already used by another app."
+                    + " Open Settings to change or disable the FreeThinker hotkey.",
                 action: .openHotkeySettings,
                 preferPanelPresentation: true
             )
 
         case .hotkeyRegistrationFailed:
             return ErrorPresentation(
-                message: "FreeThinker could not register its global hotkey. Open Settings to retry or adjust the shortcut.",
+                message: "FreeThinker could not register its global hotkey."
+                    + " Open Settings to retry or adjust the shortcut.",
                 action: .openHotkeySettings,
                 preferPanelPresentation: true
             )

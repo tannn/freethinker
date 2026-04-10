@@ -40,7 +40,9 @@ public struct ProvocationSettingsView: View {
                             .frame(minHeight: 160)
                             .font(.body)
                             .focused($isCustomInstructionEditorFocused)
-                            .accessibilityIdentifier(SettingsAccessibility.Identifier.provocationCustomInstructionEditor)
+                            .accessibilityIdentifier(
+                                SettingsAccessibility.Identifier.provocationCustomInstructionEditor
+                            )
                             .onChange(of: draftCustomInstructions) { oldValue, newValue in
                                 scheduleCustomInstructionPersistence(newValue)
                             }
@@ -69,7 +71,8 @@ public struct ProvocationSettingsView: View {
                         }
 
                         if isOverCustomInstructionLimit {
-                            Text("Limit is \(AppSettings.maxCustomInstructionLength) characters. Extra text is trimmed when saved.")
+                            Text("Limit is \(AppSettings.maxCustomInstructionLength) characters."
+                                + " Extra text is trimmed when saved.")
                                 .font(.footnote)
                                 .foregroundStyle(.orange)
                         }

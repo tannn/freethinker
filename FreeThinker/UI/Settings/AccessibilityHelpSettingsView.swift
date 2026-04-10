@@ -27,7 +27,8 @@ public struct AccessibilityHelpSettingsView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                Text("If permission does not persist across relaunch, move FreeThinker to /Applications, relaunch, then enable Accessibility again.")
+                Text("If permission does not persist across relaunch, move FreeThinker to /Applications,"
+                    + " relaunch, then enable Accessibility again.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -39,7 +40,8 @@ public struct AccessibilityHelpSettingsView: View {
 
 private extension AccessibilityHelpSettingsView {
     func openAccessibilitySettings() {
-        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else {
+        let urlString = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+        guard let url = URL(string: urlString) else {
             return
         }
         NSWorkspace.shared.open(url)

@@ -38,11 +38,16 @@ public enum ProvocationStylePreset: String, Codable, CaseIterable, Identifiable,
     public var instruction: String {
         switch self {
         case .contrarian:
-            return "Take a rigorous contrary angle. Surface weak premises and overconfidence. What might be wrong, incomplete, or deserving of skepticism? What counterarguments could be made?"
+            return "Take a rigorous contrary angle. Surface weak premises and overconfidence. "
+                + "What might be wrong, incomplete, or deserving of skepticism? What counterarguments could be made?"
         case .socratic:
-            return "Use Socratic questioning to challenge assumptions and reveal gaps in reasoning. Challenge the main assumptions or claims made here. What might be wrong, incomplete, or deserving of skepticism?"
+            return "Use Socratic questioning to challenge assumptions and reveal gaps in reasoning. "
+                + "Challenge the main assumptions or claims made here. "
+                + "What might be wrong, incomplete, or deserving of skepticism?"
         case .systemsThinking:
-            return "Analyze second-order effects, feedback loops, and systemic tradeoffs. What are the broader implications? What connections can you draw to other fields or concepts? How might this extend or apply in unexpected ways?"
+            return "Analyze second-order effects, feedback loops, and systemic tradeoffs. "
+                + "What are the broader implications? What connections can you draw to other fields or concepts? "
+                + "How might this extend or apply in unexpected ways?"
         }
     }
 }
@@ -240,7 +245,8 @@ private extension HotkeyDisplayFormatter {
         41: ";", 42: "\\", 43: ",", 44: "/", 45: "N", 46: "M", 47: ".", 48: "Tab", 49: "Space", 50: "`",
         51: "Delete", 53: "Esc",
         122: "F1", 120: "F2", 99: "F3", 118: "F4", 96: "F5", 97: "F6", 98: "F7", 100: "F8", 101: "F9", 109: "F10",
-        103: "F11", 111: "F12", 105: "F13", 107: "F14", 113: "F15", 106: "F16", 64: "F17", 79: "F18", 80: "F19", 90: "F20",
+        103: "F11", 111: "F12", 105: "F13", 107: "F14", 113: "F15", 106: "F16",
+        64: "F17", 79: "F18", 80: "F19", 90: "F20",
         123: "Left", 124: "Right", 125: "Down", 126: "Up"
     ]
 
@@ -296,9 +302,11 @@ public struct AppSettings: Codable, Equatable, Sendable {
     /// Default key code for the global hotkey (P = 35).
     public static let defaultHotkeyKeyCode = 35
     /// Default text for the first custom prompt template.
-    public static let defaultPrompt1 = "Identify hidden assumptions, unstated premises, or implicit biases in the following text."
+    public static let defaultPrompt1 =
+        "Identify hidden assumptions, unstated premises, or implicit biases in the following text."
     /// Default text for the second custom prompt template.
-    public static let defaultPrompt2 = "Provide a strong, well-reasoned counterargument or alternative perspective to the following claim."
+    public static let defaultPrompt2 =
+        "Provide a strong, well-reasoned counterargument or alternative perspective to the following claim."
     /// Maximum allowed length (in characters) for prompt1 and prompt2.
     public static let maxPromptLength = 1_000
     /// Maximum allowed length (in characters) for `customStyleInstructions`.
@@ -446,20 +454,35 @@ public extension AppSettings {
         prompt1 = try container.decodeIfPresent(String.self, forKey: .prompt1) ?? defaults.prompt1
         prompt2 = try container.decodeIfPresent(String.self, forKey: .prompt2) ?? defaults.prompt2
         launchAtLogin = try container.decodeIfPresent(Bool.self, forKey: .launchAtLogin) ?? defaults.launchAtLogin
-        selectedModel = try container.decodeIfPresent(ModelOption.self, forKey: .selectedModel) ?? defaults.selectedModel
-        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon) ?? defaults.showMenuBarIcon
-        dismissOnCopy = try container.decodeIfPresent(Bool.self, forKey: .dismissOnCopy) ?? defaults.dismissOnCopy
-        autoDismissSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .autoDismissSeconds) ?? defaults.autoDismissSeconds
-        fallbackCaptureEnabled = try container.decodeIfPresent(Bool.self, forKey: .fallbackCaptureEnabled) ?? defaults.fallbackCaptureEnabled
-        diagnosticsEnabled = try container.decodeIfPresent(Bool.self, forKey: .diagnosticsEnabled) ?? defaults.diagnosticsEnabled
-        hasSeenOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasSeenOnboarding) ?? defaults.hasSeenOnboarding
-        onboardingCompleted = try container.decodeIfPresent(Bool.self, forKey: .onboardingCompleted) ?? defaults.onboardingCompleted
-        hotkeyAwarenessConfirmed = try container.decodeIfPresent(Bool.self, forKey: .hotkeyAwarenessConfirmed) ?? defaults.hotkeyAwarenessConfirmed
-        provocationStylePreset = try container.decodeIfPresent(ProvocationStylePreset.self, forKey: .provocationStylePreset) ?? defaults.provocationStylePreset
-        customStyleInstructions = try container.decodeIfPresent(String.self, forKey: .customStyleInstructions) ?? defaults.customStyleInstructions
-        automaticallyCheckForUpdates = try container.decodeIfPresent(Bool.self, forKey: .automaticallyCheckForUpdates) ?? defaults.automaticallyCheckForUpdates
-        appUpdateChannel = try container.decodeIfPresent(AppUpdateChannel.self, forKey: .appUpdateChannel) ?? defaults.appUpdateChannel
-        aiTimeoutSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .aiTimeoutSeconds) ?? defaults.aiTimeoutSeconds
+        selectedModel = try container.decodeIfPresent(ModelOption.self, forKey: .selectedModel)
+            ?? defaults.selectedModel
+        showMenuBarIcon = try container.decodeIfPresent(Bool.self, forKey: .showMenuBarIcon)
+            ?? defaults.showMenuBarIcon
+        dismissOnCopy = try container.decodeIfPresent(Bool.self, forKey: .dismissOnCopy)
+            ?? defaults.dismissOnCopy
+        autoDismissSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .autoDismissSeconds)
+            ?? defaults.autoDismissSeconds
+        fallbackCaptureEnabled = try container.decodeIfPresent(Bool.self, forKey: .fallbackCaptureEnabled)
+            ?? defaults.fallbackCaptureEnabled
+        diagnosticsEnabled = try container.decodeIfPresent(Bool.self, forKey: .diagnosticsEnabled)
+            ?? defaults.diagnosticsEnabled
+        hasSeenOnboarding = try container.decodeIfPresent(Bool.self, forKey: .hasSeenOnboarding)
+            ?? defaults.hasSeenOnboarding
+        onboardingCompleted = try container.decodeIfPresent(Bool.self, forKey: .onboardingCompleted)
+            ?? defaults.onboardingCompleted
+        hotkeyAwarenessConfirmed = try container.decodeIfPresent(Bool.self, forKey: .hotkeyAwarenessConfirmed)
+            ?? defaults.hotkeyAwarenessConfirmed
+        provocationStylePreset = try container.decodeIfPresent(
+            ProvocationStylePreset.self, forKey: .provocationStylePreset
+        ) ?? defaults.provocationStylePreset
+        customStyleInstructions = try container.decodeIfPresent(String.self, forKey: .customStyleInstructions)
+            ?? defaults.customStyleInstructions
+        automaticallyCheckForUpdates = try container.decodeIfPresent(Bool.self, forKey: .automaticallyCheckForUpdates)
+            ?? defaults.automaticallyCheckForUpdates
+        appUpdateChannel = try container.decodeIfPresent(AppUpdateChannel.self, forKey: .appUpdateChannel)
+            ?? defaults.appUpdateChannel
+        aiTimeoutSeconds = try container.decodeIfPresent(TimeInterval.self, forKey: .aiTimeoutSeconds)
+            ?? defaults.aiTimeoutSeconds
     }
 }
 
@@ -493,8 +516,12 @@ public extension AppSettings {
             result.hotkeyModifiers = Self.defaultHotkeyModifiers
         }
 
-        result.prompt1 = String(result.prompt1.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxPromptLength))
-        result.prompt2 = String(result.prompt2.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxPromptLength))
+        result.prompt1 = String(
+            result.prompt1.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxPromptLength)
+        )
+        result.prompt2 = String(
+            result.prompt2.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxPromptLength)
+        )
 
         if result.prompt1.isEmpty {
             result.prompt1 = Self.defaultPrompt1
