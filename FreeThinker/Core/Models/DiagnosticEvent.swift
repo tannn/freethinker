@@ -96,6 +96,14 @@ public extension DiagnosticEvent {
         )
     }
 
+    /// Sanitises a metadata dictionary by redacting sensitive keys and truncating all values.
+    ///
+    /// Keys that match ``isSensitiveKey(_:)`` have their values replaced with `"[REDACTED]"`.
+    /// All other values are passed through ``redact(_:)-5yjgj`` for truncation and whitespace
+    /// normalisation. Returns an empty dictionary if `metadata` is empty.
+    ///
+    /// - Parameter metadata: The raw metadata dictionary to sanitise.
+    /// - Returns: A new dictionary with sensitive values redacted and all values truncated.
     static func redact(_ metadata: [String: String]) -> [String: String] {
         guard !metadata.isEmpty else {
             return [:]
@@ -116,6 +124,13 @@ public extension DiagnosticEvent {
         return sanitized
     }
 
+    /// Sanitises a single metadata value by stripping control characters and truncating.
+    ///
+    /// Null bytes and newlines are replaced with spaces, leading/trailing whitespace is
+    /// trimmed, and the result is capped at ``maxMetadataValueLength`` characters.
+    ///
+    /// - Parameter value: The raw metadata value string.
+    /// - Returns: The sanitised string, at most ``maxMetadataValueLength`` characters long.
     static func redact(_ value: String) -> String {
         String(
             value
@@ -126,6 +141,13 @@ public extension DiagnosticEvent {
         )
     }
 
+    /// Sanitises a diagnostic event message by stripping control characters and truncating.
+    ///
+    /// Applies the same normalisation as ``redact(_:)-5yjgj`` but caps the result at
+    /// ``maxMessageLength`` characters instead of ``maxMetadataValueLength``.
+    ///
+    /// - Parameter value: The raw message string.
+    /// - Returns: The sanitised message, at most ``maxMessageLength`` characters long.
     static func redactMessage(_ value: String) -> String {
         String(
             value
@@ -136,6 +158,15 @@ public extension DiagnosticEvent {
         )
     }
 
+    /// Returns `true` if the given metadata key is considered sensitive.
+    ///
+    /// A key is sensitive when its lowercased form contains any of the following substrings:
+    /// `"text"`, `"prompt"`, `"content"`, `"selection"`, `"clipboard"`, `"input"`,
+    /// `"output"`, `"body"`, `"follow_up"`, or `"followup"`. Sensitive keys have their
+    /// corresponding values replaced with `"[REDACTED]"` by ``redact(_:)-2vxl3``.
+    ///
+    /// - Parameter key: The metadata key to evaluate.
+    /// - Returns: `true` if the key matches a known sensitive pattern.
     static func isSensitiveKey(_ key: String) -> Bool {
         let normalized = key.lowercased()
         return normalized.contains("text")

@@ -1,5 +1,11 @@
 import SwiftUI
 
+/// The root SwiftUI view for the FreeThinker floating panel.
+///
+/// `FloatingPanelView` renders a header (title, copy-feedback label, pin and close buttons),
+/// a body area driven by the view model's state machine (idle, loading, success, error),
+/// and a footer containing the Regenerate button. It observes a ``FloatingPanelViewModel``
+/// and requires no direct coupling to app-level state.
 public struct FloatingPanelView: View {
     @ObservedObject private var viewModel: FloatingPanelViewModel
     @FocusState private var focusedControl: FocusedControl?
